@@ -21,9 +21,9 @@ function App() {
                     {/* Dashboard Cards */}
                     <main className="app-main">
                         <Weather />
-                        <Calendar />
                         <Meals />
                         <Bus />
+                        <Calendar />
                     </main>
 
                     {/* Footer */}
