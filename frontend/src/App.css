@@ -1,0 +1,132 @@
+/* App Root Styles */
+.app {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem 1rem;
+    background: #0f172a;
+}
+
+[data-theme="light"] .app {
+    background: #f1f5f9;
+}
+
+/* App Container */
+.app-container {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Header Styles */
+.app-header {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    background: rgba(30, 41, 59, 0.9);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .app-header {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.header-logo {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    margin-bottom: 0.5rem;
+}
+
+.header-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #0b42f5 0%, #1000eb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 0.25rem 0;
+}
+
+.header-subtitle {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+[data-theme="light"] .header-subtitle {
+    color: rgba(0, 0, 0, 0.6);
+}
+
+/* Main Content */
+.app-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Footer Styles */
+.app-footer {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    background: rgba(30, 41, 59, 0.7);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-top: 0.5rem;
+}
+
+[data-theme="light"] .app-footer {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.footer-copyright {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0 0 0.25rem 0;
+}
+
+[data-theme="light"] .footer-copyright {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.footer-info {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+}
+
+[data-theme="light"] .footer-info {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+    .app {
+        padding: 1rem 0.75rem;
+    }
+
+    .app-header {
+        padding: 1.25rem 1rem;
+        border-radius: 12px;
+    }
+
+    .header-title {
+        font-size: 1.5rem;
+    }
+
+    .header-subtitle {
+        font-size: 0.8rem;
+    }
+
+    .app-footer {
+        border-radius: 12px;
+        padding: 1.25rem 1rem;
+    }
+}

@@ -1,0 +1,50 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* CSS Variables - Dark Theme (default) */
+:root {
+  --card-bg: rgba(30, 41, 59, 0.95);
+  --card-shadow: rgba(0, 0, 0, 0.3);
+  --item-bg: rgba(51, 65, 85, 0.8);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-color: #f59e0b;
+  --border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* CSS Variables - Light Theme */
+[data-theme="light"] {
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --card-shadow: rgba(0, 0, 0, 0.1);
+  --item-bg: rgba(241, 245, 249, 0.9);
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --accent-color: #f59e0b;
+  --border-color: rgba(0, 0, 0, 0.1);
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  overflow-anchor: none;
+  /* Prevents page jump on accordion toggle */
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}

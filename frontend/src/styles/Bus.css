@@ -1,0 +1,241 @@
+.bus-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 4px 15px var(--card-shadow);
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    transition: all 0.3s ease;
+}
+
+/* Card Header (Toggle) */
+.bus-card .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 5px 0;
+    user-select: none;
+}
+
+.bus-card .card-header h2 {
+    margin: 0;
+    font-size: 22px;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.bus-card .card-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
+    opacity: 0;
+}
+
+.bus-card .card-content.open {
+    max-height: 1500px;
+    opacity: 1;
+    padding-top: 20px;
+}
+
+/* Bus Content */
+.bus-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.bus-info {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 0;
+}
+
+.bus-info strong {
+    color: var(--text-primary);
+}
+
+/* Schedule Selector */
+.schedule-selector {
+    background: linear-gradient(135deg, var(--accent-color), #764ba2);
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+}
+
+.schedule-selector h3 {
+    color: white;
+    margin: 0 0 20px 0;
+    font-size: 18px;
+}
+
+.type-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.type-btn {
+    padding: 12px 25px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 25px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.type-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.type-btn.active {
+    background: white;
+    color: var(--accent-color);
+    border-color: white;
+}
+
+.last-update {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    margin: 0;
+}
+
+/* PDF Viewer */
+.pdf-viewer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.pdf-viewer iframe {
+    border: none;
+    border-radius: 12px;
+    background: var(--item-bg);
+}
+
+.download-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--item-bg);
+    border-radius: 10px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    align-self: center;
+}
+
+.download-btn:hover {
+    background: var(--accent-color);
+    color: white;
+}
+
+/* Loading & Error */
+.bus-card .loading-spinner,
+.bus-card .error-message {
+    text-align: center;
+    padding: 30px;
+    color: var(--text-secondary);
+    font-size: 15px;
+}
+
+/* ========== TABLET ========== */
+@media screen and (max-width: 768px) {
+    .bus-card {
+        padding: 20px;
+    }
+
+    .bus-card .card-header h2 {
+        font-size: 20px;
+    }
+
+    .schedule-selector {
+        padding: 20px;
+    }
+
+    .schedule-selector h3 {
+        font-size: 16px;
+    }
+
+    .type-buttons {
+        gap: 10px;
+    }
+
+    .type-btn {
+        padding: 10px 20px;
+        font-size: 13px;
+    }
+
+    .pdf-viewer iframe {
+        height: 400px;
+    }
+}
+
+/* ========== MOBİL ========== */
+@media screen and (max-width: 576px) {
+    .bus-card {
+        padding: 18px 15px;
+        border-radius: 15px;
+    }
+
+    .bus-card .card-header h2 {
+        font-size: 18px;
+    }
+
+    .bus-card .card-content.open {
+        max-height: 700px;
+    }
+
+    .schedule-selector {
+        padding: 18px 15px;
+        border-radius: 12px;
+    }
+
+    .schedule-selector h3 {
+        font-size: 15px;
+        margin-bottom: 15px;
+    }
+
+    .type-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .type-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+        width: 100%;
+    }
+
+    .pdf-viewer iframe {
+        height: 350px;
+        border-radius: 10px;
+    }
+
+    .download-btn {
+        padding: 10px 15px;
+        font-size: 13px;
+    }
+}
+
+/* ========== KÜÇÜK MOBİL ========== */
+@media screen and (max-width: 400px) {
+    .bus-card {
+        padding: 15px 12px;
+    }
+
+    .pdf-viewer iframe {
+        height: 300px;
+    }
+}
