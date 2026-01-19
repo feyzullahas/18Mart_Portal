@@ -40,21 +40,13 @@ export const Weather = ({ variant = 'card' }: WeatherProps) => {
         fetchWeather();
     }, [variant]);
 
-    if (loading) {
-        if (variant === 'header') return <div className="weather-header-loading">...</div>;
-        return <div className="weather-card loading">Yükleniyor...</div>;
-    }
-
-    if (error || !current) {
-        if (variant === 'header') return null;
-        return <div className="weather-card error">{error}</div>;
+    if (variant === 'header') {
+        if (loading) return <div className="weather-header-loading">...</div>;
+        if (error || !current || !forecast) return null;
     }
 
     // --- Header Variant Rendering ---
     if (variant === 'header' && forecast) {
-        // Get today + next 2 days (first 3 days from forecast)
-        const daysToShow = 3;
-
         return (
             <div className="weather-header-widget">
                 {/* Today - Large */}
@@ -94,6 +86,24 @@ export const Weather = ({ variant = 'card' }: WeatherProps) => {
     }
 
     // --- Default Card Rendering ---
+    // For card variant, show the collapsed card even while loading
+    if (!current) {
+        return (
+            <div className="weather-card">
+                <div className="card-header" onClick={() => setIsOpen(!isOpen)}>
+                    <h2>🌍 Çanakkale Hava Durumu</h2>
+                    <span className={`toggle-icon ${isOpen ? 'open' : ''}`}>▼</span>
+                </div>
+                <div className={`card-content ${isOpen ? 'open' : ''}`}>
+                    {loading ? (
+                        <div className="weather-loading">Yükleniyor...</div>
+                    ) : (
+                        <div className="weather-error">{error || 'Hava durumu yüklenemedi'}</div>
+                    )}
+                </div>
+            </div>
+        );
+    }
     return (
         <div className="weather-card">
             <div className="card-header" onClick={() => setIsOpen(!isOpen)}>

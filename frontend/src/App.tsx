@@ -14,9 +14,9 @@ function App() {
                 <div className="app-container">
                     {/* Header */}
                     <header className="app-header">
-                        <img src="/favicon.png" alt="18Mart Portal" className="header-logo" />
+                        <img src="/favicon.png" alt="18 Mart Portal" className="header-logo" />
                         <div className="header-content">
-                            <h1 className="header-title">18Mart Portal</h1>
+                            <h1 className="header-title">18 Mart Portal</h1>
                             <p className="header-subtitle">Çanakkale Onsekiz Mart Üniversitesi Öğrenci Portalı</p>
                         </div>
                         <div className="header-weather">
@@ -45,7 +45,7 @@ function App() {
 
                     {/* Footer */}
                     <footer className="app-footer">
-                        <p className="footer-copyright">© 2026 18Mart Portal - Tüm Hakları Saklıdır</p>
+                        <p className="footer-copyright">© 2026 18 Mart Portal - Tüm Hakları Saklıdır</p>
                         <p className="footer-info">Versiyon 1.0 | Çanakkale Onsekiz Mart Üniversitesi için geliştirilmiştir</p>
                     </footer>
                 </div>

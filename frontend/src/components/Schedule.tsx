@@ -7,7 +7,7 @@ export const Schedule = () => {
     return (
         <div className="schedule-card">
             <div className="card-header" onClick={() => setIsOpen(!isOpen)}>
-                <h2>📅 Ders Programı</h2>
+                <h2>📚 Ders Programı</h2>
                 <span className={`toggle-icon ${isOpen ? 'open' : ''}`}>▼</span>
             </div>
 
