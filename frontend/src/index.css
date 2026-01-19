@@ -16,16 +16,22 @@
   --border-color: rgba(255, 255, 255, 0.1);
 }
 
-/* CSS Variables - Light Theme */
+/* CSS Variables - Light Theme - Soft & Easy on Eyes */
 [data-theme="light"] {
-  --card-bg: rgba(255, 255, 255, 0.95);
-  --card-shadow: rgba(0, 0, 0, 0.1);
-  --item-bg: rgba(241, 245, 249, 0.9);
-  --text-primary: #1e293b;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  --card-bg: rgba(250, 249, 246, 0.98);
+  /* Soft warm white */
+  --card-shadow: rgba(0, 0, 0, 0.08);
+  --item-bg: rgba(245, 243, 238, 0.95);
+  /* Warm off-white */
+  --text-primary: #2d3748;
+  /* Softer dark gray */
+  --text-secondary: #5a6c7d;
+  /* Muted blue-gray */
+  --text-muted: #8a9ba8;
+  /* Light blue-gray */
   --accent-color: #f59e0b;
-  --border-color: rgba(0, 0, 0, 0.1);
+  --border-color: rgba(0, 0, 0, 0.06);
+  /* Very subtle border */
 }
 
 html,
@@ -47,4 +53,124 @@ body {
 #root {
   width: 100%;
   min-height: 100vh;
+}
+
+/* ========== Common Card Styles ========== */
+/* Unified styles for all card components */
+
+/* Base Card */
+.weather-card,
+.meals-card,
+.bus-card,
+.calendar-card,
+.schedule-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 4px 15px var(--card-shadow);
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  transition: all 0.3s ease;
+}
+
+/* Card Header - Unified */
+.weather-card .card-header,
+.meals-card .card-header,
+.bus-card .card-header,
+.calendar-card .card-header,
+.schedule-card .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 5px 0;
+  user-select: none;
+}
+
+/* Card Header Title - Unified */
+.weather-card .card-header h2,
+.meals-card .card-header h2,
+.bus-card .card-header h2,
+.calendar-card .card-header h2,
+.schedule-card .card-header h2 {
+  margin: 0 !important;
+  font-size: 20px !important;
+  color: var(--text-primary);
+  font-weight: 600 !important;
+}
+
+/* Toggle Icon - Unified */
+.toggle-icon {
+  font-size: 14px;
+  color: var(--text-muted);
+  transition: transform 0.3s ease;
+  margin-left: 1rem;
+}
+
+.toggle-icon.open {
+  transform: rotate(180deg);
+}
+
+/* Card Content - Unified */
+.weather-card .card-content,
+.meals-card .card-content,
+.bus-card .card-content,
+.calendar-card .card-content,
+.schedule-card .card-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
+  opacity: 0;
+}
+
+.weather-card .card-content.open,
+.meals-card .card-content.open,
+.bus-card .card-content.open,
+.calendar-card .card-content.open,
+.schedule-card .card-content.open {
+  max-height: 3000px;
+  opacity: 1;
+  padding-top: 20px;
+}
+
+/* Responsive adjustments for cards */
+@media screen and (max-width: 768px) {
+
+  .weather-card,
+  .meals-card,
+  .bus-card,
+  .calendar-card,
+  .schedule-card {
+    padding: 18px 20px;
+    border-radius: 14px;
+  }
+
+  .weather-card .card-header h2,
+  .meals-card .card-header h2,
+  .bus-card .card-header h2,
+  .calendar-card .card-header h2,
+  .schedule-card .card-header h2 {
+    font-size: 18px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+
+  .weather-card,
+  .meals-card,
+  .bus-card,
+  .calendar-card,
+  .schedule-card {
+    padding: 16px 15px;
+    border-radius: 12px;
+  }
+
+  .weather-card .card-header h2,
+  .meals-card .card-header h2,
+  .bus-card .card-header h2,
+  .calendar-card .card-header h2,
+  .schedule-card .card-header h2 {
+    font-size: 17px;
+  }
 }

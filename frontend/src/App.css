@@ -9,7 +9,8 @@
 }
 
 [data-theme="light"] .app {
-    background: #f1f5f9;
+    background: linear-gradient(135deg, #f7f5f2 0%, #faf8f5 100%);
+    /* Soft warm gradient */
 }
 
 /* App Container */
@@ -42,6 +43,8 @@
     height: 50px;
     object-fit: contain;
     margin-bottom: 0.5rem;
+    /* Subtle glow to make it stand out */
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .header-title {
@@ -128,5 +131,170 @@
     .app-footer {
         border-radius: 12px;
         padding: 1.25rem 1rem;
+    }
+}
+
+/* Tablet & Desktop Styles */
+@media (min-width: 768px) {
+    .app-container {
+        max-width: 100%;
+        width: 100%;
+        padding: 0 2rem;
+    }
+
+    .app-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        padding: 1rem 2rem;
+        gap: 1.5rem;
+        justify-content: space-between;
+    }
+
+    .header-logo {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 0;
+    }
+
+    .header-content {
+        flex: 1;
+    }
+
+    .header-weather {
+        display: block;
+    }
+
+    .header-title {
+        font-size: 2rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .header-subtitle {
+        font-size: 1rem;
+    }
+
+    /* Widget Grid Layout - Tablet */
+    .app-main {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+
+/* Large Desktop Styles - Bento Grid */
+@media (min-width: 1024px) {
+    .app-container {
+        max-width: 1400px;
+    }
+
+    .app-main {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+            "meals    schedule"
+            "calendar bus";
+        gap: 2rem;
+    }
+
+    /* Assign Areas */
+    .meals-widget {
+        grid-area: meals;
+    }
+
+    .schedule-widget {
+        grid-area: schedule;
+    }
+
+    .bus-widget {
+        grid-area: bus;
+    }
+
+    .calendar-widget {
+        grid-area: calendar;
+    }
+
+    /* Force "Open" State on Desktop & Style Tweaks */
+    .card-content {
+        display: block !important;
+        max-height: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+        padding-top: 1rem;
+    }
+
+    .toggle-icon {
+        display: none !important;
+    }
+
+    .card-header {
+        pointer-events: none;
+        cursor: default;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 1rem;
+    }
+
+    .card-header h2 {
+        font-size: 1.25rem;
+    }
+
+    /* Make widgets full height to match grid if needed */
+    .weather-card,
+    .meals-card,
+    .bus-card,
+    .calendar-card,
+    .schedule-card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Schedule Card Desktop Tweaks */
+    .schedule-card .toggle-icon {
+        display: none !important;
+    }
+
+    .schedule-card .card-content {
+        display: flex !important;
+        flex: 1;
+        max-height: none !important;
+        opacity: 1 !important;
+        padding-top: 1rem;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .schedule-card .card-header {
+        pointer-events: none;
+        cursor: default;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 1rem;
+        width: 100%;
+    }
+
+    .card-content {
+        flex: 1;
+    }
+}
+
+/* Hide header weather on mobile */
+@media (max-width: 767px) {
+    .header-weather {
+        display: none;
+    }
+}
+
+/* Toggle visibility for mobile weather widget in main */
+.mobile-only-weather {
+    display: block;
+}
+
+@media (min-width: 768px) {
+    .mobile-only-weather {
+        display: none;
     }
 }

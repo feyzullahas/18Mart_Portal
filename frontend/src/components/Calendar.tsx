@@ -149,7 +149,7 @@ export const Calendar = () => {
     return (
         <div className="calendar-card">
             <div className="card-header" onClick={() => setIsOpen(!isOpen)}>
-                <h2>Akademik Takvim</h2>
+                <h2>📅 Akademik Takvim</h2>
                 <span className={`toggle-icon ${isOpen ? 'open' : ''}`}>▼</span>
             </div>
 

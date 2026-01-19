@@ -3,7 +3,11 @@ import { weatherService, getWeatherEmoji, getWeatherDescription } from '../servi
 import type { CurrentWeather, Forecast } from '../services/weatherService';
 import '../styles/Weather.css';
 
-export const Weather = () => {
+export interface WeatherProps {
+    variant?: 'card' | 'header';
+}
+
+export const Weather = ({ variant = 'card' }: WeatherProps) => {
     const [current, setCurrent] = useState<CurrentWeather | null>(null);
     const [forecast, setForecast] = useState<Forecast | null>(null);
     const [loading, setLoading] = useState(true);
@@ -14,6 +18,8 @@ export const Weather = () => {
         const fetchWeather = async () => {
             try {
                 setLoading(true);
+                // Header modunda sadece güncel veriyi çeksek yeterli aslında ama
+                // şimdilik yapıyı bozmadan ikisini de çekelim, performans sorunu olmaz.
                 const [currentData, forecastData] = await Promise.all([
                     weatherService.getCurrentWeather(),
                     weatherService.getForecast(5)
@@ -21,7 +27,10 @@ export const Weather = () => {
                 setCurrent(currentData);
                 setForecast(forecastData);
             } catch (err) {
-                setError('Hava durumu yüklenemedi');
+                // Header'da hata mesajı göstermek istemeyebiliriz, sessizce fail olabilir
+                if (variant === 'card') {
+                    setError('Hava durumu yüklenemedi');
+                }
                 console.error(err);
             } finally {
                 setLoading(false);
@@ -29,16 +38,62 @@ export const Weather = () => {
         };
 
         fetchWeather();
-    }, []);
+    }, [variant]);
 
     if (loading) {
+        if (variant === 'header') return <div className="weather-header-loading">...</div>;
         return <div className="weather-card loading">Yükleniyor...</div>;
     }
 
     if (error || !current) {
+        if (variant === 'header') return null;
         return <div className="weather-card error">{error}</div>;
     }
 
+    // --- Header Variant Rendering ---
+    if (variant === 'header' && forecast) {
+        // Get today + next 2 days (first 3 days from forecast)
+        const daysToShow = 3;
+
+        return (
+            <div className="weather-header-widget">
+                {/* Today - Large */}
+                <div className="weather-header-today">
+                    <div className="weather-header-icon-large">
+                        {getWeatherEmoji(forecast.daily.weathercode[0])}
+                    </div>
+                    <div className="weather-header-today-info">
+                        <span className="weather-header-temp-large">
+                            {Math.round(forecast.daily.temperature_2m_max[0])}°
+                        </span>
+                        <span className="weather-header-day">Bugün</span>
+                    </div>
+                </div>
+
+                {/* Next 2 Days - Smaller */}
+                <div className="weather-header-forecast">
+                    {[1, 2].map((index) => {
+                        const date = new Date(forecast.daily.time[index]);
+                        const dayName = date.toLocaleDateString('tr-TR', { weekday: 'short' });
+
+                        return (
+                            <div key={index} className="weather-header-day-item">
+                                <span className="weather-header-day-name">{dayName}</span>
+                                <div className="weather-header-icon-small">
+                                    {getWeatherEmoji(forecast.daily.weathercode[index])}
+                                </div>
+                                <span className="weather-header-temp-small">
+                                    {Math.round(forecast.daily.temperature_2m_max[index])}°
+                                </span>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    }
+
+    // --- Default Card Rendering ---
     return (
         <div className="weather-card">
             <div className="card-header" onClick={() => setIsOpen(!isOpen)}>

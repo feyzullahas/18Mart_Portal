@@ -1,3 +1,95 @@
+/* Header Weather Widget - 3 Day Forecast */
+.weather-header-widget {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(5px);
+}
+
+/* Today - Large Display */
+.weather-header-today {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-right: 1rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.weather-header-icon-large {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.weather-header-today-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.weather-header-temp-large {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.weather-header-day {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* Next 2 Days - Smaller */
+.weather-header-forecast {
+    display: flex;
+    gap: 1rem;
+}
+
+.weather-header-day-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.weather-header-day-name {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.weather-header-icon-small {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.weather-header-temp-small {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.weather-header-loading {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* Light Theme overrides */
+[data-theme="light"] .weather-header-widget {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .weather-header-today {
+    border-right-color: rgba(0, 0, 0, 0.1);
+}
+
 .weather-card {
     background: var(--card-bg);
     border-radius: 16px;
