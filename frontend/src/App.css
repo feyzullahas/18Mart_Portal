@@ -74,6 +74,27 @@
     gap: 0.5rem;
 }
 
+/* Mobile Widget Order */
+.mobile-only-weather {
+    order: 1;
+}
+
+.meals-widget {
+    order: 2;
+}
+
+.bus-widget {
+    order: 3;
+}
+
+.schedule-widget {
+    order: 4;
+}
+
+.calendar-widget {
+    order: 5;
+}
+
 /* Footer Styles */
 .app-footer {
     text-align: center;
@@ -214,6 +235,15 @@
 
     .calendar-widget {
         grid-area: calendar;
+    }
+
+    /* Reset order for desktop grid layout */
+    .mobile-only-weather,
+    .meals-widget,
+    .bus-widget,
+    .schedule-widget,
+    .calendar-widget {
+        order: 0;
     }
 
     /* Force "Open" State on Desktop & Style Tweaks */
