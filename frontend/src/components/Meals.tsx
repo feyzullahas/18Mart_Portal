@@ -109,7 +109,10 @@ export const Meals = () => {
 
                 {/* İçerik */}
                 {loading ? (
-                    <div className="loading-spinner">Menü getiriliyor...</div>
+                    <div className="loading-indicator">
+                        <div className="loading-spinner"></div>
+                        <p>Menü getiriliyor...</p>
+                    </div>
                 ) : error ? (
                     <div className="error-message">{error}</div>
                 ) : activeTab === 'osem' && currentOsemDay ? (

@@ -1,21 +1,337 @@
 /* Schedule-specific styles only */
 /* Common card styles are now in index.css */
 
-.schedule-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    text-align: center;
-    color: var(--text-secondary);
-    background: var(--item-bg);
-    border-radius: 12px;
-    border: 2px dashed var(--border-color);
+.schedule-container {
+    padding: 1rem;
 }
 
-.placeholder-icon {
-    font-size: 2.5rem;
+/* Navigation Controls */
+.schedule-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 1rem;
+    padding: 0 0.5rem;
+}
+
+.nav-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.nav-btn:hover:not(:disabled) {
+    background: var(--primary-hover);
+    transform: scale(1.05);
+}
+
+.nav-btn:disabled {
+    background: var(--text-secondary);
     opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.day-indicators {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.day-indicator {
+    background: var(--item-bg);
+    border: 2px solid var(--border-color);
+    color: var(--text-secondary);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.day-indicator:hover {
+    border-color: var(--primary-color);
+    color: var(--text-primary);
+}
+
+.day-indicator.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+/* Scrollable Container */
+.schedule-scroll-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+}
+
+.schedule-scroll-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.schedule-scroll-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.schedule-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.schedule-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+.schedule-grid-horizontal {
+    display: grid;
+    grid-auto-columns: 100%;
+    grid-auto-flow: column;
+    gap: 0;
+}
+
+.day-column-horizontal {
+    background: var(--item-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem;
+    min-height: 350px;
+    max-height: 400px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+}
+
+.day-header {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 1rem 0;
+    text-align: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.subjects-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    overflow-y: auto;
+    max-height: 200px;
+    padding-right: 0.25rem;
+}
+
+.subjects-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.subjects-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.subjects-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 2px;
+}
+
+.subject-item {
+    background: var(--background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.subject-item:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.subject-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.subject-time {
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.subject-name {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.remove-btn {
+    background: none;
+    border: none;
+    color: var(--error-color);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.remove-btn:hover {
+    background: var(--error-color);
+    color: white;
+}
+
+.add-subject-section {
+    margin-top: auto;
+}
+
+.add-subject-btn {
+    width: 100%;
+    background: var(--success-color);
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.add-subject-btn:hover {
+    background: #27ae60;
+    transform: translateY(-1px);
+}
+
+.subject-input {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.subject-input-field {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--background);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.subject-input-field:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.input-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.add-btn {
+    flex: 1;
+    background: var(--success-color);
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.add-btn:hover {
+    background: #27ae60;
+}
+
+.cancel-btn {
+    flex: 1;
+    background: var(--text-secondary);
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.cancel-btn:hover {
+    background: #666;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .schedule-navigation {
+        padding: 0 0.25rem;
+    }
+    
+    .nav-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+    
+    .day-indicator {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+    
+    .day-column-horizontal {
+        min-height: 300px;
+        max-height: 350px;
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .schedule-container {
+        padding: 0.5rem;
+    }
+    
+    .schedule-navigation {
+        margin-bottom: 0.75rem;
+    }
+    
+    .nav-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+    }
+    
+    .day-indicator {
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
+    }
+    
+    .day-column-horizontal {
+        min-height: 280px;
+        max-height: 320px;
+        padding: 0.5rem;
+    }
 }

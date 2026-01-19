@@ -1,13 +1,33 @@
 import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeToggle } from './components/ThemeToggle';
 import { Weather } from './components/Weather';
 import { Meals } from './components/Meals';
 import { Bus } from './components/Bus';
 import { Calendar } from './components/Calendar';
 import { Schedule } from './components/Schedule';
+import { Auth } from './components/Auth';
+import { UserMenu } from './components/UserMenu';
 import './App.css';
 
-function App() {
+const AppContent = () => {
+    const { user, isLoading } = useAuth();
+
+    if (isLoading) {
+        return (
+            <div className="app">
+                <div className="loading-container">
+                    <div className="loading-spinner"></div>
+                    <p>Yükleniyor...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return <Auth />;
+    }
+
     return (
         <ThemeProvider>
             <div className="app">
@@ -21,6 +41,9 @@ function App() {
                         </div>
                         <div className="header-weather">
                             <Weather variant="header" />
+                        </div>
+                        <div className="header-user">
+                            <UserMenu />
                         </div>
                     </header>
 
@@ -54,6 +77,14 @@ function App() {
                 <ThemeToggle />
             </div>
         </ThemeProvider>
+    );
+};
+
+function App() {
+    return (
+        <AuthProvider>
+            <AppContent />
+        </AuthProvider>
     );
 }
 

@@ -14,6 +14,11 @@
   --text-muted: #64748b;
   --accent-color: #f59e0b;
   --border-color: rgba(255, 255, 255, 0.1);
+  --primary-color: #4a90e2;
+  --primary-hover: #357abd;
+  --success-color: #27ae60;
+  --error-color: #e74c3c;
+  --background: rgba(15, 23, 42, 0.95);
 }
 
 /* CSS Variables - Light Theme - Soft & Easy on Eyes */
@@ -32,6 +37,11 @@
   --accent-color: #f59e0b;
   --border-color: rgba(0, 0, 0, 0.06);
   /* Very subtle border */
+  --primary-color: #4a90e2;
+  --primary-hover: #357abd;
+  --success-color: #27ae60;
+  --error-color: #e74c3c;
+  --background: rgba(255, 255, 255, 0.98);
 }
 
 html,

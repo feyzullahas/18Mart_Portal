@@ -238,16 +238,50 @@
 }
 
 /* Loading & Error */
-.loading-spinner,
-.error-message {
-    text-align: center;
-    padding: 40px;
+.loading-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 1rem;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid #4a90e2;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+[data-theme="light"] .loading-spinner {
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top: 3px solid #4a90e2;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-indicator p {
     color: var(--text-secondary);
-    font-size: 15px;
+    font-size: 14px;
+    margin: 0;
+    font-weight: 500;
+}
+
+[data-theme="light"] .loading-indicator p {
+    color: #64748b;
 }
 
 .error-message {
+    text-align: center;
+    padding: 40px;
     color: #e74c3c;
+    font-size: 15px;
 }
 
 /* ========== TABLET ========== */

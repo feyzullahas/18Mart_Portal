@@ -44,7 +44,10 @@ export const Bus = () => {
 
             <div className={`card-content ${isOpen ? 'open' : ''}`}>
                 {loading ? (
-                    <div className="loading-spinner">Yükleniyor...</div>
+                    <div className="loading-indicator">
+                        <div className="loading-spinner"></div>
+                        <p>Yükleniyor...</p>
+                    </div>
                 ) : error ? (
                     <div className="error-message">{error}</div>
                 ) : schedule ? (

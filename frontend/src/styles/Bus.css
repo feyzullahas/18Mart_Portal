@@ -142,11 +142,49 @@
 }
 
 /* Loading & Error */
-.bus-card .loading-spinner,
+.bus-card .loading-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 1rem;
+}
+
+.bus-card .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid #4a90e2;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+[data-theme="light"] .bus-card .loading-spinner {
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top: 3px solid #4a90e2;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.bus-card .loading-indicator p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 0;
+    font-weight: 500;
+}
+
+[data-theme="light"] .bus-card .loading-indicator p {
+    color: #64748b;
+}
+
 .bus-card .error-message {
     text-align: center;
-    padding: 30px;
-    color: var(--text-secondary);
+    padding: 40px;
+    color: #e74c3c;
     font-size: 15px;
 }
 
