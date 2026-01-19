@@ -1,0 +1,19 @@
+Last Updated: 2026-01-19 17:32:38
+Source URL: https://ulasim.canakkale.bel.tr/rehber/hatlar-otobus-saatleri/
+Timestamped Mode: False
+
+Downloaded Files:
+  - Weekday Schedule: canakkale_bus_weekday_latest.pdf
+    Source: https://ulasim.canakkale.bel.tr/wp-content/uploads/2018/02/20-OCAK-4.pdf
+  - Weekend Schedule: canakkale_bus_weekend_latest.pdf
+    Source: https://ulasim.canakkale.bel.tr/wp-content/uploads/2018/02/24-OCAK.pdf
+
+All Weekday Links Found:
+  - HAFTA İÇİ SEFER SAATLERİ
+    https://ulasim.canakkale.bel.tr/wp-content/uploads/2018/02/19-OCAK-13.pdf
+  - 20 OCAK İTİBARİYLE HAFTA İÇİ SEFER SAATLERİ
+    https://ulasim.canakkale.bel.tr/wp-content/uploads/2018/02/20-OCAK-4.pdf
+
+All Weekend Links Found:
+  - HAFTA SONU SEFER SAATLERİ
+    https://ulasim.canakkale.bel.tr/wp-content/uploads/2018/02/24-OCAK.pdf

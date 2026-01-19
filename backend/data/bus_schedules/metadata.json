@@ -1,0 +1,17 @@
+{
+  "last_updated": "2026-01-19T17:32:38.232307",
+  "source_url": "https://ulasim.canakkale.bel.tr/rehber/hatlar-otobus-saatleri/",
+  "timestamped_mode": false,
+  "files": {
+    "weekday": {
+      "filename": "canakkale_bus_weekday_latest.pdf",
+      "source": "https://ulasim.canakkale.bel.tr/wp-content/uploads/2018/02/20-OCAK-4.pdf",
+      "downloaded": true
+    },
+    "weekend": {
+      "filename": "canakkale_bus_weekend_latest.pdf",
+      "source": "https://ulasim.canakkale.bel.tr/wp-content/uploads/2018/02/24-OCAK.pdf",
+      "downloaded": true
+    }
+  }
+}

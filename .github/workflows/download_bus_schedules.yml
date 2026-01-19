@@ -1,0 +1,109 @@
+name: Download Bus Schedules
+
+on:
+  # Run daily at 3:00 AM Turkey time (UTC+3 = 00:00 UTC)
+  # Using 00:00 UTC which is 03:00 Turkey Time
+  schedule:
+    - cron: '0 0 * * *'
+  
+  # Allow manual trigger with options
+  workflow_dispatch:
+    inputs:
+      use_timestamp:
+        description: 'Save files with timestamp suffix'
+        required: false
+        default: 'false'
+        type: boolean
+      force_update:
+        description: 'Force commit even if files unchanged'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  PYTHON_VERSION: '3.11'
+  TZ: 'Europe/Istanbul'
+
+jobs:
+  download-schedules:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/scripts/requirements.txt
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/scripts/requirements.txt
+      
+      - name: Run download script
+        id: download
+        run: |
+          TIMESTAMP_FLAG=""
+          if [[ "${{ github.event.inputs.use_timestamp }}" == "true" ]]; then
+            TIMESTAMP_FLAG="--timestamp"
+          fi
+          python backend/scripts/download_bus_schedules.py --verbose $TIMESTAMP_FLAG
+        continue-on-error: true
+      
+      - name: Check download status
+        if: steps.download.outcome == 'failure'
+        run: |
+          echo "::error::Bus schedule download failed. The website structure may have changed."
+          exit 1
+      
+      - name: Check for changes
+        id: git-check
+        run: |
+          if [[ "${{ github.event.inputs.force_update }}" == "true" ]]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            git diff --exit-code backend/data/bus_schedules/ || echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Commit and push if changed
+        if: steps.git-check.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add backend/data/bus_schedules/
+          COMMIT_DATE=$(TZ='Europe/Istanbul' date '+%Y-%m-%d %H:%M')
+          git commit -m "chore: update bus schedules - $COMMIT_DATE [skip ci]" || echo "No changes to commit"
+          git push
+      
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bus-schedules-${{ github.run_number }}
+          path: backend/data/bus_schedules/
+          retention-days: 7
+          
+      - name: Summary
+        if: always()
+        run: |
+          echo "## 🚌 Bus Schedule Download Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Download Status | ${{ steps.download.outcome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Files Changed | ${{ steps.git-check.outputs.changed || 'false' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Run Number | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f backend/data/bus_schedules/metadata.txt ]; then
+            echo "### Metadata" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat backend/data/bus_schedules/metadata.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
