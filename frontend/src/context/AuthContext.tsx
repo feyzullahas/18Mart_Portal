@@ -28,6 +28,8 @@ interface AuthProviderProps {
     children: ReactNode;
 }
 
+const API_BASE_URL = 'http://localhost:8000';
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +37,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     useEffect(() => {
         // Check localStorage for existing user session
         const savedUser = localStorage.getItem('user');
-        if (savedUser) {
+        const token = localStorage.getItem('token');
+        if (savedUser && token) {
             setUser(JSON.parse(savedUser));
         }
         setIsLoading(false);
@@ -43,20 +46,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const login = async (email: string, password: string): Promise<boolean> => {
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            // Simple validation (in real app, this would be server-side)
-            if (email && password.length >= 6) {
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
                 const user: User = {
-                    id: Date.now().toString(),
+                    id: 'temp', // We'll get this from the token in a real implementation
                     email
                 };
                 setUser(user);
                 localStorage.setItem('user', JSON.stringify(user));
+                localStorage.setItem('token', data.access_token);
                 return true;
+            } else {
+                const errorData = await response.json();
+                console.error('Login failed:', errorData.detail);
+                return false;
             }
-            return false;
         } catch (error) {
             console.error('Login error:', error);
             return false;
@@ -65,20 +77,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const register = async (email: string, password: string): Promise<boolean> => {
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            // Simple validation (in real app, this would be server-side)
-            if (email && password.length >= 6) {
-                const user: User = {
-                    id: Date.now().toString(),
-                    email
-                };
-                setUser(user);
-                localStorage.setItem('user', JSON.stringify(user));
-                return true;
+            const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            if (response.ok) {
+                // After successful registration, automatically log in
+                return await login(email, password);
+            } else {
+                const errorData = await response.json();
+                console.error('Registration failed:', errorData.detail);
+                return false;
             }
-            return false;
         } catch (error) {
             console.error('Registration error:', error);
             return false;
@@ -88,6 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const logout = () => {
         setUser(null);
         localStorage.removeItem('user');
+        localStorage.removeItem('token');
     };
 
     const value: AuthContextType = {
