@@ -1,15 +1,32 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import '../styles/Schedule.css';
+
+interface Course {
+    id: number;
+    user_id: number;
+    name: string;
+    code: string;
+    day: string;
+    start_time: string;
+    end_time: string;
+    location: string;
+    instructor: string;
+    created_at: string;
+    updated_at: string;
+}
 
 interface Subject {
     id: string;
     name: string;
     time: string;
+    location?: string;
 }
 
 interface DaySchedule {
     [key: string]: Subject[];
 }
+
+const API_BASE_URL = 'http://localhost:8000';
 
 export const Schedule = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -20,37 +37,196 @@ export const Schedule = () => {
         'Perşembe': [],
         'Cuma': []
     });
-    const [newSubject, setNewSubject] = useState({ name: '', time: '' });
+    const [newSubject, setNewSubject] = useState({ 
+        name: '', 
+        start_time: '', 
+        end_time: '',
+        location: '',
+        day: ''
+    });
     const [selectedDay, setSelectedDay] = useState('');
     const [currentDayIndex, setCurrentDayIndex] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma'];
+    const dayMapping: { [key: string]: string } = {
+        'Pazartesi': 'Monday',
+        'Salı': 'Tuesday',
+        'Çarşamba': 'Wednesday',
+        'Perşembe': 'Thursday',
+        'Cuma': 'Friday'
+    };
 
-    const addSubject = (day: string) => {
-        if (newSubject.name && newSubject.time) {
-            const subject: Subject = {
-                id: Date.now().toString(),
-                name: newSubject.name,
-                time: newSubject.time
+    // Get auth token
+    const getAuthToken = () => {
+        return localStorage.getItem('token');
+    };
+
+    // Load user's courses
+    const loadCourses = async () => {
+        try {
+            const token = getAuthToken();
+            if (!token) {
+                setError('Oturum açmanız gerekiyor');
+                return;
+            }
+
+            const response = await fetch(`${API_BASE_URL}/courses/`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Dersler yüklenemedi');
+            }
+
+            const courses: Course[] = await response.json();
+            
+            // Convert courses to schedule format
+            const newSchedule: DaySchedule = {
+                'Pazartesi': [],
+                'Salı': [],
+                'Çarşamba': [],
+                'Perşembe': [],
+                'Cuma': []
             };
-            
-            setSchedule(prev => ({
-                ...prev,
-                [day]: [...prev[day], subject]
-            }));
-            
-            setNewSubject({ name: '', time: '' });
-            setSelectedDay('');
+
+            courses.forEach(course => {
+                const dayTr = Object.keys(dayMapping).find(key => dayMapping[key] === course.day);
+                if (dayTr) {
+                    const subject: Subject = {
+                        id: course.id.toString(),
+                        name: course.name,
+                        time: `${course.start_time}-${course.end_time}`,
+                        location: course.location
+                    };
+                    newSchedule[dayTr].push(subject);
+                }
+            });
+
+            // Sort by time
+            Object.keys(newSchedule).forEach(day => {
+                newSchedule[day].sort((a, b) => a.time.localeCompare(b.time));
+            });
+
+            setSchedule(newSchedule);
+        } catch (err) {
+            setError('Dersler yüklenirken hata oluştu');
+            console.error('Error loading courses:', err);
         }
     };
 
-    const removeSubject = (day: string, subjectId: string) => {
-        setSchedule(prev => ({
-            ...prev,
-            [day]: prev[day].filter(subject => subject.id !== subjectId)
-        }));
+    // Add new course
+    const addSubject = async (day: string) => {
+        if (!newSubject.name || !newSubject.start_time || !newSubject.end_time) {
+            setError('Ders adı, başlangıç ve bitiş saati zorunludur');
+            return;
+        }
+
+        setIsLoading(true);
+        setError('');
+
+        try {
+            const token = getAuthToken();
+            if (!token) {
+                setError('Oturum açmanız gerekiyor');
+                return;
+            }
+
+            const courseData = {
+                name: newSubject.name,
+                code: '', // Empty string for backend compatibility
+                day: dayMapping[day],
+                start_time: newSubject.start_time,
+                end_time: newSubject.end_time,
+                location: newSubject.location || '',
+                instructor: '' // Empty string for backend compatibility
+            };
+
+            const response = await fetch(`${API_BASE_URL}/courses/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(courseData),
+            });
+
+            if (!response.ok) {
+                throw new Error('Ders eklenemedi');
+            }
+
+            // Reset form and reload courses
+            setNewSubject({ 
+                name: '', 
+                start_time: '', 
+                end_time: '',
+                location: '',
+                day: ''
+            });
+            setSelectedDay('');
+            await loadCourses();
+
+        } catch (err) {
+            setError('Ders eklenirken hata oluştu');
+            console.error('Error adding course:', err);
+        } finally {
+            setIsLoading(false);
+        }
     };
+
+    // Remove course
+    const removeSubject = async (day: string, subjectId: string) => {
+        setIsLoading(true);
+        setError('');
+
+        try {
+            const token = getAuthToken();
+            if (!token) {
+                setError('Oturum açmanız gerekiyor');
+                return;
+            }
+
+            const response = await fetch(`${API_BASE_URL}/courses/${subjectId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Ders silinemedi');
+            }
+
+            await loadCourses();
+
+        } catch (err) {
+            setError('Ders silinirken hata oluştu');
+            console.error('Error removing course:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Load courses on component mount - always load when user is authenticated
+    useEffect(() => {
+        const token = getAuthToken();
+        if (token) {
+            loadCourses();
+        }
+    }, []);
+
+    // Also reload when opened to refresh data
+    useEffect(() => {
+        if (isOpen) {
+            loadCourses();
+        }
+    }, [isOpen]);
 
     const navigateDay = (direction: 'prev' | 'next') => {
         const newIndex = direction === 'prev' 
@@ -87,6 +263,18 @@ export const Schedule = () => {
             </div>
 
             <div className={`card-content ${isOpen ? 'open' : ''}`}>
+                {error && (
+                    <div className="error-message" style={{ 
+                        backgroundColor: '#fee', 
+                        color: '#c00', 
+                        padding: '10px', 
+                        borderRadius: '5px', 
+                        marginBottom: '10px' 
+                    }}>
+                        {error}
+                    </div>
+                )}
+                
                 <div className="schedule-container">
                     {/* Navigation Controls */}
                     <div className="schedule-navigation">
@@ -131,10 +319,12 @@ export const Schedule = () => {
                                                 <div className="subject-info">
                                                     <span className="subject-time">{subject.time}</span>
                                                     <span className="subject-name">{subject.name}</span>
+                                                    {subject.location && <span className="subject-location">📍 {subject.location}</span>}
                                                 </div>
                                                 <button 
                                                     className="remove-btn"
                                                     onClick={() => removeSubject(day, subject.id)}
+                                                    disabled={isLoading}
                                                 >
                                                     ✕
                                                 </button>
@@ -150,27 +340,51 @@ export const Schedule = () => {
                                                     value={newSubject.name}
                                                     onChange={(e) => setNewSubject(prev => ({ ...prev, name: e.target.value }))}
                                                     className="subject-input-field"
+                                                    disabled={isLoading}
+                                                />
+                                                <input
+                                                    type="time"
+                                                    value={newSubject.start_time}
+                                                    onChange={(e) => setNewSubject(prev => ({ ...prev, start_time: e.target.value }))}
+                                                    className="subject-input-field"
+                                                    disabled={isLoading}
+                                                />
+                                                <input
+                                                    type="time"
+                                                    value={newSubject.end_time}
+                                                    onChange={(e) => setNewSubject(prev => ({ ...prev, end_time: e.target.value }))}
+                                                    className="subject-input-field"
+                                                    disabled={isLoading}
                                                 />
                                                 <input
                                                     type="text"
-                                                    placeholder="Saat (09:00-10:00)"
-                                                    value={newSubject.time}
-                                                    onChange={(e) => setNewSubject(prev => ({ ...prev, time: e.target.value }))}
+                                                    placeholder="Mekan"
+                                                    value={newSubject.location}
+                                                    onChange={(e) => setNewSubject(prev => ({ ...prev, location: e.target.value }))}
                                                     className="subject-input-field"
+                                                    disabled={isLoading}
                                                 />
                                                 <div className="input-buttons">
                                                     <button 
                                                         onClick={() => addSubject(day)}
                                                         className="add-btn"
+                                                        disabled={isLoading}
                                                     >
-                                                        Ekle
+                                                        {isLoading ? 'Ekleniyor...' : 'Ekle'}
                                                     </button>
                                                     <button 
                                                         onClick={() => {
                                                             setSelectedDay('');
-                                                            setNewSubject({ name: '', time: '' });
+                                                            setNewSubject({ 
+                                                                name: '', 
+                                                                start_time: '', 
+                                                                end_time: '',
+                                                                location: '',
+                                                                day: ''
+                                                            });
                                                         }}
                                                         className="cancel-btn"
+                                                        disabled={isLoading}
                                                     >
                                                         İptal
                                                     </button>
@@ -180,6 +394,7 @@ export const Schedule = () => {
                                             <button 
                                                 onClick={() => setSelectedDay(day)}
                                                 className="add-subject-btn"
+                                                disabled={isLoading}
                                             >
                                                 + Ders Ekle
                                             </button>

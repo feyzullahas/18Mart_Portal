@@ -56,8 +56,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
             if (response.ok) {
                 const data = await response.json();
+                
+                // Extract user info from JWT token
+                const tokenPayload = JSON.parse(atob(data.access_token.split('.')[1]));
                 const user: User = {
-                    id: 'temp', // We'll get this from the token in a real implementation
+                    id: tokenPayload.user_id,
                     email
                 };
                 setUser(user);
