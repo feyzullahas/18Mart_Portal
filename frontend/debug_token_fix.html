@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Token Fix Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        .warning { background-color: #fff3cd; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Token Fix Debug</h1>
+    <div id="debug-info"></div>
+    
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        const debugInfo = document.getElementById('debug-info');
+        
+        async function freshLogin() {
+            const section = document.createElement('div');
+            section.className = 'debug-section loading';
+            section.innerHTML = `<h3>🔧 Fresh Login...</h3>`;
+            debugInfo.appendChild(section);
+            
+            try {
+                // Clear old data first
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                
+                // Fresh login
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'test123456'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Decode and check token
+                    const parts = data.access_token.split('.');
+                    const payload = JSON.parse(atob(parts[1]));
+                    
+                    console.log('New token payload:', payload);
+                    
+                    // Create user object
+                    const user = {
+                        id: payload.user_id,
+                        email: payload.sub
+                    };
+                    
+                    // Save fresh data
+                    localStorage.setItem('token', data.access_token);
+                    localStorage.setItem('user', JSON.stringify(user));
+                    
+                    section.className = 'debug-section success';
+                    section.innerHTML = `
+                        <h3>✅ Fresh Login Successful</h3>
+                        <p><strong>User ID:</strong> ${user.id}</p>
+                        <p><strong>Email:</strong> ${user.email}</p>
+                        <p><strong>Token:</strong> ${data.access_token.substring(0, 50)}...</p>
+                    `;
+                    
+                    // Test immediately
+                    setTimeout(testFreshToken, 1000);
+                    
+                } else {
+                    section.className = 'debug-section error';
+                    section.innerHTML = `<h3>❌ Login Failed</h3><p>${response.statusText}</p>`;
+                }
+                
+            } catch (error) {
+                section.className = 'debug-section error';
+                section.innerHTML = `<h3>❌ Error</h3><p>${error.message}</p>`;
+            }
+        }
+        
+        async function testFreshToken() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('No token found');
+                return;
+            }
+            
+            const section = document.createElement('div');
+            section.className = 'debug-section loading';
+            section.innerHTML = `<h3>🔍 Testing Fresh Token...</h3>`;
+            debugInfo.appendChild(section);
+            
+            try {
+                const response = await fetch(`${API_BASE}/courses/`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                if (response.ok) {
+                    const courses = await response.json();
+                    section.className = 'debug-section success';
+                    section.innerHTML = `
+                        <h3>✅ Fresh Token Works!</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Courses:</strong> ${courses.length}</p>
+                        <p><strong>Now go to main app and refresh!</strong></p>
+                    `;
+                } else {
+                    const errorText = await response.text();
+                    section.className = 'debug-section error';
+                    section.innerHTML = `
+                        <h3>❌ Fresh Token Failed</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Error:</strong> ${errorText}</p>
+                    `;
+                }
+            } catch (error) {
+                section.className = 'debug-section error';
+                section.innerHTML = `<h3>❌ Network Error</h3><p>${error.message}</p>`;
+            }
+        }
+        
+        function clearAll() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            debugInfo.innerHTML = '';
+        }
+        
+        // Add buttons
+        const buttonSection = document.createElement('div');
+        buttonSection.className = 'debug-section';
+        buttonSection.innerHTML = `
+            <button onclick="freshLogin()">🔧 Fresh Login & Test</button>
+            <button onclick="clearAll()">🗑️ Clear All</button>
+            <p><strong>Instructions:</strong></p>
+            <ol>
+                <li>Click "Fresh Login & Test"</li>
+                <li>Wait for green success message</li>
+                <li>Go to http://localhost:5173</li>
+                <li>Refresh the page (Ctrl+F5)</li>
+                <li>Login should work now!</li>
+            </ol>
+        `;
+        document.body.insertBefore(buttonSection, debugInfo);
+    </script>
+</body>
+</html>

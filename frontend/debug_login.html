@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        .warning { background-color: #fff3cd; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+        .form-group { margin: 10px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 300px; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Frontend Login Debug</h1>
+    
+    <div class="debug-section">
+        <h2>🧪 Test Login Form</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" value="test@example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" value="test123456" required>
+            </div>
+            <button type="submit">Login Test</button>
+        </form>
+    </div>
+    
+    <div id="debug-info"></div>
+    
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000';
+        const debugInfo = document.getElementById('debug-info');
+        const loginForm = document.getElementById('loginForm');
+        
+        async function testLogin(email, password) {
+            const section = document.createElement('div');
+            section.className = 'debug-section loading';
+            section.innerHTML = `<h3>🔍 Testing Login...</h3>`;
+            debugInfo.appendChild(section);
+            
+            try {
+                console.log('Testing login with:', email, password);
+                
+                const startTime = Date.now();
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+                
+                console.log('Login response:', response.status, response.statusText);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    section.className = 'debug-section success';
+                    section.innerHTML = `
+                        <h3>✅ Login Successful</h3>
+                        <p><strong>Status:</strong> ${response.status} (${response.statusText})</p>
+                        <p><strong>Response Time:</strong> ${responseTime}ms</p>
+                        <p><strong>Token Type:</strong> ${data.token_type}</p>
+                        <p><strong>Token Length:</strong> ${data.access_token.length}</p>
+                        <p><strong>Token Preview:</strong> ${data.access_token.substring(0, 50)}...</p>
+                    `;
+                    
+                    // Test the token with courses endpoint
+                    await testToken(data.access_token);
+                    
+                } else {
+                    const errorData = await response.json();
+                    section.className = 'debug-section error';
+                    section.innerHTML = `
+                        <h3>❌ Login Failed</h3>
+                        <p><strong>Status:</strong> ${response.status} (${response.statusText})</p>
+                        <p><strong>Response Time:</strong> ${responseTime}ms</p>
+                        <p><strong>Error:</strong> ${errorData.detail}</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                section.className = 'debug-section error';
+                section.innerHTML = `
+                    <h3>❌ Network Error</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <pre>${error.stack}</pre>
+                `;
+            }
+        }
+        
+        async function testToken(token) {
+            const section = document.createElement('div');
+            section.className = 'debug-section loading';
+            section.innerHTML = `<h3>🔍 Testing Token...</h3>`;
+            debugInfo.appendChild(section);
+            
+            try {
+                const response = await fetch(`${API_BASE}/courses/`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const courses = await response.json();
+                    section.className = 'debug-section success';
+                    section.innerHTML = `
+                        <h3>✅ Token Valid</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Courses Found:</strong> ${courses.length}</p>
+                        ${courses.length > 0 ? 
+                            `<p><strong>First Course:</strong> ${courses[0].name}</p>` : 
+                            ''
+                        }
+                    `;
+                } else {
+                    const errorData = await response.json();
+                    section.className = 'debug-section error';
+                    section.innerHTML = `
+                        <h3>❌ Token Invalid</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Error:</strong> ${errorData.detail}</p>
+                    `;
+                }
+            } catch (error) {
+                section.className = 'debug-section error';
+                section.innerHTML = `
+                    <h3>❌ Token Test Error</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `;
+            }
+        }
+        
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Clear previous results
+            debugInfo.innerHTML = '';
+            
+            await testLogin(email, password);
+        });
+        
+        // Add network info
+        const networkSection = document.createElement('div');
+        networkSection.className = 'debug-section';
+        networkSection.innerHTML = `
+            <h3>🌐 Network Information</h3>
+            <p><strong>Current URL:</strong> ${window.location.href}</p>
+            <p><strong>API Base:</strong> ${API_BASE}</p>
+            <p><strong>User Agent:</strong> ${navigator.userAgent}</p>
+            <p><strong>Online:</strong> ${navigator.onLine ? 'Yes' : 'No'}</p>
+        `;
+        debugInfo.appendChild(networkSection);
+    </script>
+</body>
+</html>

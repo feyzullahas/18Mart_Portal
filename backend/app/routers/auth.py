@@ -182,8 +182,13 @@ def login(data: LoginRequest):
             "token_type": "bearer"
         }
 
+    except HTTPException as he:
+        print("HTTP EXCEPTION:", he.detail)
+        conn.rollback()
+        raise he
     except mysql.connector.Error as e:
         print("MYSQL ERROR:", e)
+        conn.rollback()
         raise HTTPException(
             status_code=500,
             detail="Veritabanı hatası"
@@ -191,6 +196,7 @@ def login(data: LoginRequest):
 
     except Exception as e:
         print("GENEL ERROR:", e)
+        conn.rollback()
         raise HTTPException(
             status_code=500,
             detail="Sunucu hatası"

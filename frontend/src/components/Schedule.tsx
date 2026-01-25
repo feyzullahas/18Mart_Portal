@@ -81,7 +81,9 @@ export const Schedule = () => {
             });
 
             if (!response.ok) {
-                throw new Error('Dersler yüklenemedi');
+                const errorText = await response.text();
+                console.error('Courses API Error:', response.status, errorText);
+                throw new Error(`Dersler yüklenemedi (${response.status}): ${errorText}`);
             }
 
             const courses: Course[] = await response.json();
@@ -115,8 +117,8 @@ export const Schedule = () => {
 
             setSchedule(newSchedule);
         } catch (err) {
-            setError('Dersler yüklenirken hata oluştu');
-            console.error('Error loading courses:', err);
+            console.error('Load courses error:', err);
+            setError(`Dersler yüklenirken hata oluştu: ${err instanceof Error ? err.message : 'Bilinmeyen hata'}`);
         }
     };
 
