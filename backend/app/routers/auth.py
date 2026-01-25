@@ -8,15 +8,17 @@ from datetime import datetime, timedelta
 from jose import jwt, JWTError
 from typing import Optional
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
-
-router = APIRouter(prefix="/auth", tags=["Auth"])
-
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-this")
+# Environment variables'ı doğrudan ayarla
+SECRET_KEY = os.getenv("SECRET_KEY", "18mart_portal_super_secret_key_2024")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+
+print(f"Auth.py - SECRET_KEY: {SECRET_KEY}")
+print(f"Auth.py - ALGORITHM: {ALGORITHM}")
+print(f"Auth.py - ACCESS_TOKEN_EXPIRE_MINUTES: {ACCESS_TOKEN_EXPIRE_MINUTES}")
+
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 

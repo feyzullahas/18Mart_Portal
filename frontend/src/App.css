@@ -125,6 +125,16 @@
     color: rgba(0, 0, 0, 0.6);
 }
 
+.header-weather {
+    display: flex;
+    align-items: center;
+}
+
+.header-exam-countdown {
+    display: flex;
+    align-items: center;
+}
+
 /* Main Content */
 .app-main {
     display: flex;
@@ -137,20 +147,24 @@
     order: 1;
 }
 
-.meals-widget {
+.exam-countdown-widget {
     order: 2;
 }
 
-.bus-widget {
+.meals-widget {
     order: 3;
 }
 
-.schedule-widget {
+.bus-widget {
     order: 4;
 }
 
-.calendar-widget {
+.schedule-widget {
     order: 5;
+}
+
+.calendar-widget {
+    order: 6;
 }
 
 /* Footer Styles */

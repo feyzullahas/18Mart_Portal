@@ -8,6 +8,7 @@ import { Calendar } from './components/Calendar';
 import { Schedule } from './components/Schedule';
 import { Auth } from './components/Auth';
 import { UserMenu } from './components/UserMenu';
+import { ExamCountdown } from './components/ExamCountdown';
 import './App.css';
 
 const AppContent = () => {
@@ -42,6 +43,9 @@ const AppContent = () => {
                         <div className="header-weather">
                             <Weather variant="header" />
                         </div>
+                        <div className="header-exam-countdown">
+                            <ExamCountdown variant="header" />
+                        </div>
                         <div className="header-user">
                             <UserMenu />
                         </div>
@@ -51,6 +55,9 @@ const AppContent = () => {
                     <main className="app-main">
                         <div className="widget-wrapper weather-widget mobile-only-weather">
                             <Weather />
+                        </div>
+                        <div className="widget-wrapper exam-countdown-widget">
+                            <ExamCountdown />
                         </div>
                         <div className="widget-wrapper meals-widget">
                             <Meals />

@@ -81,22 +81,18 @@ class MealService:
         return None
 
     async def get_osem_meals(self) -> List[Dict]:
-        """ÖSEM sitesinden TÜM günlerin yemek listesini çeker (cached)"""
-        # Cache kontrol
-        cached = cache.get("osem_meals")
-        if cached:
-            print("ÖSEM: Cache'den döndü")
-            return cached
+        """ÖSEM web sitesinden tüm günlerin yemek listesini çeker (cached)"""
+        # Cache'i devre dışı bırak - her zaman yeni veri çek
+        print("ÖSEM: Yeni veri çekiliyor...")
         
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get(self.OSEM_URL, timeout=15.0)
+                
                 if response.status_code != 200:
                     return self._get_fallback_osem()
                 
-                html = response.text
-                soup = BeautifulSoup(html, 'html.parser')
-                
+                soup = BeautifulSoup(response.text, "html.parser")
                 script = soup.find("script", string=re.compile(r"let response\s*="))
                 
                 if not script:
@@ -140,9 +136,8 @@ class MealService:
                 if not all_days:
                     return self._get_fallback_osem()
                 
-                # Cache'e kaydet
-                cache.set("osem_meals", all_days, self.CACHE_TTL)
-                print("ÖSEM: API'den çekildi ve cache'lendi")
+                print(f"ÖSEM: {len(all_days)} günün verisi çekildi")
+                print(f"Bugün ({today}) için veri var mı: {any(day['isToday'] for day in all_days)}")
                 
                 return all_days
                 
