@@ -182,7 +182,7 @@ export const Schedule = () => {
     };
 
     // Remove course
-    const removeSubject = async (day: string, subjectId: string) => {
+    const removeSubject = async (_day: string, subjectId: string) => {
         setIsLoading(true);
         setError('');
 

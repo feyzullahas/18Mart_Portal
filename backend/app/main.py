@@ -1,12 +1,7 @@
-from app.routers import test_mysql
-from app.routers import auth
-from app.routers import courses
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import weather, calendar, meals, bus, mysql_test
-from app.routers.mysql_test import router as mysql_test_router
+from app.routers import auth, courses, weather, calendar, meals, bus
 
 app = FastAPI(title="18Mart Portal API")
 
@@ -23,8 +18,6 @@ app.add_middleware(
 )
 
 # Routers
-app.include_router(test_mysql.router)
-app.include_router(mysql_test_router)
 app.include_router(weather.router)
 app.include_router(calendar.router)
 app.include_router(meals.router)
