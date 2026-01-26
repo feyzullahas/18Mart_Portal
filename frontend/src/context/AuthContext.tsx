@@ -35,13 +35,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Check localStorage for existing user session
-        const savedUser = localStorage.getItem('user');
-        const token = localStorage.getItem('token');
-        if (savedUser && token) {
-            setUser(JSON.parse(savedUser));
-        }
-        setIsLoading(false);
+        // Check localStorage for existing user session and validate token
+        const validateStoredToken = async () => {
+            const savedUser = localStorage.getItem('user');
+            const token = localStorage.getItem('token');
+            
+            if (savedUser && token) {
+                try {
+                    // Validate token with backend
+                    const response = await fetch(`${API_BASE_URL}/courses/`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    
+                    if (response.ok) {
+                        setUser(JSON.parse(savedUser));
+                    } else {
+                        // Token is invalid, remove it
+                        localStorage.removeItem('user');
+                        localStorage.removeItem('token');
+                    }
+                } catch (error) {
+                    // Error validating token, remove it
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('token');
+                }
+            }
+            setIsLoading(false);
+        };
+        
+        validateStoredToken();
     }, []);
 
     const login = async (email: string, password: string): Promise<boolean> => {

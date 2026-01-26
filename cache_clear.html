@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cache Temizleme</title>
+</head>
+<body>
+    <h1>18Mart Portal - Cache Temizleme</h1>
+    <p>Frontend'deki cache sorunlarını çözmek için localStorage'i temizleyin:</p>
+    
+    <button onclick="clearCache()">localStorage Temizle</button>
+    <button onclick="reloadPage()">Sayfayı Yenile</button>
+    
+    <script>
+        function clearCache() {
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+            alert('Cache temizlendi! Şimdi sayfayı yenileyin.');
+        }
+        
+        function reloadPage() {
+            window.location.href = 'http://localhost:5173';
+        }
+    </script>
+    
+    <h2>Manuel Temizleme:</h2>
+    <ol>
+        <li>Browser'da F12 tuşuna basın (Developer Tools)</li>
+        <li>Console sekmesine gidin</li>
+        <li>Aşağıdaki kodu yapıştırın ve Enter'a basın:</li>
+        <code>localStorage.clear(); location.reload();</code>
+    </ol>
+</body>
+</html>

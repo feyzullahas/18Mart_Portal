@@ -83,6 +83,15 @@ export const Schedule = () => {
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Courses API Error:', response.status, errorText);
+                
+                // If 401 error, clear invalid token
+                if (response.status === 401) {
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('token');
+                    window.location.reload(); // Reload to reset auth state
+                    return;
+                }
+                
                 throw new Error(`Dersler yüklenemedi (${response.status}): ${errorText}`);
             }
 
@@ -159,6 +168,13 @@ export const Schedule = () => {
             });
 
             if (!response.ok) {
+                // If 401 error, clear invalid token
+                if (response.status === 401) {
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('token');
+                    window.location.reload(); // Reload to reset auth state
+                    return;
+                }
                 throw new Error('Ders eklenemedi');
             }
 
@@ -202,6 +218,13 @@ export const Schedule = () => {
             });
 
             if (!response.ok) {
+                // If 401 error, clear invalid token
+                if (response.status === 401) {
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('token');
+                    window.location.reload(); // Reload to reset auth state
+                    return;
+                }
                 throw new Error('Ders silinemedi');
             }
 
