@@ -1,16 +1,22 @@
+import os
 import mysql.connector
-from mysql.connector import Error
+from mysql.connector import pooling
+from dotenv import load_dotenv
+
+load_dotenv()
+
+dbconfig = {
+    "host": os.getenv("localhost"),
+    "user": os.getenv("root"),
+    "password": os.getenv("database9876"),
+    "database": os.getenv("portal_db"),
+}
+
+connection_pool = pooling.MySQLConnectionPool(
+    pool_name="portal_pool",
+    pool_size=5,
+    **dbconfig
+)
 
 def get_mysql_connection():
-    try:
-        connection = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="Feyzo.1551",
-            database="portal_db"
-        )
-        return connection
-
-    except Error as e:
-        print("❌ MySQL bağlantı hatası:", e)
-        return None
+    return connection_pool.get_connection()
