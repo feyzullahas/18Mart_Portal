@@ -6,10 +6,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 dbconfig = {
-    "host": os.getenv("localhost"),
-    "user": os.getenv("root"),
-    "password": os.getenv("database9876"),
-    "database": os.getenv("portal_db"),
+    "host": os.getenv("DB_HOST", "localhost"),
+    "user": os.getenv("DB_USER", "root"),
+    "password": os.getenv("DB_PASSWORD", "database9876"),
+    "database": os.getenv("DB_NAME", "portal_db"),
 }
 
 connection_pool = pooling.MySQLConnectionPool(

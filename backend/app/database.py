@@ -10,7 +10,7 @@ load_dotenv()
 # Database URL'i al (MySQL için)
 DATABASE_URL = os.getenv(
     "DATABASE_URL", 
-    "mysql+pymysql://root:Feyzo.1551@localhost/portal_db"
+    "mysql+mysqlconnector://root:database9876@localhost/portal_db"
 )
 
 # Engine oluştur (database ile konuşan motor)
