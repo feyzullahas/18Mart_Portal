@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import '../styles/Meals.css';
 
 interface MealItem {
@@ -8,6 +8,7 @@ interface MealItem {
 
 interface KykDay {
     date: string;
+    dateRaw?: string;
     breakfast: MealItem[];
     dinner: MealItem[];
     total_calories_breakfast?: number;
@@ -33,25 +34,34 @@ export const Meals = () => {
     const [error, setError] = useState<string | null>(null);
     const [isOpen, setIsOpen] = useState(false);
 
+    const fetchOsemData = useCallback(async () => {
+        const res = await fetch('http://127.0.0.1:8000/meals/osem');
+        return res.json();
+    }, []);
+
+    const fetchKykData = useCallback(async () => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1;
+        const res = await fetch(`http://127.0.0.1:8000/meals/kyk?year=${year}&month=${month}`);
+        return res.json();
+    }, []);
+
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchAll = async () => {
             setLoading(true);
             setError(null);
             try {
-                const [osemRes, kykRes] = await Promise.all([
-                    fetch('http://127.0.0.1:8000/meals/osem'),
-                    fetch('http://127.0.0.1:8000/meals/kyk')
+                const [osem, kyk] = await Promise.all([
+                    fetchOsemData(),
+                    fetchKykData()
                 ]);
-                const osem = await osemRes.json();
-                const kyk = await kykRes.json();
                 setOsemData(osem);
                 setKykData(kyk);
 
-                // Bugünü bul ve seç (ÖSEM)
                 const todayOsemIdx = osem.findIndex((d: OsemDay) => d.isToday);
                 if (todayOsemIdx >= 0) setSelectedOsemIndex(todayOsemIdx);
 
-                // Bugünü bul ve seç (KYK)
                 const todayKykIdx = kyk.findIndex((d: KykDay) => d.isToday);
                 if (todayKykIdx >= 0) setSelectedKykIndex(todayKykIdx);
             } catch (err) {
@@ -61,8 +71,8 @@ export const Meals = () => {
                 setLoading(false);
             }
         };
-        fetchData();
-    }, []);
+        fetchAll();
+    }, [fetchOsemData, fetchKykData]);
 
     const currentOsemDay = osemData[selectedOsemIndex];
     const currentKykDay = kykData[selectedKykIndex];
@@ -75,7 +85,7 @@ export const Meals = () => {
         setSelectedOsemIndex(selectedOsemIndex < osemData.length - 1 ? selectedOsemIndex + 1 : 0);
     };
 
-    // KYK navigasyon
+    // KYK gün navigasyon
     const goToPrevKyk = () => {
         setSelectedKykIndex(selectedKykIndex > 0 ? selectedKykIndex - 1 : kykData.length - 1);
     };
