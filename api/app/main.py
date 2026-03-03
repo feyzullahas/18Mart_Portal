@@ -18,7 +18,7 @@ app = FastAPI(title="18Mart Portal API")
 # Startup event - database tablolarını oluştur
 @app.on_event("startup")
 async def startup_event():
-    print(" 18Mart Portal API başlatılıyor...")
+    print(" 18Mart Portal API başlatılıyor..")
     
     # Database bağlantısını test et
     if test_connection():
