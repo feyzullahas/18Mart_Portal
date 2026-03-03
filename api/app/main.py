@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from mangum import Mangum
 import os
 from dotenv import load_dotenv
 
@@ -67,3 +68,5 @@ app.include_router(courses_new.router)
 @app.get("/")
 async def root():
     return {"message": "18Mart Portal API - Hoş Geldiniz!"}
+
+handler = Mangum(app)
