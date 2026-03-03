@@ -8,5 +8,4 @@ beautifulsoup4
 mangum
 python-jose[cryptography]
 bcrypt
-mysql-connector-python
-PyMySQL
+psycopg2-binary

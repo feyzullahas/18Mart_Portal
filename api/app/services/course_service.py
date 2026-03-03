@@ -5,13 +5,21 @@ from typing import List, Dict, Optional
 from datetime import time
 from ..models.course import Course, Base
 
-# SQLite database setup
-DATABASE_URL = "sqlite:///./courses.db"
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
-# Create tables
-Base.metadata.create_all(bind=engine)
+# Ana database URL'ini kullan
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./courses.db")
+
+if DATABASE_URL.startswith("postgresql") or DATABASE_URL.startswith("postgres"):
+    engine = create_engine(DATABASE_URL, connect_args={"sslmode": "require"})
+elif DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(DATABASE_URL)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 class CourseService:
     def __init__(self):

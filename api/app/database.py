@@ -7,14 +7,18 @@ from dotenv import load_dotenv
 # .env dosyasını yükle
 load_dotenv()
 
-# Database URL'i al (MySQL için)
+# Database URL'i al (PostgreSQL/Neon için)
 DATABASE_URL = os.getenv(
-    "DATABASE_URL", 
-    "mysql+mysqlconnector://root:database9876@localhost/portal_db"
+    "DATABASE_URL",
+    "sqlite:///./portal_db.db"  # Lokal geliştirme için fallback
 )
 
-# Engine oluştur (database ile konuşan motor)
-engine = create_engine(DATABASE_URL)
+# PostgreSQL ise SSL ayarı ekle
+if DATABASE_URL.startswith("postgresql") or DATABASE_URL.startswith("postgres"):
+    # Neon ve diğer cloud PostgreSQL için SSL gerekli
+    engine = create_engine(DATABASE_URL, connect_args={"sslmode": "require"})
+else:
+    engine = create_engine(DATABASE_URL)
 
 # Session oluşturucu
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
