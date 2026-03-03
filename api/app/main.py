@@ -70,4 +70,4 @@ app.include_router(courses_new.router)
 async def root():
     return {"message": "18Mart Portal API - Hoş Geldiniz!"}
 
-handler = Mangum(app)
+handler = Mangum(app, lifespan="off")

@@ -13,9 +13,12 @@ DATABASE_URL = os.getenv(
     "sqlite:///./portal_db.db"  # Lokal geliştirme için fallback
 )
 
+# Neon ve bazı sağlayıcılar 'postgres://' verir, SQLAlchemy 'postgresql://' ister
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 # PostgreSQL ise SSL ayarı ekle
-if DATABASE_URL.startswith("postgresql") or DATABASE_URL.startswith("postgres"):
-    # Neon ve diğer cloud PostgreSQL için SSL gerekli
+if DATABASE_URL.startswith("postgresql"):
     engine = create_engine(DATABASE_URL, connect_args={"sslmode": "require"})
 else:
     engine = create_engine(DATABASE_URL)
@@ -37,8 +40,17 @@ def get_db():
 # Database tablolarını oluştur
 def create_tables():
     """Tüm tabloları oluştur"""
+    # Modelleri import et ki Base onları tanısın
+    from app.models import user, course  # noqa
     Base.metadata.create_all(bind=engine)
     print("✅ Database tabloları başarıyla oluşturuldu")
+
+# Uygulama başladığında tabloları otomatik oluştur (serverless için)
+try:
+    from app.models import user, course  # noqa
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"⚠️ Tablo oluşturma hatası: {e}")
 
 # Database bağlantısını test et
 def test_connection():
