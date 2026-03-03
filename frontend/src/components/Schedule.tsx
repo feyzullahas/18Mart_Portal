@@ -26,7 +26,7 @@ interface DaySchedule {
     [key: string]: Subject[];
 }
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://18-mart-portal.vercel.app';
 
 export const Schedule = () => {
     const [isOpen, setIsOpen] = useState(false);

@@ -35,7 +35,7 @@ export const Meals = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const fetchOsemData = useCallback(async () => {
-        const res = await fetch('http://127.0.0.1:8000/meals/osem');
+        const res = await fetch('https://18-mart-portal.vercel.app/meals/osem');
         return res.json();
     }, []);
 
@@ -43,7 +43,7 @@ export const Meals = () => {
         const now = new Date();
         const year = now.getFullYear();
         const month = now.getMonth() + 1;
-        const res = await fetch(`http://127.0.0.1:8000/meals/kyk?year=${year}&month=${month}`);
+        const res = await fetch(`https://18-mart-portal.vercel.app/meals/kyk?year=${year}&month=${month}`);
         return res.json();
     }, []);
 

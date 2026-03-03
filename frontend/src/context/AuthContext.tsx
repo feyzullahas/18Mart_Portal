@@ -28,7 +28,7 @@ interface AuthProviderProps {
     children: ReactNode;
 }
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://18-mart-portal.vercel.app';
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
