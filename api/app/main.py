@@ -10,7 +10,7 @@ os.environ.setdefault('SECRET_KEY', '18mart_portal_super_secret_key_2024')
 os.environ.setdefault('ALGORITHM', 'HS256')
 os.environ.setdefault('ACCESS_TOKEN_EXPIRE_MINUTES', '30')
 
-from app.routers import auth, auth_new, courses, courses_new, weather, calendar, meals, bus
+from app.routers import auth_new, courses_new, weather, calendar, meals, bus
 from app.database import test_connection, create_tables
 
 app = FastAPI(title="18Mart Portal API")
