@@ -51,6 +51,13 @@ export const Schedule = () => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma'];
+    const dayShortLabels: { [key: string]: string } = {
+        'Pazartesi': 'Pz',
+        'Salı': 'Sa',
+        'Çarşamba': 'Ça',
+        'Perşembe': 'Pe',
+        'Cuma': 'Cu'
+    };
     const dayMapping: { [key: string]: string } = {
         'Pazartesi': 'Monday',
         'Salı': 'Tuesday',
@@ -238,6 +245,23 @@ export const Schedule = () => {
         }
     };
 
+    // Scroll ile currentDayIndex senkronizasyonu
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+
+        const handleScroll = () => {
+            const dayWidth = container.scrollWidth / days.length;
+            if (dayWidth === 0) return;
+            const newIndex = Math.round(container.scrollLeft / dayWidth);
+            const clamped = Math.max(0, Math.min(days.length - 1, newIndex));
+            setCurrentDayIndex(clamped);
+        };
+
+        container.addEventListener('scroll', handleScroll, { passive: true });
+        return () => container.removeEventListener('scroll', handleScroll);
+    }, [isOpen]);
+
     // Load courses on component mount - always load when user is authenticated
     useEffect(() => {
         const token = getAuthToken();
@@ -318,7 +342,7 @@ export const Schedule = () => {
                                     className={`day-indicator ${index === currentDayIndex ? 'active' : ''}`}
                                     onClick={() => goToDay(index)}
                                 >
-                                    {day.charAt(0)}
+                                    {dayShortLabels[day]}
                                 </button>
                             ))}
                         </div>

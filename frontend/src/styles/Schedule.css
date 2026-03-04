@@ -50,12 +50,12 @@
     background: var(--item-bg);
     border: 2px solid var(--border-color);
     color: var(--text-secondary);
-    width: 36px;
+    width: 40px;
     height: 36px;
-    border-radius: 50%;
+    border-radius: 10px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.78rem;
     transition: all 0.2s ease;
 }
 
@@ -109,8 +109,7 @@
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 1rem;
-    min-height: 350px;
-    max-height: 400px;
+    min-height: 480px;
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -134,7 +133,8 @@
     gap: 0.5rem;
     margin-bottom: 1rem;
     overflow-y: auto;
-    max-height: 200px;
+    min-height: 240px;
+    max-height: 320px;
     padding-right: 0.25rem;
 }
 
@@ -302,8 +302,7 @@
     }
     
     .day-column-horizontal {
-        min-height: 300px;
-        max-height: 350px;
+        min-height: 440px;
         padding: 0.75rem;
     }
 }
@@ -330,8 +329,7 @@
     }
     
     .day-column-horizontal {
-        min-height: 280px;
-        max-height: 320px;
+        min-height: 400px;
         padding: 0.5rem;
     }
 }
