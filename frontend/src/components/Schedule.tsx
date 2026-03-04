@@ -28,8 +28,10 @@ interface DaySchedule {
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://18-mart-portal-4orl.vercel.app';
 
-export const Schedule = () => {
-    const [isOpen, setIsOpen] = useState(false);
+export const Schedule = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onToggle?: () => void } = {}) => {
+    const [localOpen, setLocalOpen] = useState(false);
+    const isOpen = propIsOpen !== undefined ? propIsOpen : localOpen;
+    const handleToggle = onToggle ?? (() => setLocalOpen(prev => !prev));
     const [schedule, setSchedule] = useState<DaySchedule>({
         'Pazartesi': [],
         'Salı': [],
@@ -306,7 +308,7 @@ export const Schedule = () => {
 
     return (
         <div className="schedule-card">
-            <div className="card-header" onClick={() => setIsOpen(!isOpen)}>
+            <div className="card-header" onClick={handleToggle}>
                 <h2>📚 Ders Programı</h2>
                 <span className={`toggle-icon ${isOpen ? 'open' : ''}`}>▼</span>
             </div>

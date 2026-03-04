@@ -3,11 +3,13 @@ import { busService } from '../services/busService';
 import type { BusSchedule } from '../services/busService';
 import '../styles/Bus.css';
 
-export const Bus = () => {
+export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onToggle?: () => void } = {}) => {
     const [schedule, setSchedule] = useState<BusSchedule | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [isOpen, setIsOpen] = useState(false);
+    const [localOpen, setLocalOpen] = useState(false);
+    const isOpen = propIsOpen !== undefined ? propIsOpen : localOpen;
+    const handleToggle = onToggle ?? (() => setLocalOpen(prev => !prev));
     const [activeType, setActiveType] = useState<'weekday' | 'weekend'>('weekday');
 
     useEffect(() => {
@@ -37,7 +39,7 @@ export const Bus = () => {
 
     return (
         <div className="bus-card">
-            <div className="card-header" onClick={() => setIsOpen(!isOpen)}>
+            <div className="card-header" onClick={handleToggle}>
                 <h2>🚌 Otobüs Saatleri</h2>
                 <span className={`toggle-icon ${isOpen ? 'open' : ''}`}>▼</span>
             </div>

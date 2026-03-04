@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeToggle } from './components/ThemeToggle';
@@ -13,6 +14,8 @@ import './App.css';
 
 const AppContent = () => {
     const { user, isLoading } = useAuth();
+    const [openCard, setOpenCard] = useState<string | null>(null);
+    const makeToggle = (id: string) => () => setOpenCard(prev => prev === id ? null : id);
 
     if (isLoading) {
         return (
@@ -54,22 +57,22 @@ const AppContent = () => {
                     {/* Dashboard Cards */}
                     <main className="app-main">
                         <div className="widget-wrapper weather-widget mobile-only-weather">
-                            <Weather />
+                            <Weather isOpen={openCard === 'weather'} onToggle={makeToggle('weather')} />
                         </div>
                         <div className="widget-wrapper exam-countdown-widget">
-                            <ExamCountdown />
+                            <ExamCountdown isOpen={openCard === 'exam'} onToggle={makeToggle('exam')} />
                         </div>
                         <div className="widget-wrapper meals-widget">
-                            <Meals />
+                            <Meals isOpen={openCard === 'meals'} onToggle={makeToggle('meals')} />
                         </div>
                         <div className="widget-wrapper schedule-widget">
-                            <Schedule />
+                            <Schedule isOpen={openCard === 'schedule'} onToggle={makeToggle('schedule')} />
                         </div>
                         <div className="widget-wrapper calendar-widget">
-                            <Calendar />
+                            <Calendar isOpen={openCard === 'calendar'} onToggle={makeToggle('calendar')} />
                         </div>
                         <div className="widget-wrapper bus-widget">
-                            <Bus />
+                            <Bus isOpen={openCard === 'bus'} onToggle={makeToggle('bus')} />
                         </div>
                     </main>
 

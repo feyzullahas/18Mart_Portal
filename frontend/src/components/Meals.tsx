@@ -24,7 +24,7 @@ interface OsemDay {
     isToday?: boolean;
 }
 
-export const Meals = () => {
+export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onToggle?: () => void } = {}) => {
     const [activeTab, setActiveTab] = useState<'osem' | 'kyk'>('osem');
     const [kykData, setKykData] = useState<KykDay[]>([]);
     const [osemData, setOsemData] = useState<OsemDay[]>([]);
@@ -32,7 +32,9 @@ export const Meals = () => {
     const [selectedKykIndex, setSelectedKykIndex] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [isOpen, setIsOpen] = useState(false);
+    const [localOpen, setLocalOpen] = useState(false);
+    const isOpen = propIsOpen !== undefined ? propIsOpen : localOpen;
+    const handleToggle = onToggle ?? (() => setLocalOpen(prev => !prev));
 
     const fetchOsemData = useCallback(async () => {
         const apiUrl = import.meta.env.VITE_API_URL || 'https://18-mart-portal-4orl.vercel.app';
@@ -97,7 +99,7 @@ export const Meals = () => {
 
     return (
         <div className="meals-card">
-            <div className="card-header" onClick={() => setIsOpen(!isOpen)}>
+            <div className="card-header" onClick={handleToggle}>
                 <h2>🍴 Günün Yemek Menüsü</h2>
                 <span className={`toggle-icon ${isOpen ? 'open' : ''}`}>▼</span>
             </div>

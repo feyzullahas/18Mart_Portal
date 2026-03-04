@@ -3,7 +3,7 @@ import { calendarService } from '../services/calendarService';
 import type { CalendarInfo, CalendarType } from '../services/calendarService';
 import '../styles/Calendar.css';
 
-export const Calendar = () => {
+export const Calendar = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onToggle?: () => void } = {}) => {
     // State
     const [calendar, setCalendar] = useState<CalendarInfo | null>(null);
     const [mainTypes, setMainTypes] = useState<CalendarType[]>([]);
@@ -16,7 +16,9 @@ export const Calendar = () => {
     // Calendar Grid State
     const [currentDate, setCurrentDate] = useState(new Date());
     const [loading, setLoading] = useState(true);
-    const [isOpen, setIsOpen] = useState(false);
+    const [localOpen, setLocalOpen] = useState(false);
+    const isOpen = propIsOpen !== undefined ? propIsOpen : localOpen;
+    const handleToggle = onToggle ?? (() => setLocalOpen(prev => !prev));
 
     // Initial Load
     useEffect(() => {
@@ -148,7 +150,7 @@ export const Calendar = () => {
 
     return (
         <div className="calendar-card">
-            <div className="card-header" onClick={() => setIsOpen(!isOpen)}>
+            <div className="card-header" onClick={handleToggle}>
                 <h2>📅 Akademik Takvim</h2>
                 <span className={`toggle-icon ${isOpen ? 'open' : ''}`}>▼</span>
             </div>

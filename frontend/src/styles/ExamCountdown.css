@@ -69,7 +69,7 @@
 
 .exam-countdown-card .card-header h2 {
     margin: 0;
-    font-size: 22px;
+    font-size: 17px;
     color: var(--text-primary);
     font-weight: 600;
 }
@@ -85,11 +85,15 @@
 }
 
 .exam-countdown-card .card-content {
-    display: none;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
+    opacity: 0;
 }
 
 .exam-countdown-card .card-content.open {
-    display: block;
+    max-height: 2000px;
+    opacity: 1;
     padding-top: 20px;
 }
 
@@ -183,7 +187,12 @@
     .exam-countdown-header-widget {
         display: none; /* Mobilde header widget gizle */
     }
-    
+
+    .exam-countdown-card {
+        padding: 18px 20px;
+        border-radius: 14px;
+    }
+
     .exam-countdown-time-large {
         gap: 12px;
     }
@@ -208,9 +217,16 @@
     .exam-countdown-card {
         display: none;
     }
-    
+
     .exam-countdown-header-widget {
         display: flex;
+    }
+}
+
+@media (max-width: 576px) {
+    .exam-countdown-card {
+        padding: 14px 13px;
+        border-radius: 12px;
     }
 }
 

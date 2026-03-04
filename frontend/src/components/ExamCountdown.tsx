@@ -10,12 +10,16 @@ interface CountdownTime {
 
 export interface ExamCountdownProps {
     variant?: 'card' | 'header';
+    isOpen?: boolean;
+    onToggle?: () => void;
 }
 
-export const ExamCountdown = ({ variant = 'card' }: ExamCountdownProps) => {
+export const ExamCountdown = ({ variant = 'card', isOpen: propIsOpen, onToggle }: ExamCountdownProps) => {
     const [midtermTime, setMidtermTime] = useState<CountdownTime>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     const [finalTime, setFinalTime] = useState<CountdownTime>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-    const [isOpen, setIsOpen] = useState(false);
+    const [localOpen, setLocalOpen] = useState(false);
+    const isOpen = propIsOpen !== undefined ? propIsOpen : localOpen;
+    const handleToggle = onToggle ?? (() => setLocalOpen(prev => !prev));
 
     // Sabit tarihler
     const midtermDate = new Date('2026-04-06T09:00:00'); // 6 Nisan 2026, 09:00
@@ -76,13 +80,12 @@ export const ExamCountdown = ({ variant = 'card' }: ExamCountdownProps) => {
     // Card variant - açılır-kapanır
     return (
         <div className="exam-countdown-card">
-            <div className="card-header" onClick={() => setIsOpen(!isOpen)}>
+            <div className="card-header" onClick={handleToggle}>
                 <h2>📝 Vize & Final Sayacı</h2>
                 <span className={`toggle-icon ${isOpen ? 'open' : ''}`}>▼</span>
             </div>
 
-            {isOpen && (
-                <div className="card-content open">
+            <div className={`card-content ${isOpen ? 'open' : ''}`}>
                     <div className="exam-countdown-content">
                         {/* Vizeler */}
                         <div className="exam-countdown-section">
@@ -137,7 +140,6 @@ export const ExamCountdown = ({ variant = 'card' }: ExamCountdownProps) => {
                         </div>
                     </div>
                 </div>
-            )}
         </div>
     );
 };

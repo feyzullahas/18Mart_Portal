@@ -5,14 +5,18 @@ import '../styles/Weather.css';
 
 export interface WeatherProps {
     variant?: 'card' | 'header';
+    isOpen?: boolean;
+    onToggle?: () => void;
 }
 
-export const Weather = ({ variant = 'card' }: WeatherProps) => {
+export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: WeatherProps) => {
     const [current, setCurrent] = useState<CurrentWeather | null>(null);
     const [forecast, setForecast] = useState<Forecast | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [isOpen, setIsOpen] = useState(false);
+    const [localOpen, setLocalOpen] = useState(false);
+    const isOpen = propIsOpen !== undefined ? propIsOpen : localOpen;
+    const handleToggle = onToggle ?? (() => setLocalOpen(prev => !prev));
 
     useEffect(() => {
         const fetchWeather = async () => {
@@ -90,7 +94,7 @@ export const Weather = ({ variant = 'card' }: WeatherProps) => {
     if (!current) {
         return (
             <div className="weather-card">
-                <div className="card-header" onClick={() => setIsOpen(!isOpen)}>
+                <div className="card-header" onClick={handleToggle}>
                     <h2>🌍 Çanakkale Hava Durumu</h2>
                     <span className={`toggle-icon ${isOpen ? 'open' : ''}`}>▼</span>
                 </div>
@@ -106,7 +110,7 @@ export const Weather = ({ variant = 'card' }: WeatherProps) => {
     }
     return (
         <div className="weather-card">
-            <div className="card-header" onClick={() => setIsOpen(!isOpen)}>
+            <div className="card-header" onClick={handleToggle}>
                 <h2>🌍 Çanakkale Hava Durumu</h2>
                 <span className={`toggle-icon ${isOpen ? 'open' : ''}`}>▼</span>
             </div>
