@@ -54,6 +54,18 @@ body {
   /* Prevents page jump on accordion toggle */
 }
 
+/* Global font scale — tüm rem tabanlı boyutlar otomatik küçülür */
+@media (max-width: 480px) {
+  html {
+    font-size: 13px;
+  }
+}
+@media (min-width: 481px) and (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -105,7 +117,7 @@ body {
 .calendar-card .card-header h2,
 .schedule-card .card-header h2 {
   margin: 0 !important;
-  font-size: 20px !important;
+  font-size: 17px !important;
   color: var(--text-primary);
   font-weight: 600 !important;
 }
@@ -161,7 +173,7 @@ body {
   .bus-card .card-header h2,
   .calendar-card .card-header h2,
   .schedule-card .card-header h2 {
-    font-size: 18px;
+    font-size: 15px !important;
   }
 }
 
@@ -172,7 +184,7 @@ body {
   .bus-card,
   .calendar-card,
   .schedule-card {
-    padding: 16px 15px;
+    padding: 14px 13px;
     border-radius: 12px;
   }
 
@@ -180,7 +192,19 @@ body {
   .meals-card .card-header h2,
   .bus-card .card-header h2,
   .calendar-card .card-header h2,
-  .schedule-card .card-header h2 {
-    font-size: 17px;
+  .schedule-card .card-header h2,
+  .exam-countdown-card .card-header h2 {
+    font-size: 13px !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .weather-card .card-header h2,
+  .meals-card .card-header h2,
+  .bus-card .card-header h2,
+  .calendar-card .card-header h2,
+  .schedule-card .card-header h2,
+  .exam-countdown-card .card-header h2 {
+    font-size: 12px !important;
   }
 }

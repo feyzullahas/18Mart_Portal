@@ -82,19 +82,12 @@ export const Bus = () => {
                         {currentPdf && (
                             <div className="pdf-viewer">
                                 <iframe
-                                    src={`${currentPdf}#toolbar=1&navpanes=0`}
+                                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(currentPdf)}&embedded=true`}
                                     title="Otobüs Saatleri PDF"
                                     width="100%"
-                                    height="500"
+                                    height="600"
+                                    style={{ border: 'none', borderRadius: '8px' }}
                                 />
-                                <a
-                                    href={currentPdf}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="download-btn"
-                                >
-                                    ↗ PDF'yi Yeni Sekmede Aç
-                                </a>
                             </div>
                         )}
                     </div>
