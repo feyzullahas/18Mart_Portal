@@ -4,8 +4,8 @@
     align-items: center;
     gap: 1.5rem;
     padding: 0.75rem 1.25rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--item-bg);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     backdrop-filter: blur(5px);
 }
@@ -16,7 +16,7 @@
     align-items: center;
     gap: 0.75rem;
     padding-right: 1rem;
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid var(--border-color);
 }
 
 .weather-header-icon-large {
@@ -113,7 +113,7 @@
 
 .weather-card .card-header h2 {
     margin: 0;
-    font-size: 22px;
+    font-size: 16px;
     color: var(--text-primary);
     font-weight: 600;
 }
@@ -362,16 +362,16 @@
     }
 
     .temp-value {
-        font-size: 48px;
+        font-size: 38px;
     }
 
     .temp-unit {
-        font-size: 20px;
+        font-size: 16px;
         margin-top: 6px;
     }
 
     .weather-desc {
-        font-size: 16px;
+        font-size: 14px;
     }
 
     .weather-wind {
@@ -424,15 +424,15 @@
     }
 
     .temp-value {
-        font-size: 42px;
+        font-size: 32px;
     }
 
     .temp-unit {
-        font-size: 18px;
+        font-size: 14px;
     }
 
     .weather-desc {
-        font-size: 15px;
+        font-size: 13px;
     }
 
     .forecast-grid {
