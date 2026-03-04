@@ -1,7 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.pool import NullPool
 import os
+import re
 from dotenv import load_dotenv
 
 # .env dosyasını yükle
@@ -19,19 +21,21 @@ if DATABASE_URL.startswith("postgres://"):
 
 # psycopg2 'channel_binding' parametresini tanımıyor, URL'den temizle
 if "channel_binding" in DATABASE_URL:
-    import re
     DATABASE_URL = re.sub(r'[&?]channel_binding=[^&]*', '', DATABASE_URL)
-    DATABASE_URL = re.sub(r'\?&', '?', DATABASE_URL)  # ?& → ?
+    DATABASE_URL = re.sub(r'\?&', '?', DATABASE_URL)
     DATABASE_URL = DATABASE_URL.rstrip('?').rstrip('&')
 
-# PostgreSQL ise SSL ayarı ekle (URL'de sslmode yoksa)
+# Engine oluştur
+# NullPool: Vercel/Lambda gibi serverless ortamlarda zorunlu —
+# connection pool tutulmaz, her istek kendi bağlantısını açar ve kapatır.
 if DATABASE_URL.startswith("postgresql"):
-    if "sslmode" not in DATABASE_URL:
-        engine = create_engine(DATABASE_URL, connect_args={"sslmode": "require"})
-    else:
-        engine = create_engine(DATABASE_URL)
+    engine = create_engine(
+        DATABASE_URL,
+        poolclass=NullPool,
+        connect_args={"sslmode": "require"} if "sslmode" not in DATABASE_URL else {},
+    )
 else:
-    engine = create_engine(DATABASE_URL)
+    engine = create_engine(DATABASE_URL, poolclass=NullPool)
 
 # Session oluşturucu
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
