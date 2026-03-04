@@ -17,9 +17,19 @@ DATABASE_URL = os.getenv(
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-# PostgreSQL ise SSL ayarı ekle
+# psycopg2 'channel_binding' parametresini tanımıyor, URL'den temizle
+if "channel_binding" in DATABASE_URL:
+    import re
+    DATABASE_URL = re.sub(r'[&?]channel_binding=[^&]*', '', DATABASE_URL)
+    DATABASE_URL = re.sub(r'\?&', '?', DATABASE_URL)  # ?& → ?
+    DATABASE_URL = DATABASE_URL.rstrip('?').rstrip('&')
+
+# PostgreSQL ise SSL ayarı ekle (URL'de sslmode yoksa)
 if DATABASE_URL.startswith("postgresql"):
-    engine = create_engine(DATABASE_URL, connect_args={"sslmode": "require"})
+    if "sslmode" not in DATABASE_URL:
+        engine = create_engine(DATABASE_URL, connect_args={"sslmode": "require"})
+    else:
+        engine = create_engine(DATABASE_URL)
 else:
     engine = create_engine(DATABASE_URL)
 
@@ -46,11 +56,13 @@ def create_tables():
     print("✅ Database tabloları başarıyla oluşturuldu")
 
 # Uygulama başladığında tabloları otomatik oluştur (serverless için)
+# Sadece PostgreSQL bağlantısı varsa çalıştır, yoksa startup event halleder
 try:
-    from app.models import user, course  # noqa
-    Base.metadata.create_all(bind=engine)
+    if DATABASE_URL != "sqlite:///./portal_db.db":
+        from app.models import user, course  # noqa
+        Base.metadata.create_all(bind=engine)
 except Exception as e:
-    print(f"⚠️ Tablo oluşturma hatası: {e}")
+    print(f"⚠️ Tablo oluşturma hatası (devam ediliyor): {e}")
 
 # Database bağlantısını test et
 def test_connection():
