@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from mangum import Mangum
 import os
 from dotenv import load_dotenv
 
@@ -70,4 +69,9 @@ app.include_router(courses_new.router)
 async def root():
     return {"message": "18Mart Portal API - Hoş Geldiniz!"}
 
-handler = Mangum(app, lifespan="off")
+# Mangum sadece lokal/eski Vercel runtime için — yeni runtime app'i direkt kullanır
+try:
+    from mangum import Mangum
+    handler = Mangum(app, lifespan="off")
+except Exception:
+    pass
