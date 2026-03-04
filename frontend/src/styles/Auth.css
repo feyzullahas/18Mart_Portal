@@ -5,7 +5,7 @@
     justify-content: center;
     align-items: center;
     padding: 2rem 1rem;
-    background: #0f172a;
+    background: #08123a;
 }
 
 [data-theme="light"] .auth-container {
@@ -13,13 +13,13 @@
 }
 
 .auth-card {
-    background: rgba(30, 41, 59, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(10, 22, 58, 0.97);
+    border: 1px solid rgba(100, 150, 255, 0.12);
     border-radius: 16px;
     padding: 2.5rem;
     width: 100%;
     max-width: 400px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(10px);
 }
 
@@ -101,12 +101,22 @@
 .form-input {
     width: 100%;
     padding: 0.75rem 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(100, 150, 255, 0.15);
     border-radius: 8px;
-    background: rgba(15, 23, 42, 0.6);
-    color: #f1f5f9;
+    background: rgba(8, 18, 50, 0.8);
+    color: #e8edf5;
     font-size: 0.9rem;
     transition: all 0.2s ease;
+}
+
+/* Fix browser autofill white background in dark mode */
+.form-input:-webkit-autofill,
+.form-input:-webkit-autofill:hover,
+.form-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #e8edf5;
+    -webkit-box-shadow: 0 0 0px 1000px rgba(8, 18, 50, 0.95) inset;
+    transition: background-color 5000s ease-in-out 0s;
+    caret-color: #e8edf5;
 }
 
 [data-theme="light"] .form-input {

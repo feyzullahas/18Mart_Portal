@@ -6,19 +6,19 @@
 
 /* CSS Variables - Dark Theme (default) */
 :root {
-  --card-bg: rgba(15, 23, 42, 0.98);
-  --card-shadow: rgba(0, 0, 0, 0.4);
-  --item-bg: rgba(22, 33, 56, 0.9);
-  --text-primary: #f1f5f9;
+  --card-bg: rgba(10, 22, 58, 0.97);
+  --card-shadow: rgba(0, 0, 0, 0.45);
+  --item-bg: rgba(16, 32, 75, 0.92);
+  --text-primary: #e8edf5;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
   --accent-color: #f59e0b;
-  --border-color: rgba(255, 255, 255, 0.07);
+  --border-color: rgba(100, 150, 255, 0.1);
   --primary-color: #4a90e2;
   --primary-hover: #357abd;
   --success-color: #27ae60;
   --error-color: #e74c3c;
-  --background: rgba(15, 23, 42, 0.95);
+  --background: rgba(8, 18, 50, 0.98);
 }
 
 /* CSS Variables - Light Theme - Soft & Easy on Eyes */
@@ -117,7 +117,7 @@ body {
 .calendar-card .card-header h2,
 .schedule-card .card-header h2 {
   margin: 0 !important;
-  font-size: 17px !important;
+  font-size: 19px !important;
   color: var(--text-primary);
   font-weight: 600 !important;
 }
@@ -173,7 +173,7 @@ body {
   .bus-card .card-header h2,
   .calendar-card .card-header h2,
   .schedule-card .card-header h2 {
-    font-size: 15px !important;
+    font-size: 17px !important;
   }
 }
 
@@ -194,7 +194,7 @@ body {
   .calendar-card .card-header h2,
   .schedule-card .card-header h2,
   .exam-countdown-card .card-header h2 {
-    font-size: 13px !important;
+    font-size: 15px !important;
   }
 }
 
@@ -205,6 +205,6 @@ body {
   .calendar-card .card-header h2,
   .schedule-card .card-header h2,
   .exam-countdown-card .card-header h2 {
-    font-size: 12px !important;
+    font-size: 14px !important;
   }
 }
