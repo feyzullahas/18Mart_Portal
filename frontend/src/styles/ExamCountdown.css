@@ -58,6 +58,14 @@
     transition: all 0.3s ease;
 }
 
+@media screen and (max-width: 767px) {
+    .exam-countdown-card {
+        max-width: 100%;
+        margin: 0;
+        height: 100%;
+    }
+}
+
 .exam-countdown-card .card-header {
     display: flex;
     align-items: center;

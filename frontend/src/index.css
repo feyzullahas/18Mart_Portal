@@ -166,6 +166,10 @@ body {
   .schedule-card {
     padding: 18px 20px;
     border-radius: 14px;
+    /* Fill grid cell on mobile */
+    max-width: 100%;
+    margin: 0;
+    height: 100%;
   }
 
   .weather-card .card-header h2,
