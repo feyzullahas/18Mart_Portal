@@ -1,22 +1,19 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User
 from app.schemas.user import UserCreate, UserLogin, UserResponse, Token, TokenData
 from app.utils.security import hash_password, verify_password
+from app.utils.limiter import limiter
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
 import os
 
-# Environment variables'ı doğrudan ayarla
-SECRET_KEY = os.getenv("SECRET_KEY", "18mart_portal_super_secret_key_2024")
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
-
-print(f"Auth.py - SECRET_KEY: {SECRET_KEY}")
-print(f"Auth.py - ALGORITHM: {ALGORITHM}")
-print(f"Auth.py - ACCESS_TOKEN_EXPIRE_MINUTES: {ACCESS_TOKEN_EXPIRE_MINUTES}")
+# 30 gün — çıkış yapılmadıkça oturum kapanmaz
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "43200"))
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -57,7 +54,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     return user
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def register(user_data: UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def register(request: Request, user_data: UserCreate, db: Session = Depends(get_db)):
     """Yeni kullanıcı kaydı"""
     
     # Email kontrolü
@@ -81,7 +79,8 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 @router.post("/login", response_model=Token)
-def login(user_data: UserLogin, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def login(request: Request, user_data: UserLogin, db: Session = Depends(get_db)):
     """Kullanıcı girişi"""
     
     # Kullanıcıyı email ile bul

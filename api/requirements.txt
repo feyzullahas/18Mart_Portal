@@ -1,11 +1,11 @@
 fastapi
 uvicorn
+slowapi
 sqlalchemy
 pydantic[email]
 python-dotenv
 httpx
 beautifulsoup4
-mangum
 python-jose[cryptography]
 bcrypt==4.0.1
 psycopg2-binary

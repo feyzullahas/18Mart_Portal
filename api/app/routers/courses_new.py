@@ -20,8 +20,11 @@ async def get_my_courses(
     return courses
 
 @router.get("/all")
-async def get_all_courses_grouped(db: Session = Depends(get_db)):
-    """Haftanın tüm günleri için ders programını gruplandırılmış olarak getirir (genel görünüm)"""
+async def get_all_courses_grouped(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Haftanın tüm günleri için ders programını gruplandırılmış olarak getirir"""
     
     courses = db.query(Course).all()
     

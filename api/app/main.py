@@ -1,18 +1,24 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from app.utils.limiter import limiter
 import os
 from dotenv import load_dotenv
 
-# .env dosyasını yükle ve environment variables ayarla
+# .env dosyasını yükle
 load_dotenv()
-os.environ.setdefault('SECRET_KEY', '18mart_portal_super_secret_key_2024')
+# SECRET_KEY mutlaka Vercel environment variables'dan gelmeli
+# Buradaki fallback sadece lokal geliştirme içindir, production'da env var olmalı
 os.environ.setdefault('ALGORITHM', 'HS256')
-os.environ.setdefault('ACCESS_TOKEN_EXPIRE_MINUTES', '30')
+os.environ.setdefault('ACCESS_TOKEN_EXPIRE_MINUTES', '43200')
 
 from app.routers import auth_new, courses_new, weather, calendar, meals, bus
 from app.database import test_connection, create_tables
 
 app = FastAPI(title="18Mart Portal API")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Startup event - database tablolarını oluştur
 @app.on_event("startup")
@@ -31,7 +37,7 @@ async def startup_event():
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://18-mart-portal-4orl.vercel.app",
+        "https://18-mart-portal.vercel.app",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:5174",
@@ -69,9 +75,3 @@ app.include_router(courses_new.router)
 async def root():
     return {"message": "18Mart Portal API - Hoş Geldiniz!"}
 
-# Mangum sadece lokal/eski Vercel runtime için — yeni runtime app'i direkt kullanır
-try:
-    from mangum import Mangum
-    handler = Mangum(app, lifespan="off")
-except Exception:
-    pass

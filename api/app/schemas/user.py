@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
 from datetime import datetime
 
@@ -6,6 +6,17 @@ from datetime import datetime
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
+
+    @field_validator('password')
+    @classmethod
+    def password_strength(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError('Şifre en az 8 karakter olmalıdır')
+        if len(v) > 128:
+            raise ValueError('Şifre en fazla 128 karakter olabilir')
+        if not any(c.isdigit() for c in v):
+            raise ValueError('Şifre en az bir rakam içermelidir')
+        return v
 
 # Kullanıcı giriş verisi
 class UserLogin(BaseModel):
