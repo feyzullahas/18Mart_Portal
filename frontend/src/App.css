@@ -431,7 +431,7 @@
     }
 }
 
-/* ===== Mobile 2-Column Grid: Fill Entire Screen ===== */
+/* ===== Mobile: Tek Sütun, Tam Ekran Yüksekliği ===== */
 @media (max-width: 767px) {
     .app {
         min-height: 100svh;
@@ -441,18 +441,21 @@
 
     .app-container {
         flex: 1;
-        min-height: 100%;
+        display: flex;
+        flex-direction: column;
     }
 
     .app-main {
         flex: 1;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-auto-rows: minmax(80px, 1fr);
+        display: flex;
+        flex-direction: column;
         gap: 0.5rem;
     }
 
     .widget-wrapper {
-        min-height: 80px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 70px;
     }
 }
