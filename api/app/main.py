@@ -13,6 +13,11 @@ load_dotenv()
 os.environ.setdefault('ALGORITHM', 'HS256')
 os.environ.setdefault('ACCESS_TOKEN_EXPIRE_MINUTES', '43200')
 
+# SECRET_KEY kontrol — Vercel env var'da olmalı
+if not os.getenv('SECRET_KEY'):
+    import sys
+    print("HATA: SECRET_KEY environment variable ayarlanmamış!", file=sys.stderr)
+
 from app.routers import auth_new, courses_new, weather, calendar, meals, bus
 from app.database import test_connection, create_tables
 
@@ -74,4 +79,42 @@ app.include_router(courses_new.router)
 @app.get("/")
 async def root():
     return {"message": "18Mart Portal API - Hoş Geldiniz!"}
+
+
+@app.get("/health")
+async def health():
+    """Sistem durumunu diagnostik amaçlı kontrol et"""
+    import os
+    from sqlalchemy import text, inspect
+
+    result = {
+        "status": "checking",
+        "secret_key_set": bool(os.getenv("SECRET_KEY")),
+        "database_url_set": bool(os.getenv("DATABASE_URL")),
+        "db_connection": False,
+        "tables": [],
+        "errors": []
+    }
+
+    try:
+        from app.database import engine
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+            result["db_connection"] = True
+
+        inspector = inspect(engine)
+        result["tables"] = inspector.get_table_names()
+
+        # Tablolar yoksa oluşturmayı dene
+        if "users" not in result["tables"]:
+            from app.database import create_tables
+            create_tables()
+            result["tables"] = inspect(engine).get_table_names()
+            result["errors"].append("users tablosu yoktu, oluşturuldu")
+
+    except Exception as e:
+        result["errors"].append(str(e))
+
+    result["status"] = "ok" if result["db_connection"] else "error"
+    return result
 
