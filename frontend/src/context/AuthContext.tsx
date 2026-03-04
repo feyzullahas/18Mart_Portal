@@ -28,44 +28,39 @@ interface AuthProviderProps {
     children: ReactNode;
 }
 
-const API_BASE_URL = 'https://18-mart-portal.vercel.app';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://18-mart-portal-4orl.vercel.app';
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Check localStorage for existing user session and validate token
-        const validateStoredToken = async () => {
+        // localStorage'daki token'ın süresi dolmuş mu kontrol et (local, network isteği yok)
+        const validateStoredToken = () => {
             const savedUser = localStorage.getItem('user');
             const token = localStorage.getItem('token');
-            
+
             if (savedUser && token) {
                 try {
-                    // Validate token with backend
-                    const response = await fetch(`${API_BASE_URL}/courses/`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json',
-                        },
-                    });
-                    
-                    if (response.ok) {
-                        setUser(JSON.parse(savedUser));
-                    } else {
-                        // Token is invalid, remove it
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    const isExpired = payload.exp * 1000 < Date.now();
+                    if (isExpired) {
+                        // Token süresi dolmuş, temizle
                         localStorage.removeItem('user');
                         localStorage.removeItem('token');
+                    } else {
+                        // Token geçerli, oturumu devam ettir
+                        setUser(JSON.parse(savedUser));
                     }
-                } catch (error) {
-                    // Error validating token, remove it
+                } catch {
+                    // Token parse edilemiyorsa temizle
                     localStorage.removeItem('user');
                     localStorage.removeItem('token');
                 }
             }
             setIsLoading(false);
         };
-        
+
         validateStoredToken();
     }, []);
 
