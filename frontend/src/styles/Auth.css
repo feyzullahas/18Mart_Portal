@@ -109,7 +109,7 @@
     transition: all 0.2s ease;
 }
 
-/* Fix browser autofill white background in dark mode */
+/* Fix browser autofill - dark mode: lacivert arka plan */
 .form-input:-webkit-autofill,
 .form-input:-webkit-autofill:hover,
 .form-input:-webkit-autofill:focus {
@@ -123,6 +123,16 @@
     background: rgba(255, 255, 255, 0.8);
     border: 1px solid rgba(0, 0, 0, 0.1);
     color: #1f2937;
+}
+
+/* Fix browser autofill - light mode: beyaz arka plan */
+[data-theme="light"] .form-input:-webkit-autofill,
+[data-theme="light"] .form-input:-webkit-autofill:hover,
+[data-theme="light"] .form-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #1f2937;
+    -webkit-box-shadow: 0 0 0px 1000px #ffffff inset;
+    transition: background-color 5000s ease-in-out 0s;
+    caret-color: #1f2937;
 }
 
 .form-input::placeholder {
