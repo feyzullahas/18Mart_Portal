@@ -78,7 +78,7 @@ const AppContent = () => {
 
                     {/* Footer */}
                     <footer className="app-footer">
-                        <p className="footer-copyright">© 2026 18 Mart Portal - Tüm Hakları Saklıdır</p>
+                        <p className="footer-copyright">© 18 Mart Portal - Tüm Hakları Saklıdır</p>
                         <p className="footer-info">Versiyon 1.0 | Çanakkale Onsekiz Mart Üniversitesi için geliştirilmiştir</p>
                     </footer>
                 </div>
