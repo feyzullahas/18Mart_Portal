@@ -14,7 +14,7 @@ dbconfig = {
 
 connection_pool = pooling.MySQLConnectionPool(
     pool_name="portal_pool",
-    pool_size=5,
+    pool_size=5,     
     **dbconfig
 )
 
