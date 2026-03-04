@@ -5,7 +5,7 @@
     justify-content: center;
     align-items: center;
     padding: 2rem 1rem;
-    background: #08123a;
+    background: #0a1437;
 }
 
 [data-theme="light"] .auth-container {
@@ -13,13 +13,13 @@
 }
 
 .auth-card {
-    background: rgba(10, 22, 58, 0.97);
-    border: 1px solid rgba(100, 150, 255, 0.12);
+    background: rgba(26, 46, 90, 0.97);
+    border: 1px solid rgba(100, 160, 255, 0.18);
     border-radius: 16px;
     padding: 2.5rem;
     width: 100%;
     max-width: 400px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
     backdrop-filter: blur(10px);
 }
 
@@ -101,9 +101,9 @@
 .form-input {
     width: 100%;
     padding: 0.75rem 1rem;
-    border: 1px solid rgba(100, 150, 255, 0.15);
+    border: 1px solid rgba(100, 160, 255, 0.2);
     border-radius: 8px;
-    background: rgba(8, 18, 50, 0.8);
+    background: rgba(12, 24, 65, 0.85);
     color: #e8edf5;
     font-size: 0.9rem;
     transition: all 0.2s ease;
@@ -114,7 +114,7 @@
 .form-input:-webkit-autofill:hover,
 .form-input:-webkit-autofill:focus {
     -webkit-text-fill-color: #e8edf5;
-    -webkit-box-shadow: 0 0 0px 1000px rgba(8, 18, 50, 0.95) inset;
+    -webkit-box-shadow: 0 0 0px 1000px rgba(12, 24, 65, 0.98) inset;
     transition: background-color 5000s ease-in-out 0s;
     caret-color: #e8edf5;
 }

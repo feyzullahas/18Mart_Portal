@@ -6,19 +6,19 @@
 
 /* CSS Variables - Dark Theme (default) */
 :root {
-  --card-bg: rgba(10, 22, 58, 0.97);
-  --card-shadow: rgba(0, 0, 0, 0.45);
-  --item-bg: rgba(16, 32, 75, 0.92);
+  --card-bg: rgba(26, 46, 90, 0.95);
+  --card-shadow: rgba(0, 0, 0, 0.35);
+  --item-bg: rgba(36, 60, 112, 0.9);
   --text-primary: #e8edf5;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
   --accent-color: #f59e0b;
-  --border-color: rgba(100, 150, 255, 0.1);
+  --border-color: rgba(100, 160, 255, 0.15);
   --primary-color: #4a90e2;
   --primary-hover: #357abd;
   --success-color: #27ae60;
   --error-color: #e74c3c;
-  --background: rgba(8, 18, 50, 0.98);
+  --background: rgba(10, 20, 55, 0.98);
 }
 
 /* CSS Variables - Light Theme - Soft & Easy on Eyes */

@@ -6,7 +6,7 @@
     justify-content: center;
     align-items: center;
     gap: 1.5rem;
-    background: #08123a;
+    background: #0a1437;
 }
 
 [data-theme="light"] .loading-container {
@@ -57,7 +57,7 @@
     justify-content: center;
     align-items: flex-start;
     padding: 2rem 1rem;
-    background: #08123a;
+    background: #0a1437;
 }
 
 [data-theme="light"] .app {
@@ -80,9 +80,9 @@
     align-items: center;
     justify-content: space-between;
     padding: 1.5rem 1rem;
-    background: rgba(10, 22, 58, 0.95);
+    background: rgba(26, 46, 90, 0.95);
     border-radius: 16px;
-    border: 1px solid rgba(100, 150, 255, 0.1);
+    border: 1px solid rgba(100, 160, 255, 0.18);
     backdrop-filter: blur(10px);
 }
 
@@ -147,19 +147,19 @@
     order: 1;
 }
 
-.exam-countdown-widget {
+.meals-widget {
     order: 2;
 }
 
-.meals-widget {
+.bus-widget {
     order: 3;
 }
 
-.bus-widget {
+.schedule-widget {
     order: 4;
 }
 
-.schedule-widget {
+.exam-countdown-widget {
     order: 5;
 }
 
@@ -171,9 +171,9 @@
 .app-footer {
     text-align: center;
     padding: 1.5rem 1rem;
-    background: rgba(10, 22, 58, 0.85);
+    background: rgba(26, 46, 90, 0.85);
     border-radius: 16px;
-    border: 1px solid rgba(100, 150, 255, 0.08);
+    border: 1px solid rgba(100, 160, 255, 0.15);
     margin-top: 0.5rem;
 }
 
