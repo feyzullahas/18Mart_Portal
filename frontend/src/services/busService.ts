@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://18-mart-portal.vercel.app';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://18-mart-portal-4orl.vercel.app';
 
 export interface BusSchedule {
     weekday: {

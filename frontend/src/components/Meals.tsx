@@ -35,7 +35,8 @@ export const Meals = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const fetchOsemData = useCallback(async () => {
-        const res = await fetch('https://18-mart-portal.vercel.app/meals/osem');
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://18-mart-portal-4orl.vercel.app';
+        const res = await fetch(`${apiUrl}/meals/osem`);
         return res.json();
     }, []);
 
@@ -43,7 +44,8 @@ export const Meals = () => {
         const now = new Date();
         const year = now.getFullYear();
         const month = now.getMonth() + 1;
-        const res = await fetch(`https://18-mart-portal.vercel.app/meals/kyk?year=${year}&month=${month}`);
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://18-mart-portal-4orl.vercel.app';
+        const res = await fetch(`${apiUrl}/meals/kyk?year=${year}&month=${month}`);
         return res.json();
     }, []);
 
