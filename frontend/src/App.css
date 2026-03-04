@@ -431,31 +431,25 @@
     }
 }
 
-/* ===== Mobile: Tek Sütun, Tam Ekran Yüksekliği ===== */
+/* ===== Mobile: Tek Sütun, Düzenli Kartlar ===== */
 @media (max-width: 767px) {
     .app {
-        min-height: 100svh;
-        align-items: stretch;
+        min-height: 100vh;
+        align-items: flex-start;
         padding: 0.6rem;
     }
 
     .app-container {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
+        width: 100%;
     }
 
     .app-main {
-        flex: 1;
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
     }
 
     .widget-wrapper {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        min-height: 70px;
+        width: 100%;
     }
 }
