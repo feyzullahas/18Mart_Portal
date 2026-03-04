@@ -71,13 +71,14 @@
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
-    padding: 5px 0;
+    padding: 18px 0;
     user-select: none;
+    min-height: 70px;
 }
 
 .exam-countdown-card .card-header h2 {
     margin: 0;
-    font-size: 17px;
+    font-size: 22px;
     color: var(--text-primary);
     font-weight: 600;
 }

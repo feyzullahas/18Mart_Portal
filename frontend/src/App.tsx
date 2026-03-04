@@ -41,7 +41,7 @@ const AppContent = () => {
                         <img src="/favicon.png" alt="18 Mart Portal" className="header-logo" />
                         <div className="header-content">
                             <h1 className="header-title">18 Mart Portal</h1>
-                            <p className="header-subtitle">Çanakkale Onsekiz Mart Üniversitesi Öğrenci Portalı</p>
+                            <p className="header-subtitle">Çomü Öğrenci Portalı</p>
                         </div>
                         <div className="header-weather">
                             <Weather variant="header" />

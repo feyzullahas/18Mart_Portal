@@ -106,8 +106,9 @@ body {
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  padding: 5px 0;
+  padding: 18px 0;
   user-select: none;
+  min-height: 70px;
 }
 
 /* Card Header Title - Unified */
@@ -117,7 +118,7 @@ body {
 .calendar-card .card-header h2,
 .schedule-card .card-header h2 {
   margin: 0 !important;
-  font-size: 19px !important;
+  font-size: 22px !important;
   color: var(--text-primary);
   font-weight: 600 !important;
 }
@@ -171,12 +172,21 @@ body {
     width: 100%;
   }
 
+  .weather-card .card-header,
+  .meals-card .card-header,
+  .bus-card .card-header,
+  .calendar-card .card-header,
+  .schedule-card .card-header {
+    min-height: 80px;
+    padding: 20px 0;
+  }
+
   .weather-card .card-header h2,
   .meals-card .card-header h2,
   .bus-card .card-header h2,
   .calendar-card .card-header h2,
   .schedule-card .card-header h2 {
-    font-size: 17px !important;
+    font-size: 20px !important;
   }
 }
 
@@ -197,7 +207,7 @@ body {
   .calendar-card .card-header h2,
   .schedule-card .card-header h2,
   .exam-countdown-card .card-header h2 {
-    font-size: 15px !important;
+    font-size: 18px !important;
   }
 }
 
@@ -208,6 +218,6 @@ body {
   .calendar-card .card-header h2,
   .schedule-card .card-header h2,
   .exam-countdown-card .card-header h2 {
-    font-size: 14px !important;
+    font-size: 17px !important;
   }
 }
