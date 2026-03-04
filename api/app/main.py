@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import _rate_limit_exceeded_handler
+from slowapi import _rate_limit_exceeded_handler as rate_limit_handler
 from slowapi.errors import RateLimitExceeded
 from app.utils.limiter import limiter
 import os
@@ -23,7 +23,7 @@ from app.database import test_connection, create_tables
 
 app = FastAPI(title="18Mart Portal API")
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
 
 # Startup event - database tablolarını oluştur
 @app.on_event("startup")
