@@ -102,10 +102,6 @@ export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: Weat
     const hourStart = startIndex >= 0 ? startIndex : 0;
     const hourlySlice = forecast.hourly.time.slice(hourStart, hourStart + 25);
 
-    // ─── Sıcaklık barı için global min/max ──────────────────────
-    const globalMin = Math.min(...forecast.daily.temperature_2m_min);
-    const globalMax = Math.max(...forecast.daily.temperature_2m_max);
-    const tempRange = globalMax - globalMin || 1;
 
     const today = new Date();
 
@@ -170,7 +166,7 @@ export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: Weat
                                 <div key={timeStr} className={`hourly-item${isNow ? ' hourly-item--now' : ''}`}>
                                     <span className="hourly-time">{label}</span>
                                     <span className="hourly-icon">
-                                        {getWeatherEmoji(forecast.hourly.weathercode[idx])}
+                                        {getWeatherEmoji(forecast.hourly.weathercode[idx], date.getHours())}
                                     </span>
                                     {precip > 0 && (
                                         <span className="hourly-precip">💧{precip}%</span>
@@ -197,8 +193,6 @@ export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: Weat
                             const dayMin = forecast.daily.temperature_2m_min[index];
                             const dayMax = forecast.daily.temperature_2m_max[index];
                             const precip = forecast.daily.precipitation_probability_max[index];
-                            const barLeft = ((dayMin - globalMin) / tempRange) * 100;
-                            const barWidth = ((dayMax - dayMin) / tempRange) * 100;
 
                             return (
                                 <div key={dateStr} className={`daily-item${isToday ? ' daily-item--today' : ''}`}>
@@ -209,16 +203,11 @@ export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: Weat
                                     <span className="daily-precip">
                                         {precip > 0 ? `💧${precip}%` : ''}
                                     </span>
-                                    <div className="daily-bar-row">
+                                    <span className="daily-temp-range">
                                         <span className="daily-temp-min">{Math.round(dayMin)}°</span>
-                                        <div className="daily-bar-track">
-                                            <div
-                                                className="daily-bar-fill"
-                                                style={{ left: `${barLeft}%`, width: `${Math.max(barWidth, 8)}%` }}
-                                            />
-                                        </div>
+                                        <span className="daily-temp-sep">/</span>
                                         <span className="daily-temp-max">{Math.round(dayMax)}°</span>
-                                    </div>
+                                    </span>
                                 </div>
                             );
                         })}

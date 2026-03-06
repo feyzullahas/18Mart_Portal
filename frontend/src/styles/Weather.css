@@ -318,7 +318,7 @@
 
 .daily-item {
     display: grid;
-    grid-template-columns: 100px 32px 56px 1fr;
+    grid-template-columns: 100px 32px 56px auto;
     align-items: center;
     gap: 10px;
     padding: 10px 12px;
@@ -351,38 +351,16 @@
     white-space: nowrap;
 }
 
-.daily-bar-row {
+.daily-temp-range {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 3px;
+    justify-content: flex-end;
 }
 
-.daily-temp-min, .daily-temp-max {
-    font-size: 13px;
-    font-weight: 600;
-    min-width: 28px;
-    text-align: center;
-}
-
-.daily-temp-min { color: var(--text-secondary); }
-.daily-temp-max { color: var(--text-primary); }
-
-.daily-bar-track {
-    flex: 1;
-    height: 5px;
-    background: var(--border-color);
-    border-radius: 3px;
-    position: relative;
-    overflow: hidden;
-}
-
-.daily-bar-fill {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    border-radius: 3px;
-    background: linear-gradient(90deg, #4a90e2, #764ba2);
-}
+.daily-temp-min { color: var(--text-secondary); font-size: 13px; font-weight: 600; }
+.daily-temp-sep { color: var(--text-secondary); font-size: 12px; }
+.daily-temp-max { color: var(--text-primary); font-size: 13px; font-weight: 700; }
 
 /* Loading & Error */
 .weather-loading,
@@ -408,7 +386,7 @@
     .current-desc { font-size: 16px; }
 
     .daily-item {
-        grid-template-columns: 90px 28px 50px 1fr;
+        grid-template-columns: 90px 28px 50px auto;
         gap: 8px;
         padding: 9px 10px;
     }
@@ -434,14 +412,14 @@
     }
 
     .daily-item {
-        grid-template-columns: 72px 26px 44px 1fr;
+        grid-template-columns: 72px 26px 44px auto;
         gap: 6px;
         padding: 8px 8px;
     }
 
     .daily-day { font-size: 13px; }
 
-    .daily-temp-min, .daily-temp-max { font-size: 12px; min-width: 22px; }
+    .daily-temp-min, .daily-temp-max, .daily-temp-sep { font-size: 12px; }
 
     .hourly-item { min-width: 50px; padding: 8px 6px; }
 }
@@ -453,7 +431,7 @@
     .current-temp { font-size: 36px; }
 
     .daily-item {
-        grid-template-columns: 60px 24px 38px 1fr;
+        grid-template-columns: 60px 24px 38px auto;
         gap: 5px;
     }
 }

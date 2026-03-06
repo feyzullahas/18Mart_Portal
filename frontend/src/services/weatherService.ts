@@ -45,10 +45,11 @@ export const weatherService = {
     }
 };
 
-// WMO hava kodu → emoji
-export const getWeatherEmoji = (code: number): string => {
-    if (code === 0) return '☀️';
-    if (code === 1) return '🌤️';
+// WMO hava kodu → emoji (gece saatleri için ay/yıldız varyantları)
+export const getWeatherEmoji = (code: number, hour?: number): string => {
+    const isNight = hour !== undefined && (hour >= 21 || hour < 6);
+    if (code === 0) return isNight ? '🌙' : '☀️';
+    if (code === 1) return isNight ? '🌘' : '🌤️';
     if (code === 2) return '⛅';
     if (code === 3) return '☁️';
     if (code <= 48) return '🌫️';
