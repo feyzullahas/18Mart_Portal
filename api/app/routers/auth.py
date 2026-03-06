@@ -12,7 +12,8 @@ import os
 # Environment variables'ı doğrudan ayarla
 SECRET_KEY = os.getenv("SECRET_KEY", "18mart_portal_super_secret_key_2024")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+# 1 yıl — çıkış yapılmadıkça oturum kapanmaz
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "525600"))
 
 print(f"Auth.py - SECRET_KEY: {SECRET_KEY}")
 print(f"Auth.py - ALGORITHM: {ALGORITHM}")

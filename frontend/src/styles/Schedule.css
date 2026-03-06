@@ -181,8 +181,14 @@
 }
 
 .subject-name {
-    font-size: 0.9rem;
+    font-size: 1rem;
+    font-weight: 600;
     color: var(--text-primary);
+}
+
+.subject-location {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
 }
 
 .remove-btn {

@@ -12,8 +12,8 @@ import os
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
-# 30 gün — çıkış yapılmadıkça oturum kapanmaz
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "43200"))
+# 1 yıl — çıkış yapılmadıkça oturum kapanmaz
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "525600"))
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 

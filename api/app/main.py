@@ -11,7 +11,7 @@ load_dotenv()
 # SECRET_KEY mutlaka Vercel environment variables'dan gelmeli
 # Buradaki fallback sadece lokal geliştirme içindir, production'da env var olmalı
 os.environ.setdefault('ALGORITHM', 'HS256')
-os.environ.setdefault('ACCESS_TOKEN_EXPIRE_MINUTES', '43200')
+os.environ.setdefault('ACCESS_TOKEN_EXPIRE_MINUTES', '525600')
 
 # SECRET_KEY kontrol — Vercel env var'da olmalı
 if not os.getenv('SECRET_KEY'):

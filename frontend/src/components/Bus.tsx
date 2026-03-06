@@ -8,9 +8,17 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [localOpen, setLocalOpen] = useState(false);
+    const [pdfLoading, setPdfLoading] = useState(true);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
     const isOpen = propIsOpen !== undefined ? propIsOpen : localOpen;
     const handleToggle = onToggle ?? (() => setLocalOpen(prev => !prev));
     const [activeType, setActiveType] = useState<'weekday' | 'weekend'>('weekday');
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -36,6 +44,11 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
     const currentPdf = activeType === 'weekday'
         ? schedule?.weekday?.url
         : schedule?.weekend?.url;
+
+    // Tab değişince loading'i sıfırla
+    useEffect(() => {
+        setPdfLoading(true);
+    }, [currentPdf]);
 
     return (
         <div className="bus-card">
@@ -83,13 +96,54 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
                         {/* PDF Viewer */}
                         {currentPdf && (
                             <div className="pdf-viewer">
-                                <iframe
-                                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(currentPdf)}&embedded=true`}
-                                    title="Otobüs Saatleri PDF"
-                                    width="100%"
-                                    height="600"
-                                    style={{ border: 'none', borderRadius: '8px' }}
-                                />
+                                {isMobile ? (
+                                    <div className="pdf-mobile-view">
+                                        <p className="pdf-mobile-hint">
+                                            PDF dosyasını görüntülemek veya indirmek için aşağıdaki butona dokunun. Tarayıcınız PDF'i açacak, iki parmakla yakınlaştırabilirsiniz.
+                                        </p>
+                                        <a
+                                            href={currentPdf}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="pdf-open-btn"
+                                        >
+                                            📄 PDF'i Görüntüle
+                                        </a>
+                                        <a
+                                            href={currentPdf}
+                                            download
+                                            className="download-btn"
+                                        >
+                                            ⬇️ İndir
+                                        </a>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {pdfLoading && (
+                                            <div className="pdf-loading">
+                                                <div className="loading-spinner"></div>
+                                                <p>PDF yükleniyor...</p>
+                                            </div>
+                                        )}
+                                        <iframe
+                                            key={currentPdf}
+                                            src={`https://docs.google.com/viewer?url=${encodeURIComponent(currentPdf)}&embedded=true`}
+                                            title="Otobüs Saatleri PDF"
+                                            width="100%"
+                                            height="600"
+                                            style={{ border: 'none', borderRadius: '8px', display: pdfLoading ? 'none' : 'block' }}
+                                            onLoad={() => setPdfLoading(false)}
+                                        />
+                                        <a
+                                            href={currentPdf}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="download-btn"
+                                        >
+                                            ↗️ Yeni Sekmede Aç
+                                        </a>
+                                    </>
+                                )}
                             </div>
                         )}
                     </div>
