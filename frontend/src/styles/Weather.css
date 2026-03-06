@@ -101,6 +101,364 @@
     transition: all 0.3s ease;
 }
 
+.weather-card .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 5px 0;
+    user-select: none;
+}
+
+.weather-card .card-header h2 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.weather-card .toggle-icon {
+    font-size: 14px;
+    color: var(--text-muted);
+    transition: transform 0.3s ease;
+}
+
+.weather-card .toggle-icon.open {
+    transform: rotate(180deg);
+}
+
+.weather-card .card-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease, opacity 0.3s ease, padding 0.3s ease;
+    opacity: 0;
+}
+
+.weather-card .card-content.open {
+    max-height: 2400px;
+    opacity: 1;
+    padding-top: 20px;
+}
+
+/* ─── Anlık Hava ─── */
+.current-weather {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.08));
+    border: 1px solid rgba(102, 126, 234, 0.18);
+    border-radius: 16px;
+    padding: 24px 20px 20px;
+    margin-bottom: 20px;
+}
+
+.current-weather-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.current-weather-icon {
+    font-size: 72px;
+    line-height: 1;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12));
+}
+
+.current-weather-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.current-temp {
+    font-size: 60px;
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--accent-color), #764ba2);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: flex-start;
+    gap: 2px;
+}
+
+.current-temp-unit {
+    font-size: 26px;
+    font-weight: 700;
+    margin-top: 10px;
+    background: linear-gradient(135deg, var(--accent-color), #764ba2);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.current-desc {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.current-feels {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.current-details {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.current-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--item-bg);
+    border-radius: 20px;
+    padding: 7px 14px;
+    flex: 1;
+    min-width: 110px;
+    justify-content: center;
+}
+
+.detail-icon  { font-size: 15px; }
+
+.detail-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.detail-value {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* ─── Bölüm başlığı ─── */
+.section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+/* ─── Saatlik Scroll ─── */
+.hourly-section {
+    margin-bottom: 20px;
+}
+
+.hourly-scroll {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+}
+
+.hourly-scroll::-webkit-scrollbar { height: 4px; }
+.hourly-scroll::-webkit-scrollbar-track { background: transparent; }
+.hourly-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+
+.hourly-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 10px;
+    border-radius: 14px;
+    background: var(--item-bg);
+    min-width: 58px;
+    flex-shrink: 0;
+    transition: background 0.2s;
+}
+
+.hourly-item--now {
+    background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(118,75,162,0.15));
+    border: 1px solid rgba(102,126,234,0.3);
+}
+
+.hourly-time {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.hourly-item--now .hourly-time {
+    color: var(--accent-color);
+}
+
+.hourly-icon { font-size: 22px; line-height: 1; }
+
+.hourly-precip {
+    font-size: 10px;
+    color: #4a90e2;
+    font-weight: 600;
+}
+
+.hourly-temp {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* ─── 7 Günlük Liste ─── */
+.daily-section { }
+
+.daily-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.daily-item {
+    display: grid;
+    grid-template-columns: 100px 32px 56px 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--item-bg);
+    transition: background 0.2s;
+}
+
+.daily-item--today {
+    background: linear-gradient(135deg, rgba(102,126,234,0.14), rgba(118,75,162,0.1));
+    border: 1px solid rgba(102,126,234,0.25);
+}
+
+.daily-day {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.daily-icon { font-size: 22px; line-height: 1; }
+
+.daily-precip {
+    font-size: 11px;
+    color: #4a90e2;
+    font-weight: 600;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.daily-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.daily-temp-min, .daily-temp-max {
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 28px;
+    text-align: center;
+}
+
+.daily-temp-min { color: var(--text-secondary); }
+.daily-temp-max { color: var(--text-primary); }
+
+.daily-bar-track {
+    flex: 1;
+    height: 5px;
+    background: var(--border-color);
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+}
+
+.daily-bar-fill {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #4a90e2, #764ba2);
+}
+
+/* Loading & Error */
+.weather-loading,
+.weather-error {
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 15px;
+    color: var(--text-secondary);
+}
+
+.weather-error { color: #e74c3c; }
+
+/* ─── TABLET ─── */
+@media screen and (max-width: 768px) {
+    .weather-card { padding: 20px; }
+
+    .current-weather-icon { font-size: 56px; }
+
+    .current-temp { font-size: 48px; }
+
+    .current-temp-unit { font-size: 20px; margin-top: 8px; }
+
+    .current-desc { font-size: 16px; }
+
+    .daily-item {
+        grid-template-columns: 90px 28px 50px 1fr;
+        gap: 8px;
+        padding: 9px 10px;
+    }
+}
+
+/* ─── MOBİL ─── */
+@media screen and (max-width: 576px) {
+    .weather-card { padding: 18px 15px; }
+
+    .current-weather { padding: 18px 14px 16px; }
+
+    .current-weather-icon { font-size: 48px; }
+
+    .current-temp { font-size: 42px; }
+
+    .current-temp-unit { font-size: 18px; margin-top: 7px; }
+
+    .current-desc { font-size: 15px; }
+
+    .current-detail-item {
+        min-width: 90px;
+        padding: 6px 10px;
+    }
+
+    .daily-item {
+        grid-template-columns: 72px 26px 44px 1fr;
+        gap: 6px;
+        padding: 8px 8px;
+    }
+
+    .daily-day { font-size: 13px; }
+
+    .daily-temp-min, .daily-temp-max { font-size: 12px; min-width: 22px; }
+
+    .hourly-item { min-width: 50px; padding: 8px 6px; }
+}
+
+/* ─── KÜÇÜK MOBİL ─── */
+@media screen and (max-width: 400px) {
+    .weather-card { padding: 15px 12px; }
+
+    .current-temp { font-size: 36px; }
+
+    .daily-item {
+        grid-template-columns: 60px 24px 38px 1fr;
+        gap: 5px;
+    }
+}
+
+
 /* Toggle Header */
 .weather-card .card-header {
     display: flex;
@@ -134,316 +492,4 @@
     overflow: hidden;
     transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
     opacity: 0;
-}
-
-.weather-card .card-content.open {
-    max-height: 1000px;
-    opacity: 1;
-    padding-top: 20px;
-}
-
-/* Main Weather Display */
-.current-weather {
-    text-align: center;
-    padding: 30px 20px;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
-    border-radius: 16px;
-    margin-bottom: 25px;
-    border: 1px solid rgba(102, 126, 234, 0.15);
-}
-
-.weather-main {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 15px;
-}
-
-.weather-icon {
-    font-size: 80px;
-    line-height: 1;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
-}
-
-.weather-temp {
-    display: flex;
-    align-items: flex-start;
-    gap: 2px;
-}
-
-.temp-value {
-    font-size: 64px;
-    font-weight: 800;
-    line-height: 1;
-    background: linear-gradient(135deg, var(--accent-color), #764ba2);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.temp-unit {
-    font-size: 28px;
-    margin-top: 8px;
-    color: var(--accent-color);
-    font-weight: 700;
-}
-
-.weather-desc {
-    font-size: 20px;
-    margin: 12px 0 8px 0;
-    color: var(--text-primary);
-    font-weight: 600;
-}
-
-.weather-wind {
-    font-size: 14px;
-    color: var(--text-secondary);
-    background: var(--item-bg);
-    display: inline-block;
-    padding: 6px 14px;
-    border-radius: 20px;
-    margin-top: 8px;
-}
-
-/* Forecast Section */
-.forecast h3 {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 16px;
-    color: var(--text-secondary);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.forecast-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 12px;
-}
-
-.forecast-item {
-    text-align: center;
-    background: var(--item-bg);
-    padding: 18px 10px;
-    border-radius: 14px;
-    transition: all 0.3s ease;
-    color: var(--text-primary);
-    border: 2px solid transparent;
-}
-
-.forecast-item:hover {
-    transform: translateY(-4px);
-    border-color: var(--accent-color);
-    background: var(--card-bg);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
-}
-
-.forecast-day {
-    font-size: 12px;
-    margin-bottom: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-    letter-spacing: 0.5px;
-}
-
-.forecast-icon {
-    font-size: 36px;
-    margin: 10px 0;
-}
-
-.forecast-temp {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    margin-top: 8px;
-}
-
-.temp-max {
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.temp-min {
-    color: var(--text-muted);
-    font-weight: 500;
-}
-
-/* Loading & Error */
-.weather-card.loading,
-.weather-card.error {
-    text-align: center;
-    padding: 50px 20px;
-    font-size: 16px;
-    color: var(--text-secondary);
-}
-
-.weather-card.error {
-    background: #ffe6e6;
-    color: #d63031;
-}
-
-[data-theme="dark"] .weather-card.error {
-    background: #3d2a2a;
-    color: #ff7675;
-}
-
-/* ========== TABLET (768px ve altı) ========== */
-@media screen and (max-width: 768px) {
-    .weather-card {
-        padding: 20px;
-        border-radius: 16px;
-    }
-
-    .current-weather {
-        padding: 25px 15px;
-    }
-
-    .weather-icon {
-        font-size: 65px;
-    }
-
-    .temp-value {
-        font-size: 54px;
-    }
-
-    .temp-unit {
-        font-size: 24px;
-    }
-
-    .weather-desc {
-        font-size: 18px;
-    }
-
-    .forecast-grid {
-        grid-template-columns: repeat(5, 1fr);
-        gap: 8px;
-    }
-
-    .forecast-item {
-        padding: 14px 6px;
-    }
-
-    .forecast-icon {
-        font-size: 28px;
-    }
-
-    .forecast-day {
-        font-size: 10px;
-    }
-
-    .forecast-temp {
-        font-size: 12px;
-    }
-}
-
-/* ========== MOBİL (576px ve altı) ========== */
-@media screen and (max-width: 576px) {
-    .weather-card {
-        padding: 18px 15px;
-        border-radius: 14px;
-    }
-
-    .current-weather {
-        padding: 20px 12px;
-        border-radius: 12px;
-    }
-
-    .weather-main {
-        gap: 15px;
-    }
-
-    .weather-icon {
-        font-size: 55px;
-    }
-
-    .temp-value {
-        font-size: 38px;
-    }
-
-    .temp-unit {
-        font-size: 16px;
-        margin-top: 6px;
-    }
-
-    .weather-desc {
-        font-size: 14px;
-    }
-
-    .weather-wind {
-        font-size: 13px;
-        padding: 5px 12px;
-    }
-
-    .forecast h3 {
-        font-size: 14px;
-        margin-bottom: 15px;
-    }
-
-    /* Mobilde 3 gün göster */
-    .forecast-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-    }
-
-    .forecast-item:nth-child(4),
-    .forecast-item:nth-child(5) {
-        display: none;
-    }
-
-    .forecast-item {
-        padding: 15px 8px;
-        border-radius: 12px;
-    }
-
-    .forecast-icon {
-        font-size: 30px;
-    }
-
-    .forecast-day {
-        font-size: 11px;
-    }
-
-    .forecast-temp {
-        font-size: 13px;
-    }
-}
-
-/* ========== KÜÇÜK MOBİL (400px ve altı) ========== */
-@media screen and (max-width: 400px) {
-    .weather-card {
-        padding: 15px 12px;
-    }
-
-    .weather-icon {
-        font-size: 50px;
-    }
-
-    .temp-value {
-        font-size: 32px;
-    }
-
-    .temp-unit {
-        font-size: 14px;
-    }
-
-    .weather-desc {
-        font-size: 13px;
-    }
-
-    .forecast-grid {
-        gap: 8px;
-    }
-
-    .forecast-item {
-        padding: 12px 6px;
-    }
-
-    .forecast-icon {
-        font-size: 26px;
-    }
 }

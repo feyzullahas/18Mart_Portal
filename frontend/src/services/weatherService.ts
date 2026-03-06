@@ -1,20 +1,33 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://18-mart-portal-4orl.vercel.app';
 
 export interface CurrentWeather {
-    current_weather: {
-        temperature: number;
-        windspeed: number;
-        weathercode: number;
+    current: {
         time: string;
+        temperature_2m: number;
+        apparent_temperature: number;
+        relative_humidity_2m: number;
+        weathercode: number;
+        wind_speed_10m: number;
+        precipitation: number;
     };
 }
 
 export interface Forecast {
+    hourly: {
+        time: string[];
+        temperature_2m: number[];
+        weathercode: number[];
+        precipitation_probability: number[];
+        apparent_temperature: number[];
+    };
     daily: {
         time: string[];
         temperature_2m_max: number[];
         temperature_2m_min: number[];
+        apparent_temperature_max: number[];
+        apparent_temperature_min: number[];
         weathercode: number[];
+        precipitation_probability_max: number[];
     };
 }
 
@@ -25,33 +38,41 @@ export const weatherService = {
         return response.json();
     },
 
-    async getForecast(days: number = 5): Promise<Forecast> {
+    async getForecast(days: number = 7): Promise<Forecast> {
         const response = await fetch(`${API_BASE_URL}/weather/forecast?days=${days}`);
         if (!response.ok) throw new Error('Tahmin alınamadı');
         return response.json();
     }
 };
 
-// Hava durumu kodlarını emoji'ye çevir
+// WMO hava kodu → emoji
 export const getWeatherEmoji = (code: number): string => {
     if (code === 0) return '☀️';
-    if (code <= 3) return '⛅';
+    if (code === 1) return '🌤️';
+    if (code === 2) return '⛅';
+    if (code === 3) return '☁️';
     if (code <= 48) return '🌫️';
+    if (code <= 55) return '🌦️';
     if (code <= 67) return '🌧️';
     if (code <= 77) return '🌨️';
-    if (code <= 82) return '🌧️';
+    if (code <= 82) return '🌦️';
     if (code <= 86) return '🌨️';
     return '⛈️';
 };
 
-// Hava durumu kodlarını açıklamaya çevir
+// WMO hava kodu → Türkçe açıklama
 export const getWeatherDescription = (code: number): string => {
     if (code === 0) return 'Açık';
-    if (code <= 3) return 'Parçalı Bulutlu';
+    if (code === 1) return 'Az Bulutlu';
+    if (code === 2) return 'Parçalı Bulutlu';
+    if (code === 3) return 'Kapalı';
     if (code <= 48) return 'Sisli';
-    if (code <= 67) return 'Yağmurlu';
-    if (code <= 77) return 'Karlı';
-    if (code <= 82) return 'Sağanak Yağışlı';
-    if (code <= 86) return 'Kar Yağışlı';
+    if (code <= 55) return 'Çiseleme';
+    if (code <= 65) return 'Yağmurlu';
+    if (code <= 67) return 'Dondurucu Yağmur';
+    if (code <= 75) return 'Kar Yağışlı';
+    if (code === 77) return 'Kar Taneleri';
+    if (code <= 82) return 'Sağanak Yağış';
+    if (code <= 86) return 'Kar Sağanağı';
     return 'Fırtınalı';
 };

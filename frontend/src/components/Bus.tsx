@@ -99,7 +99,7 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
                                 {isMobile ? (
                                     <div className="pdf-mobile-view">
                                         <p className="pdf-mobile-hint">
-                                            PDF dosyasını görüntülemek veya indirmek için aşağıdaki butona dokunun. Tarayıcınız PDF'i açacak, iki parmakla yakınlaştırabilirsiniz.
+                                            En güncel PDF için tıklayın.
                                         </p>
                                         <a
                                             href={currentPdf}

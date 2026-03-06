@@ -12,7 +12,7 @@ async def get_current_weather():
     return data
 
 @router.get("/forecast")
-async def get_forecast(days: int = 5):
+async def get_forecast(days: int = 7):
     """Hava durumu tahminini getirir"""
     if days < 1 or days > 7:
         raise HTTPException(status_code=400, detail="Gün sayısı 1-7 arası olmalı")
