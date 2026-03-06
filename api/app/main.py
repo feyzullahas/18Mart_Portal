@@ -42,7 +42,8 @@ async def startup_event():
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://18-mart-portal.vercel.app",
+        "https://18martportal.tech",
+        "https://www.18martportal.tech",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:5174",
