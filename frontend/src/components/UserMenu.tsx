@@ -41,7 +41,6 @@ export const UserMenu = () => {
                     <div className="menu-divider"></div>
                     
                     <button className="menu-item logout-item" onClick={handleLogout}>
-                        <span className="menu-icon">🚪</span>
                         Çıkış Yap
                     </button>
                 </div>
