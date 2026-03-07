@@ -90,7 +90,7 @@ export const ExamCountdown = ({ variant = 'card', isOpen: propIsOpen, onToggle }
                         {/* Vizeler */}
                         <div className="exam-countdown-section">
                             <div className="exam-countdown-header">
-                                <h3>📚 Vizelere kalan süre</h3>
+                                <h3>Vizelere kalan süre</h3>
                                 <div className="exam-countdown-date">6 Nisan 2026</div>
                             </div>
                             <div className="exam-countdown-time-large">
@@ -116,7 +116,7 @@ export const ExamCountdown = ({ variant = 'card', isOpen: propIsOpen, onToggle }
                         {/* Finaller */}
                         <div className="exam-countdown-section">
                             <div className="exam-countdown-header">
-                                <h3>🎯 Finallere kalan süre</h3>
+                                <h3>Finallere kalan süre</h3>
                                 <div className="exam-countdown-date">8 Haziran 2026</div>
                             </div>
                             <div className="exam-countdown-time-large">

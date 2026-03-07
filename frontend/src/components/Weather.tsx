@@ -149,17 +149,14 @@ export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: Weat
                     </div>
                     <div className="current-details">
                         <div className="current-detail-item">
-                            <span className="detail-icon">💧</span>
                             <span className="detail-label">Nem</span>
                             <span className="detail-value">{current.current.relative_humidity_2m}%</span>
                         </div>
                         <div className="current-detail-item">
-                            <span className="detail-icon">💨</span>
                             <span className="detail-label">Rüzgar</span>
                             <span className="detail-value">{Math.round(current.current.wind_speed_10m)} km/s</span>
                         </div>
                         <div className="current-detail-item">
-                            <span className="detail-icon">🌂</span>
                             <span className="detail-label">Yağış</span>
                             <span className="detail-value">{current.current.precipitation} mm</span>
                         </div>

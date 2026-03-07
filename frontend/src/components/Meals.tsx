@@ -125,13 +125,13 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                         className={activeTab === 'osem' ? 'active' : ''}
                         onClick={() => setActiveTab('osem')}
                     >
-                        🏫 ÖSEM (Üniversite)
+                        ÖSEM (Üniversite)
                     </button>
                     <button
                         className={activeTab === 'kyk' ? 'active' : ''}
                         onClick={() => setActiveTab('kyk')}
                     >
-                        🏠 KYK (Yurt)
+                        KYK (Yurt)
                     </button>
                 </div>
 
