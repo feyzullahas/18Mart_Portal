@@ -30,6 +30,7 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
     const [osemData, setOsemData] = useState<OsemDay[]>([]);
     const [selectedOsemIndex, setSelectedOsemIndex] = useState(0);
     const [selectedKykIndex, setSelectedKykIndex] = useState(0);
+    const [isWeekend, setIsWeekend] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [localOpen, setLocalOpen] = useState(false);
@@ -64,7 +65,27 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                 setKykData(kyk);
 
                 const todayOsemIdx = osem.findIndex((d: OsemDay) => d.isToday);
-                if (todayOsemIdx >= 0) setSelectedOsemIndex(todayOsemIdx);
+                if (todayOsemIdx >= 0) {
+                    setSelectedOsemIndex(todayOsemIdx);
+                    setIsWeekend(false);
+                } else {
+                    // Haftasonu: bugünden önceki en son iş günü girişini bul
+                    const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+                    const dayOfWeek = new Date().getDay(); // 0=Pazar, 6=Cumartesi
+                    const weekend = dayOfWeek === 0 || dayOfWeek === 6;
+                    setIsWeekend(weekend);
+                    if (weekend) {
+                        // dateRaw YYYY-MM-DD formatında, string karşılaştırması çalışır
+                        let lastIdx = -1;
+                        for (let i = osem.length - 1; i >= 0; i--) {
+                            if (osem[i].dateRaw <= todayStr) {
+                                lastIdx = i;
+                                break;
+                            }
+                        }
+                        if (lastIdx >= 0) setSelectedOsemIndex(lastIdx);
+                    }
+                }
 
                 const todayKykIdx = kyk.findIndex((d: KykDay) => d.isToday);
                 if (todayKykIdx >= 0) setSelectedKykIndex(todayKykIdx);
@@ -137,6 +158,7 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                             <div className="day-info">
                                 <span className="day-date">{currentOsemDay.date}</span>
                                 {currentOsemDay.isToday && <span className="today-badge">Bugün</span>}
+                                {isWeekend && !currentOsemDay.isToday && <span className="weekend-badge">Son iş günü</span>}
                             </div>
                             <button className="nav-btn" onClick={goToPrevOsem}>▶</button>
                         </div>
