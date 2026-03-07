@@ -10,8 +10,8 @@ class UserCreate(BaseModel):
     @field_validator('password')
     @classmethod
     def password_strength(cls, v: str) -> str:
-        if len(v) < 8:
-            raise ValueError('Şifre en az 8 karakter olmalıdır')
+        if len(v) > 6:
+            raise ValueError('Şifre en fazla 6 karakter olmalıdır')
         if len(v) > 128:
             raise ValueError('Şifre en fazla 128 karakter olabilir')
         if not any(c.isdigit() for c in v):
