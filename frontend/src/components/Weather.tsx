@@ -83,7 +83,7 @@ export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: Weat
         return (
             <div className="weather-card">
                 <div className="card-header" onClick={handleToggle}>
-                    <h2>🌍 Çanakkale Hava Durumu</h2>
+                    <h2>☀️ Çanakkale Hava Durumu</h2>
                     <span className={`toggle-icon ${isOpen ? 'open' : ''}`}>▼</span>
                 </div>
                 <div className={`card-content ${isOpen ? 'open' : ''}`}>
