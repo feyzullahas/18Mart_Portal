@@ -177,7 +177,7 @@ export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: Weat
                         {hourlySlice.map((timeStr, i) => {
                             const idx = hourStart + i;
                             const date = new Date(timeStr);
-                            const isNow = i === 0;
+                            const isNow = selectedDayIndex === 0 && i === 0;
                             const label = isNow ? 'Şimdi' : `${pad(date.getHours())}:00`;
                             const precip = forecast.hourly.precipitation_probability[idx];
                             return (
