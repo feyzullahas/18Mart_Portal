@@ -6,7 +6,7 @@
     justify-content: center;
     align-items: center;
     gap: 1.5rem;
-    background: #0a1437;
+    background: #0d0d0d;
 }
 
 [data-theme="light"] .loading-container {
@@ -57,7 +57,7 @@
     justify-content: center;
     align-items: flex-start;
     padding: 2rem 1rem;
-    background: #0a1437;
+    background: #0d0d0d;
 }
 
 [data-theme="light"] .app {
@@ -80,9 +80,9 @@
     align-items: center;
     justify-content: space-between;
     padding: 1.5rem 1rem;
-    background: rgba(26, 46, 90, 0.95);
+    background: rgba(22, 22, 22, 0.97);
     border-radius: 16px;
-    border: 1px solid rgba(100, 160, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.07);
     backdrop-filter: blur(10px);
 }
 
@@ -112,7 +112,7 @@
 .header-title {
     font-size: 1.75rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #e0ecff 0%, #a8c8ff 100%);
+    background: linear-gradient(135deg, #f0f0f0 0%, #c8c8c8 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -182,9 +182,9 @@
 .app-footer {
     text-align: center;
     padding: 1.5rem 1rem;
-    background: rgba(26, 46, 90, 0.85);
+    background: rgba(22, 22, 22, 0.97);
     border-radius: 16px;
-    border: 1px solid rgba(100, 160, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.07);
     margin-top: 0.5rem;
 }
 

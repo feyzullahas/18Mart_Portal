@@ -157,7 +157,7 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
 
                         {/* Menü */}
                         <div className="meal-column single">
-                            <h3>🍽️ Öğle Yemeği</h3>
+                            <h3>Öğle Yemeği</h3>
                             <div className="meal-items">
                                 {currentOsemDay.menu.map((m, i) => (
                                     <div key={i} className="meal-row">
@@ -186,7 +186,7 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                         <div className="meal-grid">
                             {/* Kahvaltı */}
                             <div className="meal-column">
-                                <h3>☀️ Kahvaltı</h3>
+                                <h3>Kahvaltı</h3>
                                 <div className="meal-items">
                                     {currentKykDay.breakfast.map((m, i) => (
                                         <div key={i} className="meal-row">
@@ -202,7 +202,7 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
 
                             {/* Akşam */}
                             <div className="meal-column">
-                                <h3>🌙 Akşam Yemeği</h3>
+                                <h3>Akşam Yemeği</h3>
                                 <div className="meal-items">
                                     {currentKykDay.dinner.map((m, i) => (
                                         <div key={i} className="meal-row">
