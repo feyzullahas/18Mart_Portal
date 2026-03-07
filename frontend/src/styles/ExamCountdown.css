@@ -16,9 +16,9 @@
 }
 
 [data-theme="dark"] .exam-countdown-header-widget {
-    background: linear-gradient(135deg, rgba(40, 60, 100, 0.95), rgba(30, 48, 85, 0.9));
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    background: rgba(22, 22, 22, 0.97);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .exam-countdown-header-widget:hover {
@@ -29,9 +29,9 @@
 }
 
 [data-theme="dark"] .exam-countdown-header-widget:hover {
-    background: linear-gradient(135deg, rgba(50, 72, 115, 0.98), rgba(38, 58, 100, 0.95));
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+    background: rgba(32, 32, 32, 0.99);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
 }
 
 .exam-countdown-header-item {
