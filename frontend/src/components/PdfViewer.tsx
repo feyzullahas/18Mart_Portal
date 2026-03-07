@@ -42,7 +42,8 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
         setTimeout(step, 100);
     }, [numPages]);
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2); // 3x DPR'yı 2x ile sınırla — mobilde performans
+    // Mobilde DPR=1 ile hizli render, masaüstünde max 2x
+    const dpr = window.innerWidth <= 768 ? 1 : Math.min(window.devicePixelRatio || 1, 2);
 
     return (
         <div className="pdf-viewer-wrapper">
@@ -59,7 +60,7 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
                     loading={
                         <div className="pdf-loading">
                             <div className="pdf-spinner" />
-                            <span>PDF yükleniyor{loadProgress > 0 && loadProgress < 100 ? ` %${loadProgress}` : '…'}</span>
+                            <span>En güncel PDF yükleniyor{loadProgress > 0 && loadProgress < 100 ? ` %${loadProgress}` : '...'}</span>
                         </div>
                     }
                     error={<div className="pdf-error">⚠️ PDF yüklenemedi.</div>}
