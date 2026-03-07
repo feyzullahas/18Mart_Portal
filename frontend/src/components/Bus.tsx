@@ -60,12 +60,10 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
                 ) : schedule ? (
                     <div className="bus-content">
                         <p className="bus-info">
-                            📍 Kaynak: <strong>{schedule.source}</strong>
+                            Kaynak: <strong>{schedule.source}</strong>
                         </p>
 
-                        {/* Sefer Saatleri Seçin */}
                         <div className="schedule-selector">
-                            <h3>🚏 Sefer Saatleri Seçin</h3>
                             <div className="type-buttons">
                                 <button
                                     className={`type-btn ${activeType === 'weekday' ? 'active' : ''}`}
