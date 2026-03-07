@@ -34,7 +34,7 @@
 }
 
 .bus-card .card-content.open {
-    max-height: 1500px;
+    max-height: 2600px;
     opacity: 1;
     padding-top: 20px;
 }
@@ -105,98 +105,6 @@
     color: rgba(255, 255, 255, 0.7);
     font-size: 12px;
     margin: 0;
-}
-
-/* PDF Viewer */
-.pdf-viewer {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.pdf-viewer iframe {
-    border: none;
-    border-radius: 12px;
-    background: var(--item-bg);
-}
-
-/* PDF Yükleniyor Overlay */
-.pdf-loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 40px 20px;
-    background: var(--item-bg);
-    border-radius: 12px;
-}
-
-.pdf-loading p {
-    color: var(--text-secondary);
-    font-size: 14px;
-    margin: 0;
-}
-
-/* Mobil PDF Butonu Görünümü */
-.pdf-mobile-view {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    padding: 20px;
-    background: var(--item-bg);
-    border-radius: 12px;
-    text-align: center;
-}
-
-.pdf-mobile-hint {
-    color: var(--text-secondary);
-    font-size: 13px;
-    margin: 0;
-    line-height: 1.5;
-}
-
-.pdf-open-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 16px 20px;
-    background: var(--accent-color);
-    color: white;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: opacity 0.2s ease;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.pdf-open-btn:active {
-    opacity: 0.8;
-}
-
-.download-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 20px;
-    background: var(--item-bg);
-    border-radius: 10px;
-    color: var(--text-primary);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    align-self: center;
-}
-
-.download-btn:hover {
-    background: var(--accent-color);
-    color: white;
 }
 
 /* Loading & Error */
@@ -272,10 +180,6 @@
         padding: 10px 20px;
         font-size: 13px;
     }
-
-    .pdf-viewer iframe {
-        height: 400px;
-    }
 }
 
 /* ========== MOBİL ========== */
@@ -290,7 +194,7 @@
     }
 
     .bus-card .card-content.open {
-        max-height: 1200px;
+        max-height: 2400px;
     }
 
     .schedule-selector {
@@ -313,25 +217,11 @@
         font-size: 14px;
         width: 100%;
     }
-
-    .pdf-viewer iframe {
-        height: 350px;
-        border-radius: 10px;
-    }
-
-    .download-btn {
-        padding: 10px 15px;
-        font-size: 13px;
-    }
 }
 
 /* ========== KÜÇÜK MOBİL ========== */
 @media screen and (max-width: 400px) {
     .bus-card {
         padding: 15px 12px;
-    }
-
-    .pdf-viewer iframe {
-        height: 300px;
     }
 }

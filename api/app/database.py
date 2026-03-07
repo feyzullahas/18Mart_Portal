@@ -57,7 +57,7 @@ def create_tables():
     # Modelleri import et ki Base onları tanısın
     from app.models import user, course  # noqa
     Base.metadata.create_all(bind=engine)
-    print("✅ Database tabloları başarıyla oluşturuldu")
+    print("[OK] Database tablolari basariyla olusturuldu")
 
 # Uygulama başladığında tabloları otomatik oluştur (serverless için)
 # Sadece PostgreSQL bağlantısı varsa çalıştır, yoksa startup event halleder
@@ -66,8 +66,7 @@ try:
         from app.models import user, course  # noqa
         Base.metadata.create_all(bind=engine)
 except Exception as e:
-    print(f"⚠️ Tablo oluşturma hatası (devam ediliyor): {e}")
-
+        print(f"[WARN] Tablo olusturma hatasi (devam ediliyor): {e}")
 # Database bağlantısını test et
 def test_connection():
     """Database bağlantısını test et"""
@@ -75,8 +74,8 @@ def test_connection():
         from sqlalchemy import text
         with engine.connect() as connection:
             result = connection.execute(text("SELECT 1"))
-            print("✅ Database bağlantısı başarılı")
+            print("[OK] Database baglantisi basarili")
             return True
     except Exception as e:
-        print(f"❌ Database bağlantı hatası: {e}")
+        print(f"[ERR] Database baglanti hatasi: {e}")
         return False
