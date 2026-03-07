@@ -26,8 +26,8 @@ export const Auth = () => {
                     return;
                 }
                 
-                if (password.length > 6) {
-                    setError('Şifre en fazla 6 karakter olmalıdır.');
+                if (password.length < 6) {
+                    setError('Şifre en az 6 karakter olmalıdır.');
                     setIsLoading(false);
                     return;
                 }
