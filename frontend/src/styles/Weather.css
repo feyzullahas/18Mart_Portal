@@ -325,11 +325,21 @@
     border-radius: 12px;
     background: var(--item-bg);
     transition: background 0.2s;
+    cursor: pointer;
+}
+
+.daily-item:hover {
+    background: rgba(102,126,234,0.1);
 }
 
 .daily-item--today {
     background: linear-gradient(135deg, rgba(102,126,234,0.14), rgba(118,75,162,0.1));
     border: 1px solid rgba(102,126,234,0.25);
+}
+
+.daily-item--selected {
+    background: linear-gradient(135deg, rgba(74,144,226,0.25), rgba(74,144,226,0.15));
+    border: 1px solid rgba(74,144,226,0.5);
 }
 
 .daily-day {

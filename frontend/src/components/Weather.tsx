@@ -15,6 +15,7 @@ export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: Weat
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [localOpen, setLocalOpen] = useState(false);
+    const [selectedDayIndex, setSelectedDayIndex] = useState(0);
     const isOpen = propIsOpen !== undefined ? propIsOpen : localOpen;
     const handleToggle = onToggle ?? (() => setLocalOpen(prev => !prev));
 
@@ -94,13 +95,26 @@ export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: Weat
         );
     }
 
-    // ─── Saatlik slice: şu andan itibaren 25 saat ───────────────
+    // ─── Saatlik slice: seçili güne göre ──────────────────────────────
     const now = new Date();
     const pad = (n: number) => String(n).padStart(2, '0');
-    const currentHourStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:00`;
-    const startIndex = forecast.hourly.time.findIndex(t => t === currentHourStr);
-    const hourStart = startIndex >= 0 ? startIndex : 0;
-    const hourlySlice = forecast.hourly.time.slice(hourStart, hourStart + 25);
+
+    let hourStart: number;
+    let hourlySlice: string[];
+
+    if (selectedDayIndex === 0) {
+        // Bugün: şu andan itibaren 25 saat
+        const currentHourStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:00`;
+        const startIndex = forecast.hourly.time.findIndex(t => t === currentHourStr);
+        hourStart = startIndex >= 0 ? startIndex : 0;
+        hourlySlice = forecast.hourly.time.slice(hourStart, hourStart + 25);
+    } else {
+        // Seçili gün: o günün tüm saatlerini göster
+        const selectedDate = forecast.daily.time[selectedDayIndex]; // "YYYY-MM-DD"
+        hourStart = forecast.hourly.time.findIndex(t => t.startsWith(selectedDate));
+        if (hourStart < 0) hourStart = 0;
+        hourlySlice = forecast.hourly.time.slice(hourStart, hourStart + 24);
+    }
 
 
     const today = new Date();
@@ -154,7 +168,11 @@ export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: Weat
 
                 {/* ── Saatlik Tahmin ── */}
                 <div className="hourly-section">
-                    <div className="section-title">Saatlik Tahmin</div>
+                    <div className="section-title">
+                        {selectedDayIndex === 0
+                            ? 'Saatlik Tahmin'
+                            : `${new Date(forecast.daily.time[selectedDayIndex]).toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' })} Saatlik Tahmin`}
+                    </div>
                     <div className="hourly-scroll">
                         {hourlySlice.map((timeStr, i) => {
                             const idx = hourStart + i;
@@ -195,7 +213,11 @@ export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: Weat
                             const precip = forecast.daily.precipitation_probability_max[index];
 
                             return (
-                                <div key={dateStr} className={`daily-item${isToday ? ' daily-item--today' : ''}`}>
+                                <div key={dateStr}
+                                    className={`daily-item${isToday ? ' daily-item--today' : ''}${selectedDayIndex === index ? ' daily-item--selected' : ''}`}
+                                    onClick={() => setSelectedDayIndex(index)}
+                                    style={{ cursor: 'pointer' }}
+                                >
                                     <span className="daily-day">{dayName}</span>
                                     <span className="daily-icon">
                                         {getWeatherEmoji(forecast.daily.weathercode[index])}
