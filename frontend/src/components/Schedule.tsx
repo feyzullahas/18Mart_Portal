@@ -393,23 +393,27 @@ export const Schedule = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
                                                     className="subject-input-field"
                                                     disabled={isLoading}
                                                 />
-                                                <input
-                                                    type="time"
-                                                    value={newSubject.start_time}
-                                                    onChange={(e) => setNewSubject(prev => ({ ...prev, start_time: e.target.value }))}
-                                                    className="subject-input-field"
-                                                    disabled={isLoading}
-                                                />
-                                                <input
-                                                    type="time"
-                                                    value={newSubject.end_time}
-                                                    onChange={(e) => setNewSubject(prev => ({ ...prev, end_time: e.target.value }))}
-                                                    className="subject-input-field"
-                                                    disabled={isLoading}
-                                                />
+                                                <div className="subject-input-time-wrapper">
+                                                    <span>Ders başlangıcı</span>
+                                                    <input
+                                                        type="time"
+                                                        value={newSubject.start_time}
+                                                        onChange={(e) => setNewSubject(prev => ({ ...prev, start_time: e.target.value }))}
+                                                        disabled={isLoading}
+                                                    />
+                                                </div>
+                                                <div className="subject-input-time-wrapper">
+                                                    <span>Ders sonu</span>
+                                                    <input
+                                                        type="time"
+                                                        value={newSubject.end_time}
+                                                        onChange={(e) => setNewSubject(prev => ({ ...prev, end_time: e.target.value }))}
+                                                        disabled={isLoading}
+                                                    />
+                                                </div>
                                                 <input
                                                     type="text"
-                                                    placeholder="Mekan"
+                                                    placeholder="Derslik"
                                                     value={newSubject.location}
                                                     onChange={(e) => setNewSubject(prev => ({ ...prev, location: e.target.value }))}
                                                     className="subject-input-field"

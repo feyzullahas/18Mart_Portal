@@ -152,7 +152,7 @@
 }
 
 .subject-item {
-    background: var(--background);
+    background: color-mix(in srgb, var(--card-bg) 95%, white 5%);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 0.75rem;
@@ -239,9 +239,43 @@
     padding: 0.5rem;
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    background: var(--background);
+    background: color-mix(in srgb, var(--card-bg) 95%, white 5%);
     color: var(--text-primary);
     font-size: 0.9rem;
+}
+
+.subject-input-time-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.4rem 0.6rem 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--card-bg) 95%, white 5%);
+    gap: 0.15rem;
+}
+
+.subject-input-time-wrapper span {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    user-select: none;
+}
+
+.subject-input-time-wrapper input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    padding: 0;
+    outline: none;
+    cursor: pointer;
+}
+
+.subject-input-time-wrapper:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
 
 .subject-input-field:focus {
