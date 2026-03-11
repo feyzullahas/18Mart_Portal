@@ -1,3 +1,4 @@
+import asyncio
 import httpx
 from bs4 import BeautifulSoup
 from typing import List, Dict, Optional
@@ -25,13 +26,18 @@ class SimpleCache:
             "expires": datetime.now() + timedelta(minutes=ttl_minutes)
         }
 
+def _minutes_until_midnight() -> int:
+    """Gece yarısına kadar kalan dakika sayısını döndürür (minimum 1 dakika)"""
+    now = datetime.now()
+    midnight = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    return max(1, int((midnight - now).total_seconds() / 60))
+
 cache = SimpleCache()
 
 class MealService:
     OSEM_URL = "https://yemek.comu.edu.tr/"
     KYK_BASE_URL = "https://kykyemek.com"
     KYK_CITY = "Çanakkale"
-    CACHE_TTL = 60  # 1 saat cache
 
     def _format_date(self, date_str: str) -> str:
         """Tarihi Türkçe formatla döndürür"""
@@ -82,13 +88,19 @@ class MealService:
         return None
 
     async def get_osem_meals(self) -> List[Dict]:
-        """ÖSEM web sitesinden tüm günlerin yemek listesini çeker (cached)"""
-        # Cache'i devre dışı bırak - her zaman yeni veri çek
+        """ÖSEM web sitesinden tüm günlerin yemek listesini çeker (günlük cache)"""
+        today_str = datetime.today().strftime("%Y-%m-%d")
+        cache_key = f"osem_meals_{today_str}"
+        cached = cache.get(cache_key)
+        if cached:
+            print("ÖSEM: Cache'den döndü")
+            return cached
+
         print("ÖSEM: Yeni veri çekiliyor...")
         
         try:
             async with httpx.AsyncClient() as client:
-                response = await client.get(self.OSEM_URL, timeout=15.0)
+                response = await client.get(self.OSEM_URL, timeout=10.0)
                 
                 if response.status_code != 200:
                     return self._get_fallback_osem()
@@ -139,7 +151,8 @@ class MealService:
                 
                 print(f"ÖSEM: {len(all_days)} günün verisi çekildi")
                 print(f"Bugün ({today}) için veri var mı: {any(day['isToday'] for day in all_days)}")
-                
+
+                cache.set(cache_key, all_days, _minutes_until_midnight())
                 return all_days
                 
         except Exception as e:
@@ -228,7 +241,7 @@ class MealService:
             "Accept": "application/json, text/javascript, */*; q=0.01",
         }
         url = f"{self.KYK_BASE_URL}/Menu/GetDailyMenu/{self.KYK_CITY}"
-        response = await client.get(url, params=params, headers=ajax_headers, timeout=15.0)
+        response = await client.get(url, params=params, headers=ajax_headers, timeout=10.0)
         if response.status_code != 200:
             raise Exception(f"KYK AJAX isteği başarısız: {response.status_code}")
         data = response.json()
@@ -261,14 +274,16 @@ class MealService:
             async with httpx.AsyncClient(
                 headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
                 follow_redirects=True,
-                timeout=20.0
+                timeout=10.0
             ) as client:
                 # Önce ana sayfayı ziyaret ederek session cookie'lerini al
-                await client.get(f"{self.KYK_BASE_URL}/", timeout=15.0)
+                await client.get(f"{self.KYK_BASE_URL}/", timeout=10.0)
 
                 # Kahvaltı ve akşam yemeği verilerini paralel çek
-                breakfast_html = await self._fetch_kyk_html(client, False, month_shift)
-                dinner_html = await self._fetch_kyk_html(client, True, month_shift)
+                breakfast_html, dinner_html = await asyncio.gather(
+                    self._fetch_kyk_html(client, False, month_shift),
+                    self._fetch_kyk_html(client, True, month_shift)
+                )
 
                 breakfast_cards = self._parse_kyk_cards(breakfast_html)
                 dinner_cards = self._parse_kyk_cards(dinner_html)
@@ -300,7 +315,7 @@ class MealService:
                 if not result:
                     return self._get_fallback_kyk()
 
-                cache.set(cache_key, result, self.CACHE_TTL)
+                cache.set(cache_key, result, _minutes_until_midnight())
                 print(f"KYK: kykyemek.com'dan çekildi ve cache'lendi ({year}-{month}, {len(result)} gün)")
                 return result
 

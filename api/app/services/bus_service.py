@@ -4,19 +4,28 @@ from typing import Dict, Optional
 from datetime import datetime, timedelta
 
 # Cache için
+def _minutes_until_midnight() -> int:
+    """Gece yarısına kadar kalan dakika sayısını döndürür (minimum 1 dakika)"""
+    now = datetime.now()
+    midnight = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    return max(1, int((midnight - now).total_seconds() / 60))
+
 class BusCache:
     def __init__(self):
         self._data: Optional[Dict] = None
         self._expires: Optional[datetime] = None
-    
+        self._cached_date: Optional[str] = None
+
     def get(self) -> Optional[Dict]:
-        if self._data and self._expires and datetime.now() < self._expires:
+        today = datetime.now().strftime("%Y-%m-%d")
+        if self._data and self._expires and datetime.now() < self._expires and self._cached_date == today:
             return self._data
         return None
-    
-    def set(self, data: Dict, ttl_hours: int = 24):
+
+    def set(self, data: Dict):
         self._data = data
-        self._expires = datetime.now() + timedelta(hours=ttl_hours)
+        self._cached_date = datetime.now().strftime("%Y-%m-%d")
+        self._expires = datetime.now() + timedelta(minutes=_minutes_until_midnight())
 
 cache = BusCache()
 
@@ -49,7 +58,7 @@ class BusService:
             }
             
             async with httpx.AsyncClient() as client:
-                response = await client.get(self.BUS_URL, headers=headers, timeout=15.0)
+                response = await client.get(self.BUS_URL, headers=headers, timeout=10.0)
                 
                 if response.status_code != 200:
                     print(f"BUS: HTTP Hatası {response.status_code}")
@@ -104,8 +113,8 @@ class BusService:
                     print("BUS: PDF bulunamadı, fallback kullanılıyor")
                     return self._get_fallback()
                 
-                # Cache'e kaydet (24 saat)
-                cache.set(result, 24)
+                # Cache'e kaydet (gece yarısına kadar)
+                cache.set(result)
                 print(f"BUS: Siteden çekildi - Weekday: {result['weekday']}, Weekend: {result['weekend']}")
                 
                 return result
