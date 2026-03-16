@@ -8,8 +8,8 @@ interface User {
 
 interface AuthContextType {
     user: User | null;
-    login: (email: string, password: string) => Promise<boolean>;
-    register: (email: string, password: string) => Promise<boolean>;
+    login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+    register: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
     logout: () => void;
     isLoading: boolean;
 }
@@ -28,7 +28,9 @@ interface AuthProviderProps {
     children: ReactNode;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://18-mart-portal-4orl.vercel.app';
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV
+    ? 'http://127.0.0.1:8000'
+    : 'https://18-mart-portal-4orl.vercel.app');
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
@@ -64,7 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         validateStoredToken();
     }, []);
 
-    const login = async (email: string, password: string): Promise<boolean> => {
+    const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
         try {
             const response = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: 'POST',
@@ -86,19 +88,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 setUser(user);
                 localStorage.setItem('user', JSON.stringify(user));
                 localStorage.setItem('token', data.access_token);
-                return true;
+                return { success: true };
             } else {
                 const errorData = await response.json();
                 console.error('Login failed:', errorData.detail);
-                return false;
+                return { success: false, error: errorData.detail || 'Giriş başarısız' };
             }
         } catch (error) {
             console.error('Login error:', error);
-            return false;
+            return { success: false, error: 'Sunucuya bağlanılamadı' };
         }
     };
 
-    const register = async (email: string, password: string): Promise<boolean> => {
+    const register = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
         try {
             const response = await fetch(`${API_BASE_URL}/auth/register`, {
                 method: 'POST',
@@ -114,11 +116,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             } else {
                 const errorData = await response.json();
                 console.error('Registration failed:', errorData.detail);
-                return false;
+                return { success: false, error: errorData.detail || 'Kayıt başarısız' };
             }
         } catch (error) {
             console.error('Registration error:', error);
-            return false;
+            return { success: false, error: 'Sunucuya bağlanılamadı' };
         }
     };
 

@@ -3,6 +3,78 @@
     border-radius: 12px;
     overflow: hidden;
     background: var(--item-bg, #1e2a3a);
+    width: 100%;
+    min-width: 0;
+}
+
+.pdf-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 10px 12px;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(74, 144, 226, 0.2));
+    border-bottom: 1px solid rgba(255,255,255,0.14);
+}
+
+.pdf-zoom-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(255,255,255,0.26);
+    border-radius: 10px;
+    background: rgba(12, 16, 24, 0.68);
+    color: #f7fafc;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    font-weight: 700;
+    transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.pdf-zoom-btn:hover:not(:disabled) {
+    background: rgba(12, 16, 24, 0.88);
+    border-color: rgba(255,255,255,0.45);
+    transform: translateY(-1px);
+}
+
+.pdf-zoom-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.pdf-zoom-value {
+    min-width: 64px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: rgba(12, 16, 24, 0.72);
+    border: 1px solid rgba(255,255,255,0.2);
+    text-align: center;
+    color: #f8fafc;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+[data-theme="light"] .pdf-toolbar {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(74, 144, 226, 0.22));
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .pdf-zoom-btn {
+    background: rgba(255,255,255,0.85);
+    border: 1px solid rgba(0,0,0,0.15);
+    color: #1f2937;
+}
+
+[data-theme="light"] .pdf-zoom-btn:hover:not(:disabled) {
+    background: #ffffff;
+    border-color: rgba(0,0,0,0.28);
+}
+
+[data-theme="light"] .pdf-zoom-value {
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(0,0,0,0.12);
+    color: #1f2937;
 }
 
 .pdf-scroll-area {
@@ -12,6 +84,8 @@
     -webkit-overflow-scrolling: touch;
     transform: translateZ(0);
     position: relative;
+    width: 100%;
+    min-width: 0;
 }
 
 @media (max-width: 768px) {
@@ -26,6 +100,7 @@
     display: flex;
     justify-content: center;
     margin-bottom: 6px;
+    min-width: 100%;
 }
 
 .pdf-page-wrap:last-child { margin-bottom: 0; }

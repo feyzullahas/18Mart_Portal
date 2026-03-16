@@ -12,9 +12,14 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     const [baseWidth, setBaseWidth] = useState(0);
     const [numPages, setNumPages] = useState(0);
     const [visiblePages, setVisiblePages] = useState(1);
+    const [zoom, setZoom] = useState(1);
     // PDF bytes'ı blob URL'e çevir — redirect/CORS/proxy sorunu olmaz
     const [blobUrl, setBlobUrl] = useState<string | null>(null);
     const [fetchError, setFetchError] = useState(false);
+
+    const ZOOM_STEP = 0.1;
+    const ZOOM_MIN = 0.6;
+    const ZOOM_MAX = 2.5;
 
     useEffect(() => {
         if (wrapperRef.current) {
@@ -22,10 +27,22 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
         }
     }, []);
 
+    useEffect(() => {
+        const onResize = () => {
+            if (wrapperRef.current) {
+                setBaseWidth(wrapperRef.current.offsetWidth);
+            }
+        };
+
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+    }, []);
+
     // URL değişince önceki blob'u temizle, yenisini çek
     useEffect(() => {
         setNumPages(0);
         setVisiblePages(1);
+        setZoom(1);
         setBlobUrl(null);
         setFetchError(false);
 
@@ -64,6 +81,15 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     }, [numPages]);
 
     const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const pageWidth = baseWidth > 0 ? Math.round(baseWidth * zoom) : undefined;
+
+    const zoomIn = () => {
+        setZoom(prev => Math.min(ZOOM_MAX, +(prev + ZOOM_STEP).toFixed(2)));
+    };
+
+    const zoomOut = () => {
+        setZoom(prev => Math.max(ZOOM_MIN, +(prev - ZOOM_STEP).toFixed(2)));
+    };
 
     if (fetchError) {
         return (
@@ -75,6 +101,27 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
 
     return (
         <div className="pdf-viewer-wrapper">
+            <div className="pdf-toolbar" aria-label="PDF yakınlaştırma kontrolleri">
+                <button
+                    type="button"
+                    className="pdf-zoom-btn"
+                    onClick={zoomOut}
+                    disabled={zoom <= ZOOM_MIN}
+                    aria-label="Uzaklaştır"
+                >
+                    -
+                </button>
+                <span className="pdf-zoom-value">%{Math.round(zoom * 100)}</span>
+                <button
+                    type="button"
+                    className="pdf-zoom-btn"
+                    onClick={zoomIn}
+                    disabled={zoom >= ZOOM_MAX}
+                    aria-label="Yakınlaştır"
+                >
+                    +
+                </button>
+            </div>
             <div className="pdf-scroll-area" ref={wrapperRef}>
                 {!blobUrl ? (
                     <div className="pdf-loading">
@@ -97,7 +144,7 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
                             <div key={i} className="pdf-page-wrap">
                                 <Page
                                     pageNumber={i + 1}
-                                    width={baseWidth > 0 ? baseWidth : undefined}
+                                    width={pageWidth}
                                     devicePixelRatio={dpr}
                                     renderTextLayer={false}
                                     renderAnnotationLayer={false}

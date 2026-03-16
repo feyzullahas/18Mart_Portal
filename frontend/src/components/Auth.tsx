@@ -39,12 +39,14 @@ export const Auth = () => {
                 }
             }
 
-            const success = isLogin 
+            const result = isLogin 
                 ? await login(email, password)
                 : await register(email, password);
 
-            if (!success) {
-                setError(isLogin ? 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.' : 'Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.');
+            if (!result.success) {
+                setError(result.error || (isLogin
+                    ? 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.'
+                    : 'Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.'));
             }
         } catch (err) {
             setError('Bir hata oluştu. Lütfen tekrar deneyin.');
