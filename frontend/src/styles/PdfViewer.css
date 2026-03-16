@@ -98,6 +98,8 @@
 .pdf-document {
     width: max-content;
     min-width: 100%;
+    transform-origin: top left;
+    backface-visibility: hidden;
 }
 
 @media (max-width: 768px) {
