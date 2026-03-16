@@ -11,6 +11,9 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const pinchStartDistanceRef = useRef<number | null>(null);
     const pinchStartZoomRef = useRef(1);
+    const pinchStartContentXRef = useRef(0);
+    const pinchStartContentYRef = useRef(0);
+    const rafRef = useRef<number | null>(null);
     const zoomRef = useRef(1);
     const isPinchingRef = useRef(false);
     const [baseWidth, setBaseWidth] = useState(0);
@@ -57,11 +60,36 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
         const el = wrapperRef.current;
         if (!el) return;
 
+        const scheduleScrollSync = (nextZoom: number, midClientX: number, midClientY: number) => {
+            if (rafRef.current !== null) {
+                cancelAnimationFrame(rafRef.current);
+            }
+
+            rafRef.current = requestAnimationFrame(() => {
+                const target = wrapperRef.current;
+                if (!target) return;
+
+                const rect = target.getBoundingClientRect();
+                const localX = midClientX - rect.left;
+                const localY = midClientY - rect.top;
+                const scaleRatio = nextZoom / pinchStartZoomRef.current;
+
+                target.scrollLeft = Math.max(0, pinchStartContentXRef.current * scaleRatio - localX);
+                target.scrollTop = Math.max(0, pinchStartContentYRef.current * scaleRatio - localY);
+            });
+        };
+
         const onTouchStart = (e: TouchEvent) => {
             if (e.touches.length === 2) {
+                const rect = el.getBoundingClientRect();
+                const midClientX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                const midClientY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+
                 isPinchingRef.current = true;
                 pinchStartDistanceRef.current = getTouchDistance(e.touches);
                 pinchStartZoomRef.current = zoomRef.current;
+                pinchStartContentXRef.current = el.scrollLeft + (midClientX - rect.left);
+                pinchStartContentYRef.current = el.scrollTop + (midClientY - rect.top);
                 e.preventDefault();
             }
         };
@@ -80,7 +108,11 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
                 Math.max(ZOOM_MIN, +(pinchStartZoomRef.current * scale).toFixed(2))
             );
 
+            const midClientX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+            const midClientY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+
             setZoom(prev => (Math.abs(prev - nextZoom) >= 0.01 ? nextZoom : prev));
+            scheduleScrollSync(nextZoom, midClientX, midClientY);
             e.preventDefault();
         };
 
@@ -97,6 +129,10 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
         el.addEventListener('touchcancel', onTouchEndOrCancel);
 
         return () => {
+            if (rafRef.current !== null) {
+                cancelAnimationFrame(rafRef.current);
+                rafRef.current = null;
+            }
             el.removeEventListener('touchstart', onTouchStart);
             el.removeEventListener('touchmove', onTouchMove);
             el.removeEventListener('touchend', onTouchEndOrCancel);
@@ -195,30 +231,33 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
                         <span>En güncel PDF yükleniyor...</span>
                     </div>
                 ) : (
-                    <Document
-                        file={blobUrl}
-                        onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-                        loading={
-                            <div className="pdf-loading">
-                                <div className="pdf-spinner" />
-                                <span>En güncel PDF yükleniyor...</span>
-                            </div>
-                        }
-                        error={<div className="pdf-error">⚠️ PDF yüklenemedi.</div>}
-                    >
-                        {Array.from({ length: visiblePages }, (_, i) => (
-                            <div key={i} className="pdf-page-wrap">
-                                <Page
-                                    pageNumber={i + 1}
-                                    width={pageWidth}
-                                    devicePixelRatio={dpr}
-                                    renderTextLayer={false}
-                                    renderAnnotationLayer={false}
-                                    loading={null}
-                                />
-                            </div>
-                        ))}
-                    </Document>
+                    <div className="pdf-content">
+                        <Document
+                            className="pdf-document"
+                            file={blobUrl}
+                            onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+                            loading={
+                                <div className="pdf-loading">
+                                    <div className="pdf-spinner" />
+                                    <span>En güncel PDF yükleniyor...</span>
+                                </div>
+                            }
+                            error={<div className="pdf-error">⚠️ PDF yüklenemedi.</div>}
+                        >
+                            {Array.from({ length: visiblePages }, (_, i) => (
+                                <div key={i} className="pdf-page-wrap">
+                                    <Page
+                                        pageNumber={i + 1}
+                                        width={pageWidth}
+                                        devicePixelRatio={dpr}
+                                        renderTextLayer={false}
+                                        renderAnnotationLayer={false}
+                                        loading={null}
+                                    />
+                                </div>
+                            ))}
+                        </Document>
+                    </div>
                 )}
             </div>
         </div>

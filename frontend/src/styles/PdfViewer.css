@@ -89,6 +89,17 @@
     touch-action: pan-x pan-y;
 }
 
+.pdf-content {
+    display: block;
+    width: max-content;
+    min-width: 100%;
+}
+
+.pdf-document {
+    width: max-content;
+    min-width: 100%;
+}
+
 @media (max-width: 768px) {
     .pdf-scroll-area { height: 540px; }
 }
@@ -98,9 +109,9 @@
 }
 
 .pdf-page-wrap {
-    display: flex;
-    justify-content: center;
+    display: block;
     margin-bottom: 6px;
+    width: max-content;
     min-width: 100%;
 }
 
