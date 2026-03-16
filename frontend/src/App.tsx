@@ -33,68 +33,68 @@ const AppContent = () => {
     }
 
     return (
-        <ThemeProvider>
-            <div className="app">
-                <div className="app-container">
-                    {/* Header */}
-                    <header className="app-header">
-                        <img src="/favicon.png" alt="18 Mart Portal" className="header-logo" />
-                        <div className="header-content">
-                            <h1 className="header-title">18 Mart Portal</h1>
-                            <p className="header-subtitle">Çomü Öğrenci Portalı</p>
-                        </div>
-                        <div className="header-weather">
-                            <Weather variant="header" />
-                        </div>
-                        <div className="header-exam-countdown">
-                            <ExamCountdown variant="header" />
-                        </div>
-                        <div className="header-user">
-                            <UserMenu />
-                        </div>
-                    </header>
+        <div className="app">
+            <div className="app-container">
+                {/* Header */}
+                <header className="app-header">
+                    <img src="/favicon.png" alt="18 Mart Portal" className="header-logo" />
+                    <div className="header-content">
+                        <h1 className="header-title">18 Mart Portal</h1>
+                        <p className="header-subtitle">Çomü Öğrenci Portalı</p>
+                    </div>
+                    <div className="header-weather">
+                        <Weather variant="header" />
+                    </div>
+                    <div className="header-exam-countdown">
+                        <ExamCountdown variant="header" />
+                    </div>
+                    <div className="header-user">
+                        <UserMenu />
+                    </div>
+                </header>
 
-                    {/* Dashboard Cards */}
-                    <main className="app-main">
-                        <div className="widget-wrapper weather-widget mobile-only-weather">
-                            <Weather isOpen={openCard === 'weather'} onToggle={makeToggle('weather')} />
-                        </div>
-                        <div className="widget-wrapper exam-countdown-widget">
-                            <ExamCountdown isOpen={openCard === 'exam'} onToggle={makeToggle('exam')} />
-                        </div>
-                        <div className="widget-wrapper meals-widget">
-                            <Meals isOpen={openCard === 'meals'} onToggle={makeToggle('meals')} />
-                        </div>
-                        <div className="widget-wrapper schedule-widget">
-                            <Schedule isOpen={openCard === 'schedule'} onToggle={makeToggle('schedule')} />
-                        </div>
-                        <div className="widget-wrapper calendar-widget">
-                            <Calendar isOpen={openCard === 'calendar'} onToggle={makeToggle('calendar')} />
-                        </div>
-                        <div className="widget-wrapper bus-widget">
-                            <Bus isOpen={openCard === 'bus'} onToggle={makeToggle('bus')} />
-                        </div>
-                    </main>
+                {/* Dashboard Cards */}
+                <main className="app-main">
+                    <div className="widget-wrapper weather-widget mobile-only-weather">
+                        <Weather isOpen={openCard === 'weather'} onToggle={makeToggle('weather')} />
+                    </div>
+                    <div className="widget-wrapper exam-countdown-widget">
+                        <ExamCountdown isOpen={openCard === 'exam'} onToggle={makeToggle('exam')} />
+                    </div>
+                    <div className="widget-wrapper meals-widget">
+                        <Meals isOpen={openCard === 'meals'} onToggle={makeToggle('meals')} />
+                    </div>
+                    <div className="widget-wrapper schedule-widget">
+                        <Schedule isOpen={openCard === 'schedule'} onToggle={makeToggle('schedule')} />
+                    </div>
+                    <div className="widget-wrapper calendar-widget">
+                        <Calendar isOpen={openCard === 'calendar'} onToggle={makeToggle('calendar')} />
+                    </div>
+                    <div className="widget-wrapper bus-widget">
+                        <Bus isOpen={openCard === 'bus'} onToggle={makeToggle('bus')} />
+                    </div>
+                </main>
 
-                    {/* Footer */}
-                    <footer className="app-footer">
-                        <p className="footer-copyright">© Yazılım Geliştirme Kulübü - 18 Mart Portal - Tüm Hakları Saklıdır</p>
-                        <p className="footer-info">Versiyon 1.0 | Çanakkale Onsekiz Mart Üniversitesi için geliştirilmiştir</p>
-                    </footer>
-                </div>
-
-                {/* Theme Toggle Button */}
-                <ThemeToggle />
+                {/* Footer */}
+                <footer className="app-footer">
+                    <p className="footer-copyright">© Yazılım Geliştirme Kulübü - 18 Mart Portal - Tüm Hakları Saklıdır</p>
+                    <p className="footer-info">Versiyon 1.0 | Çanakkale Onsekiz Mart Üniversitesi için geliştirilmiştir</p>
+                </footer>
             </div>
-        </ThemeProvider>
+
+            {/* Theme Toggle Button */}
+            <ThemeToggle />
+        </div>
     );
 };
 
 function App() {
     return (
-        <AuthProvider>
-            <AppContent />
-        </AuthProvider>
+        <ThemeProvider>
+            <AuthProvider>
+                <AppContent />
+            </AuthProvider>
+        </ThemeProvider>
     );
 }
 
