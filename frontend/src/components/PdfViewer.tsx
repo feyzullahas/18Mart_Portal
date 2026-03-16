@@ -244,7 +244,8 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
         setTimeout(step, 100);
     }, [numPages]);
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    // Zoom sonrası bulanıklığı azaltmak için render çözünürlüğünü zoom ile artır.
+    const dpr = Math.min((window.devicePixelRatio || 1) * Math.max(1, zoom), 4);
     const pageWidth = baseWidth > 0 ? baseWidth : undefined;
 
     const pageNodes = useMemo(() => {
