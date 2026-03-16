@@ -27,7 +27,7 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     const [fetchError, setFetchError] = useState(false);
 
     const ZOOM_STEP = 0.1;
-    const ZOOM_MIN = 0.6;
+    const ZOOM_MIN = 1;
     const ZOOM_MAX = 2.5;
 
     const getTouchDistance = (touches: TouchList) => {
