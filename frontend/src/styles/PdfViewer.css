@@ -86,6 +86,7 @@
     position: relative;
     width: 100%;
     min-width: 0;
+    touch-action: pan-x pan-y;
 }
 
 @media (max-width: 768px) {

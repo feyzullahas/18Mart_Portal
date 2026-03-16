@@ -9,6 +9,10 @@ interface PdfViewerProps {
 
 export const PdfViewer = ({ url }: PdfViewerProps) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const pinchStartDistanceRef = useRef<number | null>(null);
+    const pinchStartZoomRef = useRef(1);
+    const zoomRef = useRef(1);
+    const isPinchingRef = useRef(false);
     const [baseWidth, setBaseWidth] = useState(0);
     const [numPages, setNumPages] = useState(0);
     const [visiblePages, setVisiblePages] = useState(1);
@@ -20,6 +24,13 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     const ZOOM_STEP = 0.1;
     const ZOOM_MIN = 0.6;
     const ZOOM_MAX = 2.5;
+
+    const getTouchDistance = (touches: TouchList) => {
+        if (touches.length < 2) return 0;
+        const t1 = touches[0];
+        const t2 = touches[1];
+        return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+    };
 
     useEffect(() => {
         if (wrapperRef.current) {
@@ -36,6 +47,61 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
 
         window.addEventListener('resize', onResize);
         return () => window.removeEventListener('resize', onResize);
+    }, []);
+
+    useEffect(() => {
+        zoomRef.current = zoom;
+    }, [zoom]);
+
+    useEffect(() => {
+        const el = wrapperRef.current;
+        if (!el) return;
+
+        const onTouchStart = (e: TouchEvent) => {
+            if (e.touches.length === 2) {
+                isPinchingRef.current = true;
+                pinchStartDistanceRef.current = getTouchDistance(e.touches);
+                pinchStartZoomRef.current = zoomRef.current;
+                e.preventDefault();
+            }
+        };
+
+        const onTouchMove = (e: TouchEvent) => {
+            if (!isPinchingRef.current || e.touches.length !== 2 || !pinchStartDistanceRef.current) {
+                return;
+            }
+
+            const distance = getTouchDistance(e.touches);
+            if (distance <= 0) return;
+
+            const scale = distance / pinchStartDistanceRef.current;
+            const nextZoom = Math.min(
+                ZOOM_MAX,
+                Math.max(ZOOM_MIN, +(pinchStartZoomRef.current * scale).toFixed(2))
+            );
+
+            setZoom(prev => (Math.abs(prev - nextZoom) >= 0.01 ? nextZoom : prev));
+            e.preventDefault();
+        };
+
+        const onTouchEndOrCancel = () => {
+            if (isPinchingRef.current) {
+                isPinchingRef.current = false;
+                pinchStartDistanceRef.current = null;
+            }
+        };
+
+        el.addEventListener('touchstart', onTouchStart, { passive: false });
+        el.addEventListener('touchmove', onTouchMove, { passive: false });
+        el.addEventListener('touchend', onTouchEndOrCancel);
+        el.addEventListener('touchcancel', onTouchEndOrCancel);
+
+        return () => {
+            el.removeEventListener('touchstart', onTouchStart);
+            el.removeEventListener('touchmove', onTouchMove);
+            el.removeEventListener('touchend', onTouchEndOrCancel);
+            el.removeEventListener('touchcancel', onTouchEndOrCancel);
+        };
     }, []);
 
     // URL değişince önceki blob'u temizle, yenisini çek
