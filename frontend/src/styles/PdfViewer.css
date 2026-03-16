@@ -89,10 +89,17 @@
     touch-action: pan-x pan-y;
 }
 
-.pdf-content {
-    display: block;
-    width: max-content;
+
+.pdf-content-shell {
+    position: relative;
     min-width: 100%;
+}
+
+.pdf-scale-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: top left;
 }
 
 .pdf-document {

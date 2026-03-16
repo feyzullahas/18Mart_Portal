@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Document, Page } from 'react-pdf';
 import '../styles/PdfViewer.css';
 
@@ -9,6 +9,8 @@ interface PdfViewerProps {
 
 export const PdfViewer = ({ url }: PdfViewerProps) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const contentShellRef = useRef<HTMLDivElement>(null);
+    const scaleLayerRef = useRef<HTMLDivElement>(null);
     const documentRef = useRef<HTMLDivElement>(null);
     const pinchStartDistanceRef = useRef<number | null>(null);
     const pinchStartZoomRef = useRef(1);
@@ -18,7 +20,9 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     const rafRef = useRef<number | null>(null);
     const zoomRef = useRef(1);
     const isPinchingRef = useRef(false);
+    const docSizeRef = useRef({ width: 0, height: 0 });
     const [baseWidth, setBaseWidth] = useState(0);
+    const [docSize, setDocSize] = useState({ width: 0, height: 0 });
     const [numPages, setNumPages] = useState(0);
     const [visiblePages, setVisiblePages] = useState(1);
     const [zoom, setZoom] = useState(1);
@@ -29,6 +33,24 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     const ZOOM_STEP = 0.1;
     const ZOOM_MIN = 1;
     const ZOOM_MAX = 2.5;
+
+    const applyShellSize = (targetZoom: number) => {
+        const shell = contentShellRef.current;
+        const size = docSizeRef.current;
+        if (!shell || size.width <= 0 || size.height <= 0) return;
+
+        const width = Math.max(baseWidth, size.width * targetZoom);
+        const height = size.height * targetZoom;
+
+        shell.style.width = `${Math.round(width)}px`;
+        shell.style.height = `${Math.round(height)}px`;
+    };
+
+    const applyScale = (targetZoom: number) => {
+        const layer = scaleLayerRef.current;
+        if (!layer) return;
+        layer.style.transform = `scale(${targetZoom})`;
+    };
 
     const getTouchDistance = (touches: TouchList) => {
         if (touches.length < 2) return 0;
@@ -59,6 +81,27 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     }, [zoom]);
 
     useEffect(() => {
+        const docEl = documentRef.current;
+        if (!docEl) return;
+
+        const observer = new ResizeObserver(() => {
+            const width = docEl.offsetWidth;
+            const height = docEl.offsetHeight;
+            docSizeRef.current = { width, height };
+            setDocSize({ width, height });
+        });
+
+        observer.observe(docEl);
+        return () => observer.disconnect();
+    }, [blobUrl, visiblePages]);
+
+    useEffect(() => {
+        if (isPinchingRef.current) return;
+        applyScale(zoom);
+        applyShellSize(zoom);
+    }, [zoom, baseWidth, docSize.width, docSize.height]);
+
+    useEffect(() => {
         const el = wrapperRef.current;
         if (!el) return;
 
@@ -71,11 +114,8 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
                 const target = wrapperRef.current;
                 if (!target) return;
 
-                 const doc = documentRef.current;
-                 if (doc) {
-                     const liveScale = nextZoom / pinchStartZoomRef.current;
-                     doc.style.transform = `scale(${liveScale})`;
-                 }
+                applyScale(nextZoom);
+                applyShellSize(nextZoom);
 
                 const rect = target.getBoundingClientRect();
                 const localX = midClientX - rect.left;
@@ -100,10 +140,9 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
                 pinchStartContentXRef.current = el.scrollLeft + (midClientX - rect.left);
                 pinchStartContentYRef.current = el.scrollTop + (midClientY - rect.top);
 
-                const doc = documentRef.current;
-                if (doc) {
-                    doc.style.willChange = 'transform';
-                    doc.style.transformOrigin = 'top left';
+                const layer = scaleLayerRef.current;
+                if (layer) {
+                    layer.style.willChange = 'transform';
                 }
                 e.preventDefault();
             }
@@ -137,10 +176,9 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
                 isPinchingRef.current = false;
                 pinchStartDistanceRef.current = null;
 
-                const doc = documentRef.current;
-                if (doc) {
-                    doc.style.transform = '';
-                    doc.style.willChange = '';
+                const layer = scaleLayerRef.current;
+                if (layer) {
+                    layer.style.willChange = '';
                 }
 
                 setZoom(prev => (Math.abs(prev - finalZoom) >= 0.01 ? finalZoom : prev));
@@ -207,7 +245,22 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     }, [numPages]);
 
     const dpr = Math.min(window.devicePixelRatio || 1, 3);
-    const pageWidth = baseWidth > 0 ? Math.round(baseWidth * zoom) : undefined;
+    const pageWidth = baseWidth > 0 ? baseWidth : undefined;
+
+    const pageNodes = useMemo(() => {
+        return Array.from({ length: visiblePages }, (_, i) => (
+            <div key={i} className="pdf-page-wrap">
+                <Page
+                    pageNumber={i + 1}
+                    width={pageWidth}
+                    devicePixelRatio={dpr}
+                    renderTextLayer={false}
+                    renderAnnotationLayer={false}
+                    loading={null}
+                />
+            </div>
+        ));
+    }, [visiblePages, pageWidth, dpr]);
 
     const zoomIn = () => {
         setZoom(prev => Math.min(ZOOM_MAX, +(prev + ZOOM_STEP).toFixed(2)));
@@ -255,32 +308,23 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
                         <span>En güncel PDF yükleniyor...</span>
                     </div>
                 ) : (
-                    <div className="pdf-content">
-                        <div className="pdf-document" ref={documentRef}>
-                            <Document
-                                file={blobUrl}
-                                onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-                                loading={
-                                    <div className="pdf-loading">
-                                        <div className="pdf-spinner" />
-                                        <span>En güncel PDF yükleniyor...</span>
-                                    </div>
-                                }
-                                error={<div className="pdf-error">⚠️ PDF yüklenemedi.</div>}
-                            >
-                                {Array.from({ length: visiblePages }, (_, i) => (
-                                    <div key={i} className="pdf-page-wrap">
-                                        <Page
-                                            pageNumber={i + 1}
-                                            width={pageWidth}
-                                            devicePixelRatio={dpr}
-                                            renderTextLayer={false}
-                                            renderAnnotationLayer={false}
-                                            loading={null}
-                                        />
-                                    </div>
-                                ))}
-                            </Document>
+                    <div className="pdf-content-shell" ref={contentShellRef}>
+                        <div className="pdf-scale-layer" ref={scaleLayerRef}>
+                            <div className="pdf-document" ref={documentRef}>
+                                <Document
+                                    file={blobUrl}
+                                    onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+                                    loading={
+                                        <div className="pdf-loading">
+                                            <div className="pdf-spinner" />
+                                            <span>En güncel PDF yükleniyor...</span>
+                                        </div>
+                                    }
+                                    error={<div className="pdf-error">⚠️ PDF yüklenemedi.</div>}
+                                >
+                                    {pageNodes}
+                                </Document>
+                            </div>
                         </div>
                     </div>
                 )}
