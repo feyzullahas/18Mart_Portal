@@ -126,6 +126,7 @@
 }
 
 .pdf-page-wrap {
+    position: relative;
     display: block;
     margin-bottom: 6px;
     width: max-content;
@@ -136,6 +137,32 @@
 }
 
 .pdf-page-wrap:last-child { margin-bottom: 0; }
+
+.pdf-page-layer {
+    display: block;
+}
+
+.pdf-page-layer-low {
+    position: relative;
+    z-index: 1;
+}
+
+.pdf-page-layer-high {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 130ms ease;
+}
+
+.pdf-page-wrap.show-high .pdf-page-layer-high {
+    opacity: 1;
+}
+
+.pdf-page-wrap.show-high .pdf-page-layer-low {
+    opacity: 0.02;
+}
 
 .pdf-page-wrap canvas {
     display: block;

@@ -18,7 +18,8 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     const pinchStartContentYRef = useRef(0);
     const pinchCurrentZoomRef = useRef(1);
     const rafRef = useRef<number | null>(null);
-    const dprUpgradeTimerRef = useRef<number | null>(null);
+    const qualityRestoreTimerRef = useRef<number | null>(null);
+    const highResWarmupTimerRef = useRef<number | null>(null);
     const zoomRef = useRef(1);
     const isPinchingRef = useRef(false);
     const docSizeRef = useRef({ width: 0, height: 0 });
@@ -28,6 +29,8 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     const [visiblePages, setVisiblePages] = useState(1);
     const [zoom, setZoom] = useState(1);
     const [isPinching, setIsPinching] = useState(false);
+    const [highResCacheEnabled, setHighResCacheEnabled] = useState(false);
+    const [preferHighRes, setPreferHighRes] = useState(false);
     // PDF bytes'ı blob URL'e çevir — redirect/CORS/proxy sorunu olmaz
     const [blobUrl, setBlobUrl] = useState<string | null>(null);
     const [fetchError, setFetchError] = useState(false);
@@ -39,20 +42,31 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
         if (typeof window === 'undefined' || !window.matchMedia) return false;
         return window.matchMedia('(pointer: coarse)').matches;
     }, []);
+    const lowDpr = useMemo(() => {
+        const base = Math.min(window.devicePixelRatio || 1, 2);
+        return isCoarsePointer ? Math.min(base * 1.1, 2.2) : Math.min(base * 1.15, 2.4);
+    }, [isCoarsePointer]);
 
-    const getAdaptiveDpr = (targetZoom: number, lowQualityPhase: boolean) => {
-        const baseDpr = Math.min(window.devicePixelRatio || 1, 2);
+    const highDpr = useMemo(() => {
+        const base = Math.min(window.devicePixelRatio || 1, 2);
+        return isCoarsePointer ? Math.min(base * 1.7, 3.1) : Math.min(base * 1.8, 3.2);
+    }, [isCoarsePointer]);
 
-        if (isCoarsePointer) {
-            const factor = lowQualityPhase ? 0.4 : 0.7;
-            const cap = lowQualityPhase ? 2.1 : 2.8;
-            return Math.min(baseDpr * (1 + (targetZoom - 1) * factor), cap);
+    const clearQualityRestoreTimer = () => {
+        if (qualityRestoreTimerRef.current !== null) {
+            window.clearTimeout(qualityRestoreTimerRef.current);
+            qualityRestoreTimerRef.current = null;
         }
-
-        return Math.min(baseDpr * (1 + (targetZoom - 1) * 0.55), 3);
     };
 
-    const [renderDpr, setRenderDpr] = useState(() => getAdaptiveDpr(1, false));
+    const scheduleHighQuality = (delay = 160) => {
+        if (!highResCacheEnabled) return;
+        clearQualityRestoreTimer();
+        qualityRestoreTimerRef.current = window.setTimeout(() => {
+            setPreferHighRes(true);
+            qualityRestoreTimerRef.current = null;
+        }, delay);
+    };
 
     const applyShellSize = (targetZoom: number) => {
         const shell = contentShellRef.current;
@@ -101,29 +115,40 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     }, [zoom]);
 
     useEffect(() => {
-        if (dprUpgradeTimerRef.current !== null) {
-            window.clearTimeout(dprUpgradeTimerRef.current);
-            dprUpgradeTimerRef.current = null;
+        setPreferHighRes(!isCoarsePointer);
+    }, [isCoarsePointer]);
+
+    useEffect(() => {
+        if (highResWarmupTimerRef.current !== null) {
+            window.clearTimeout(highResWarmupTimerRef.current);
+            highResWarmupTimerRef.current = null;
         }
 
-        // Önce orta kaliteye geç, kısa gecikmeyle daha net DPR'e çık.
-        const mediumDpr = getAdaptiveDpr(zoom, true);
-        setRenderDpr(mediumDpr);
+        setHighResCacheEnabled(false);
 
-        if (!isCoarsePointer || isPinching) return;
+        if (!blobUrl) return;
 
-        dprUpgradeTimerRef.current = window.setTimeout(() => {
-            setRenderDpr(getAdaptiveDpr(zoom, false));
-            dprUpgradeTimerRef.current = null;
-        }, 160);
+        // PDF açıldıktan hemen sonra yüksek çözünürlüklü katmanı hazırlamaya başla.
+        highResWarmupTimerRef.current = window.setTimeout(() => {
+            setHighResCacheEnabled(true);
+            if (!isPinchingRef.current) {
+                scheduleHighQuality(60);
+            }
+            highResWarmupTimerRef.current = null;
+        }, 220);
 
         return () => {
-            if (dprUpgradeTimerRef.current !== null) {
-                window.clearTimeout(dprUpgradeTimerRef.current);
-                dprUpgradeTimerRef.current = null;
+            if (highResWarmupTimerRef.current !== null) {
+                window.clearTimeout(highResWarmupTimerRef.current);
+                highResWarmupTimerRef.current = null;
             }
         };
-    }, [zoom, isPinching, isCoarsePointer]);
+    }, [blobUrl]);
+
+    useEffect(() => {
+        if (isPinching) return;
+        scheduleHighQuality(140);
+    }, [zoom, isPinching, highResCacheEnabled]);
 
     useEffect(() => {
         const docEl = documentRef.current;
@@ -180,6 +205,7 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
 
                 isPinchingRef.current = true;
                 setIsPinching(true);
+                setPreferHighRes(false);
                 pinchStartDistanceRef.current = getTouchDistance(e.touches);
                 pinchStartZoomRef.current = zoomRef.current;
                 pinchCurrentZoomRef.current = zoomRef.current;
@@ -233,6 +259,7 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
                 }
 
                 setZoom(prev => (Math.abs(prev - finalZoom) >= 0.01 ? finalZoom : prev));
+                scheduleHighQuality();
             }
         };
 
@@ -246,9 +273,10 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
                 cancelAnimationFrame(rafRef.current);
                 rafRef.current = null;
             }
-            if (dprUpgradeTimerRef.current !== null) {
-                window.clearTimeout(dprUpgradeTimerRef.current);
-                dprUpgradeTimerRef.current = null;
+            clearQualityRestoreTimer();
+            if (highResWarmupTimerRef.current !== null) {
+                window.clearTimeout(highResWarmupTimerRef.current);
+                highResWarmupTimerRef.current = null;
             }
             el.removeEventListener('touchstart', onTouchStart);
             el.removeEventListener('touchmove', onTouchMove);
@@ -299,30 +327,47 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
         setTimeout(step, 100);
     }, [numPages]);
 
-    const dpr = renderDpr;
     const pageWidth = baseWidth > 0 ? baseWidth : undefined;
 
     const pageNodes = useMemo(() => {
         return Array.from({ length: visiblePages }, (_, i) => (
-            <div key={i} className="pdf-page-wrap">
-                <Page
-                    pageNumber={i + 1}
-                    width={pageWidth}
-                    devicePixelRatio={dpr}
-                    renderTextLayer={false}
-                    renderAnnotationLayer={false}
-                    loading={null}
-                />
+            <div key={i} className={`pdf-page-wrap ${preferHighRes ? 'show-high' : 'show-low'}`}>
+                <div className="pdf-page-layer pdf-page-layer-low" aria-hidden={preferHighRes}>
+                    <Page
+                        pageNumber={i + 1}
+                        width={pageWidth}
+                        devicePixelRatio={lowDpr}
+                        renderTextLayer={false}
+                        renderAnnotationLayer={false}
+                        loading={null}
+                    />
+                </div>
+                {highResCacheEnabled && (
+                    <div className="pdf-page-layer pdf-page-layer-high" aria-hidden={!preferHighRes}>
+                        <Page
+                            pageNumber={i + 1}
+                            width={pageWidth}
+                            devicePixelRatio={highDpr}
+                            renderTextLayer={false}
+                            renderAnnotationLayer={false}
+                            loading={null}
+                        />
+                    </div>
+                )}
             </div>
         ));
-    }, [visiblePages, pageWidth, dpr]);
+    }, [visiblePages, pageWidth, lowDpr, highDpr, highResCacheEnabled, preferHighRes]);
 
     const zoomIn = () => {
+        setPreferHighRes(false);
         setZoom(prev => Math.min(ZOOM_MAX, +(prev + ZOOM_STEP).toFixed(2)));
+        scheduleHighQuality();
     };
 
     const zoomOut = () => {
+        setPreferHighRes(false);
         setZoom(prev => Math.max(ZOOM_MIN, +(prev - ZOOM_STEP).toFixed(2)));
+        scheduleHighQuality();
     };
 
     if (fetchError) {
