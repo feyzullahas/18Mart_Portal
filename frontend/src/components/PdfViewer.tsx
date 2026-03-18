@@ -18,6 +18,7 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     const pinchStartContentYRef = useRef(0);
     const pinchCurrentZoomRef = useRef(1);
     const rafRef = useRef<number | null>(null);
+    const dprUpgradeTimerRef = useRef<number | null>(null);
     const zoomRef = useRef(1);
     const isPinchingRef = useRef(false);
     const docSizeRef = useRef({ width: 0, height: 0 });
@@ -38,6 +39,20 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
         if (typeof window === 'undefined' || !window.matchMedia) return false;
         return window.matchMedia('(pointer: coarse)').matches;
     }, []);
+
+    const getAdaptiveDpr = (targetZoom: number, lowQualityPhase: boolean) => {
+        const baseDpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        if (isCoarsePointer) {
+            const factor = lowQualityPhase ? 0.4 : 0.7;
+            const cap = lowQualityPhase ? 2.1 : 2.8;
+            return Math.min(baseDpr * (1 + (targetZoom - 1) * factor), cap);
+        }
+
+        return Math.min(baseDpr * (1 + (targetZoom - 1) * 0.55), 3);
+    };
+
+    const [renderDpr, setRenderDpr] = useState(() => getAdaptiveDpr(1, false));
 
     const applyShellSize = (targetZoom: number) => {
         const shell = contentShellRef.current;
@@ -84,6 +99,31 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     useEffect(() => {
         zoomRef.current = zoom;
     }, [zoom]);
+
+    useEffect(() => {
+        if (dprUpgradeTimerRef.current !== null) {
+            window.clearTimeout(dprUpgradeTimerRef.current);
+            dprUpgradeTimerRef.current = null;
+        }
+
+        // Önce orta kaliteye geç, kısa gecikmeyle daha net DPR'e çık.
+        const mediumDpr = getAdaptiveDpr(zoom, true);
+        setRenderDpr(mediumDpr);
+
+        if (!isCoarsePointer || isPinching) return;
+
+        dprUpgradeTimerRef.current = window.setTimeout(() => {
+            setRenderDpr(getAdaptiveDpr(zoom, false));
+            dprUpgradeTimerRef.current = null;
+        }, 160);
+
+        return () => {
+            if (dprUpgradeTimerRef.current !== null) {
+                window.clearTimeout(dprUpgradeTimerRef.current);
+                dprUpgradeTimerRef.current = null;
+            }
+        };
+    }, [zoom, isPinching, isCoarsePointer]);
 
     useEffect(() => {
         const docEl = documentRef.current;
@@ -206,6 +246,10 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
                 cancelAnimationFrame(rafRef.current);
                 rafRef.current = null;
             }
+            if (dprUpgradeTimerRef.current !== null) {
+                window.clearTimeout(dprUpgradeTimerRef.current);
+                dprUpgradeTimerRef.current = null;
+            }
             el.removeEventListener('touchstart', onTouchStart);
             el.removeEventListener('touchmove', onTouchMove);
             el.removeEventListener('touchend', onTouchEndOrCancel);
@@ -255,15 +299,7 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
         setTimeout(step, 100);
     }, [numPages]);
 
-    // Zoom sonrası bulanıklığı azaltmak için render çözünürlüğünü zoom ile artır.
-    // Mobil pinch sırasında ağır yeniden render'ı engellemek için DPR'i zoom'dan ayır.
-    const dpr = useMemo(() => {
-        const baseDpr = Math.min(window.devicePixelRatio || 1, 2);
-        if (isCoarsePointer) {
-            return baseDpr;
-        }
-        return Math.min(baseDpr * (1 + (zoom - 1) * 0.45), 3);
-    }, [zoom, isCoarsePointer]);
+    const dpr = renderDpr;
     const pageWidth = baseWidth > 0 ? baseWidth : undefined;
 
     const pageNodes = useMemo(() => {
