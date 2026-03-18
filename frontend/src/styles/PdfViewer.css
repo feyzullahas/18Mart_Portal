@@ -87,6 +87,7 @@
     width: 100%;
     min-width: 0;
     touch-action: pan-x pan-y;
+    overscroll-behavior: contain;
 }
 
 
@@ -100,6 +101,13 @@
     top: 0;
     left: 0;
     transform-origin: top left;
+    transition: transform 120ms ease-out;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
+.pdf-scale-layer.pinching {
+    transition: none;
 }
 
 .pdf-document {
@@ -122,6 +130,9 @@
     margin-bottom: 6px;
     width: max-content;
     min-width: 100%;
+    contain: layout paint;
+    content-visibility: auto;
+    contain-intrinsic-size: 1100px 1550px;
 }
 
 .pdf-page-wrap:last-child { margin-bottom: 0; }
@@ -129,6 +140,8 @@
 .pdf-page-wrap canvas {
     display: block;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    backface-visibility: hidden;
+    transform: translateZ(0);
 }
 
 /* Loading - beyaz arkaplan, ortali metin */

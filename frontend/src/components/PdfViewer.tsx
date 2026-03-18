@@ -26,6 +26,7 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     const [numPages, setNumPages] = useState(0);
     const [visiblePages, setVisiblePages] = useState(1);
     const [zoom, setZoom] = useState(1);
+    const [isPinching, setIsPinching] = useState(false);
     // PDF bytes'ı blob URL'e çevir — redirect/CORS/proxy sorunu olmaz
     const [blobUrl, setBlobUrl] = useState<string | null>(null);
     const [fetchError, setFetchError] = useState(false);
@@ -33,6 +34,10 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     const ZOOM_STEP = 0.1;
     const ZOOM_MIN = 1;
     const ZOOM_MAX = 2.5;
+    const isCoarsePointer = useMemo(() => {
+        if (typeof window === 'undefined' || !window.matchMedia) return false;
+        return window.matchMedia('(pointer: coarse)').matches;
+    }, []);
 
     const applyShellSize = (targetZoom: number) => {
         const shell = contentShellRef.current;
@@ -134,6 +139,7 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
                 const midClientY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
 
                 isPinchingRef.current = true;
+                setIsPinching(true);
                 pinchStartDistanceRef.current = getTouchDistance(e.touches);
                 pinchStartZoomRef.current = zoomRef.current;
                 pinchCurrentZoomRef.current = zoomRef.current;
@@ -144,7 +150,9 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
                 if (layer) {
                     layer.style.willChange = 'transform';
                 }
-                e.preventDefault();
+                if (e.cancelable) {
+                    e.preventDefault();
+                }
             }
         };
 
@@ -167,13 +175,16 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
 
             pinchCurrentZoomRef.current = nextZoom;
             scheduleScrollAndTransform(nextZoom, midClientX, midClientY);
-            e.preventDefault();
+            if (e.cancelable) {
+                e.preventDefault();
+            }
         };
 
         const onTouchEndOrCancel = () => {
             if (isPinchingRef.current) {
                 const finalZoom = pinchCurrentZoomRef.current;
                 isPinchingRef.current = false;
+                setIsPinching(false);
                 pinchStartDistanceRef.current = null;
 
                 const layer = scaleLayerRef.current;
@@ -245,7 +256,14 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     }, [numPages]);
 
     // Zoom sonrası bulanıklığı azaltmak için render çözünürlüğünü zoom ile artır.
-    const dpr = Math.min((window.devicePixelRatio || 1) * Math.max(1, zoom), 4);
+    // Mobil pinch sırasında ağır yeniden render'ı engellemek için DPR'i zoom'dan ayır.
+    const dpr = useMemo(() => {
+        const baseDpr = Math.min(window.devicePixelRatio || 1, 2);
+        if (isCoarsePointer) {
+            return baseDpr;
+        }
+        return Math.min(baseDpr * (1 + (zoom - 1) * 0.45), 3);
+    }, [zoom, isCoarsePointer]);
     const pageWidth = baseWidth > 0 ? baseWidth : undefined;
 
     const pageNodes = useMemo(() => {
@@ -310,7 +328,7 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
                     </div>
                 ) : (
                     <div className="pdf-content-shell" ref={contentShellRef}>
-                        <div className="pdf-scale-layer" ref={scaleLayerRef}>
+                        <div className={`pdf-scale-layer ${isPinching ? 'pinching' : ''}`} ref={scaleLayerRef}>
                             <div className="pdf-document" ref={documentRef}>
                                 <Document
                                     file={blobUrl}
