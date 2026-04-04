@@ -78,7 +78,8 @@
 }
 
 .pdf-scroll-area {
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     height: 660px;
     background: #fff;
     -webkit-overflow-scrolling: touch;
@@ -90,10 +91,15 @@
     overscroll-behavior: contain;
 }
 
+.pdf-scroll-area.zoomed {
+    overflow-x: auto;
+}
+
 
 .pdf-content-shell {
     position: relative;
-    min-width: 100%;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .pdf-scale-layer {
@@ -112,7 +118,7 @@
 
 .pdf-document {
     width: max-content;
-    min-width: 100%;
+    min-width: 0;
     transform-origin: top left;
     backface-visibility: hidden;
 }
@@ -130,7 +136,7 @@
     display: block;
     margin-bottom: 6px;
     width: max-content;
-    min-width: 100%;
+    min-width: 0;
     contain: layout paint;
     content-visibility: auto;
     contain-intrinsic-size: 1100px 1550px;
@@ -169,6 +175,18 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     backface-visibility: hidden;
     transform: translateZ(0);
+}
+
+.pdf-document .react-pdf__Document {
+    display: block;
+}
+
+.pdf-document .react-pdf__Page {
+    margin: 0 !important;
+}
+
+.pdf-document .react-pdf__Page__canvas {
+    margin: 0 !important;
 }
 
 /* Loading - beyaz arkaplan, ortali metin */

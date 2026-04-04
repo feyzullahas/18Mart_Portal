@@ -15,14 +15,12 @@ export interface ExamCountdownProps {
 }
 
 export const ExamCountdown = ({ variant = 'card', isOpen: propIsOpen, onToggle }: ExamCountdownProps) => {
-    const [midtermTime, setMidtermTime] = useState<CountdownTime>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     const [finalTime, setFinalTime] = useState<CountdownTime>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     const [localOpen, setLocalOpen] = useState(false);
     const isOpen = propIsOpen !== undefined ? propIsOpen : localOpen;
     const handleToggle = onToggle ?? (() => setLocalOpen(prev => !prev));
 
     // Sabit tarihler
-    const midtermDate = new Date('2026-04-06T09:00:00'); // 6 Nisan 2026, 09:00
     const finalDate = new Date('2026-06-08T09:00:00'); // 8 Haziran 2026, 09:00
 
     const calculateCountdown = (targetDate: Date): CountdownTime => {
@@ -43,7 +41,6 @@ export const ExamCountdown = ({ variant = 'card', isOpen: propIsOpen, onToggle }
 
     useEffect(() => {
         const updateCountdowns = () => {
-            setMidtermTime(calculateCountdown(midtermDate));
             setFinalTime(calculateCountdown(finalDate));
         };
 
@@ -66,10 +63,6 @@ export const ExamCountdown = ({ variant = 'card', isOpen: propIsOpen, onToggle }
         return (
             <div className="exam-countdown-header-widget">
                 <div className="exam-countdown-header-item">
-                    <div className="exam-countdown-header-label">Vizelere kalan</div>
-                    <div className="exam-countdown-header-time">{formatCompact(midtermTime)}</div>
-                </div>
-                <div className="exam-countdown-header-item">
                     <div className="exam-countdown-header-label">Finallere kalan</div>
                     <div className="exam-countdown-header-time">{formatCompact(finalTime)}</div>
                 </div>
@@ -81,39 +74,12 @@ export const ExamCountdown = ({ variant = 'card', isOpen: propIsOpen, onToggle }
     return (
         <div className="exam-countdown-card">
             <div className="card-header" onClick={handleToggle}>
-                <h2>📝 Vize & Final Sayacı</h2>
+                <h2>📝 Final Sayacı</h2>
                 <span className={`toggle-icon ${isOpen ? 'open' : ''}`}>▼</span>
             </div>
 
             <div className={`card-content ${isOpen ? 'open' : ''}`}>
                     <div className="exam-countdown-content">
-                        {/* Vizeler */}
-                        <div className="exam-countdown-section">
-                            <div className="exam-countdown-header">
-                                <h3>Vizelere kalan süre</h3>
-                                <div className="exam-countdown-date">6 Nisan 2026</div>
-                            </div>
-                            <div className="exam-countdown-time-large">
-                                <div className="time-unit">
-                                    <span className="time-value">{midtermTime.days}</span>
-                                    <span className="time-label">gün</span>
-                                </div>
-                                <div className="time-unit">
-                                    <span className="time-value">{String(midtermTime.hours).padStart(2, '0')}</span>
-                                    <span className="time-label">saat</span>
-                                </div>
-                                <div className="time-unit">
-                                    <span className="time-value">{String(midtermTime.minutes).padStart(2, '0')}</span>
-                                    <span className="time-label">dakika</span>
-                                </div>
-                                <div className="time-unit">
-                                    <span className="time-value">{String(midtermTime.seconds).padStart(2, '0')}</span>
-                                    <span className="time-label">saniye</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Finaller */}
                         <div className="exam-countdown-section">
                             <div className="exam-countdown-header">
                                 <h3>Finallere kalan süre</h3>

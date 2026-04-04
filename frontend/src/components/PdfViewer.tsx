@@ -73,7 +73,9 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
         const size = docSizeRef.current;
         if (!shell || size.width <= 0 || size.height <= 0) return;
 
-        const width = Math.max(baseWidth, size.width * targetZoom);
+        const wrapperWidth = wrapperRef.current?.clientWidth ?? 0;
+        const baseRenderWidth = baseWidth > 0 ? baseWidth : (wrapperWidth > 0 ? wrapperWidth : size.width);
+        const width = Math.max(baseRenderWidth, baseRenderWidth * targetZoom);
         const height = size.height * targetZoom;
 
         shell.style.width = `${Math.round(width)}px`;
@@ -113,6 +115,40 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     useEffect(() => {
         zoomRef.current = zoom;
     }, [zoom]);
+
+    useEffect(() => {
+        if (zoom <= 1 && wrapperRef.current) {
+            wrapperRef.current.scrollLeft = 0;
+        }
+    }, [zoom]);
+
+    useEffect(() => {
+        const wrapper = wrapperRef.current;
+        if (!wrapper) return;
+
+        const clampHorizontalScroll = () => {
+            const target = wrapperRef.current;
+            if (!target) return;
+
+            const naturalMax = Math.max(0, target.scrollWidth - target.clientWidth);
+            const baseRenderWidth = target.clientWidth;
+            const zoomMax = Math.max(0, baseRenderWidth * (zoomRef.current - 1));
+            const maxScrollLeft = Math.min(naturalMax, zoomMax);
+
+            if (target.scrollLeft > maxScrollLeft) {
+                target.scrollLeft = maxScrollLeft;
+            }
+        };
+
+        clampHorizontalScroll();
+        wrapper.addEventListener('scroll', clampHorizontalScroll, { passive: true });
+        window.addEventListener('resize', clampHorizontalScroll);
+
+        return () => {
+            wrapper.removeEventListener('scroll', clampHorizontalScroll);
+            window.removeEventListener('resize', clampHorizontalScroll);
+        };
+    }, [zoom, visiblePages, numPages, preferHighRes, highResCacheEnabled]);
 
     useEffect(() => {
         setPreferHighRes(!isCoarsePointer);
@@ -401,7 +437,7 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
                     +
                 </button>
             </div>
-            <div className="pdf-scroll-area" ref={wrapperRef}>
+            <div className={`pdf-scroll-area ${zoom > 1 ? 'zoomed' : ''}`} ref={wrapperRef}>
                 {!blobUrl ? (
                     <div className="pdf-loading">
                         <div className="pdf-spinner" />
