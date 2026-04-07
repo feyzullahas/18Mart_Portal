@@ -10,6 +10,7 @@ import { Schedule } from './components/Schedule';
 import { Auth } from './components/Auth';
 import { UserMenu } from './components/UserMenu';
 import { ExamCountdown } from './components/ExamCountdown';
+import { InstallPrompt } from './components/InstallPrompt';
 import './App.css';
 
 const AppContent = () => {
@@ -84,6 +85,7 @@ const AppContent = () => {
 
             {/* Theme Toggle Button */}
             <ThemeToggle />
+            <InstallPrompt />
         </div>
     );
 };
