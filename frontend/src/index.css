@@ -1,223 +1,25 @@
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
-/* CSS Variables - Dark Theme (default) */
-:root {
-  --card-bg: rgba(30, 30, 30, 0.97);
-  --card-shadow: rgba(0, 0, 0, 0.5);
-  --item-bg: rgba(20, 20, 20, 0.95);
-  --text-primary: #f0f0f0;
-  --text-secondary: #a0a0a0;
-  --text-muted: #666666;
-  --accent-color: #f59e0b;
-  --border-color: rgba(255, 255, 255, 0.08);
-  --primary-color: #4a90e2;
-  --primary-hover: #357abd;
-  --success-color: #27ae60;
-  --error-color: #e74c3c;
-  --background: rgba(10, 10, 10, 0.99);
-}
-
-/* CSS Variables - Light Theme - Soft & Easy on Eyes */
-[data-theme="light"] {
-  --card-bg: rgba(250, 249, 246, 0.98);
-  /* Soft warm white */
-  --card-shadow: rgba(0, 0, 0, 0.08);
-  --item-bg: rgba(245, 243, 238, 0.95);
-  /* Warm off-white */
-  --text-primary: #2d3748;
-  /* Softer dark gray */
-  --text-secondary: #5a6c7d;
-  /* Muted blue-gray */
-  --text-muted: #8a9ba8;
-  /* Light blue-gray */
-  --accent-color: #f59e0b;
-  --border-color: rgba(0, 0, 0, 0.06);
-  /* Very subtle border */
-  --primary-color: #4a90e2;
-  --primary-hover: #357abd;
-  --success-color: #27ae60;
-  --error-color: #e74c3c;
-  --background: rgba(255, 255, 255, 0.98);
-}
-
-html,
-body {
+html, body, #root {
   width: 100%;
-  min-height: 100vh;
-  overflow-x: hidden;
+  min-height: 100%;
+}
+
+html {
   scroll-behavior: smooth;
-  overflow-anchor: none;
-  /* Prevents page jump on accordion toggle */
-}
-
-/* Global font scale — tüm rem tabanlı boyutlar otomatik küçülür */
-@media (max-width: 480px) {
-  html {
-    font-size: 13px;
-  }
-}
-@media (min-width: 481px) and (max-width: 768px) {
-  html {
-    font-size: 14px;
-  }
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  color: #10223a;
+  background: #f4f7fb;
 }
 
-#root {
-  width: 100%;
-  min-height: 100vh;
-}
-
-/* ========== Common Card Styles ========== */
-/* Unified styles for all card components */
-
-/* Base Card */
-.weather-card,
-.meals-card,
-.bus-card,
-.calendar-card,
-.schedule-card {
-  background: var(--card-bg);
-  border-radius: 16px;
-  padding: 20px 24px;
-  box-shadow: 0 4px 15px var(--card-shadow);
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  transition: all 0.3s ease;
-}
-
-/* Card Header - Unified */
-.weather-card .card-header,
-.meals-card .card-header,
-.bus-card .card-header,
-.calendar-card .card-header,
-.schedule-card .card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  padding: 18px 0;
-  user-select: none;
-  min-height: 70px;
-}
-
-/* Card Header Title - Unified */
-.weather-card .card-header h2,
-.meals-card .card-header h2,
-.bus-card .card-header h2,
-.calendar-card .card-header h2,
-.schedule-card .card-header h2 {
-  margin: 0 !important;
-  font-size: 22px !important;
-  color: var(--text-primary);
-  font-weight: 600 !important;
-}
-
-/* Toggle Icon - Unified */
-.toggle-icon {
-  font-size: 14px;
-  color: var(--text-muted);
-  transition: transform 0.3s ease;
-  margin-left: 1rem;
-}
-
-.toggle-icon.open {
-  transform: rotate(180deg);
-}
-
-/* Card Content - Unified */
-.weather-card .card-content,
-.meals-card .card-content,
-.bus-card .card-content,
-.calendar-card .card-content,
-.schedule-card .card-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
-  opacity: 0;
-}
-
-.weather-card .card-content.open,
-.meals-card .card-content.open,
-.bus-card .card-content.open,
-.calendar-card .card-content.open,
-.schedule-card .card-content.open {
-  max-height: 3000px;
-  opacity: 1;
-  padding-top: 20px;
-}
-
-/* Responsive adjustments for cards */
-@media screen and (max-width: 768px) {
-
-  .weather-card,
-  .meals-card,
-  .bus-card,
-  .calendar-card,
-  .schedule-card {
-    padding: 16px 18px;
-    border-radius: 14px;
-    max-width: 100%;
-    margin: 0;
-    width: 100%;
-  }
-
-  .weather-card .card-header,
-  .meals-card .card-header,
-  .bus-card .card-header,
-  .calendar-card .card-header,
-  .schedule-card .card-header {
-    min-height: 80px;
-    padding: 20px 0;
-  }
-
-  .weather-card .card-header h2,
-  .meals-card .card-header h2,
-  .bus-card .card-header h2,
-  .calendar-card .card-header h2,
-  .schedule-card .card-header h2 {
-    font-size: 20px !important;
-  }
-}
-
-@media screen and (max-width: 576px) {
-
-  .weather-card,
-  .meals-card,
-  .bus-card,
-  .calendar-card,
-  .schedule-card {
-    padding: 14px 13px;
-    border-radius: 12px;
-  }
-
-  .weather-card .card-header h2,
-  .meals-card .card-header h2,
-  .bus-card .card-header h2,
-  .calendar-card .card-header h2,
-  .schedule-card .card-header h2,
-  .exam-countdown-card .card-header h2 {
-    font-size: 18px !important;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .weather-card .card-header h2,
-  .meals-card .card-header h2,
-  .bus-card .card-header h2,
-  .calendar-card .card-header h2,
-  .schedule-card .card-header h2,
-  .exam-countdown-card .card-header h2 {
-    font-size: 17px !important;
-  }
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }

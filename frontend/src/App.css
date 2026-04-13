@@ -1,538 +1,410 @@
-/* Loading Styles */
-.loading-container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 1.5rem;
-    background: #0d0d0d;
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --portal-bg: #eef3f9;
+    --portal-surface: #ffffff;
+    --portal-text: #17284a;
+    --portal-muted: #5b6f8c;
+    --portal-border: rgba(23, 40, 74, 0.12);
+    --portal-primary: #1756dd;
+    --portal-primary-hover: #1249c2;
+    --portal-shadow: 0 14px 34px rgba(23, 40, 74, 0.12);
+
+    --card-bg: #f8fbff;
+    --card-shadow: rgba(23, 40, 74, 0.12);
+    --item-bg: #edf3fb;
+    --text-primary: #17284a;
+    --text-secondary: #5b6f8c;
+    --text-muted: #7a8ca6;
+    --accent-color: #1756dd;
+    --border-color: rgba(23, 40, 74, 0.13);
+    --primary-color: #1756dd;
+    --primary-hover: #1249c2;
+    --success-color: #149668;
+    --error-color: #d44150;
+    --background: #eef3f9;
 }
 
-[data-theme="light"] .loading-container {
-    background: linear-gradient(135deg, #f7f5f2 0%, #faf8f5 100%);
+.portal-app {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #f6f9fd 0%, var(--portal-bg) 100%);
+    color: var(--portal-text);
+    font-family: 'Sora', sans-serif;
+    overflow-x: hidden;
+}
+
+.portal-app,
+.portal-app * {
+    font-family: 'Sora', sans-serif;
+}
+
+.portal-app-loading {
+    display: grid;
+    place-items: center;
+}
+
+.portal-loading-container {
+    text-align: center;
+    background: var(--portal-surface);
+    border: 1px solid var(--portal-border);
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: var(--portal-shadow);
 }
 
 .loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid rgba(255, 255, 255, 0.1);
-    border-top: 4px solid #4a90e2;
+    width: 38px;
+    height: 38px;
+    margin: 0 auto 12px;
+    border: 3px solid rgba(23, 40, 74, 0.15);
+    border-top-color: var(--portal-primary);
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: spin 0.9s linear infinite;
 }
 
-[data-theme="light"] .loading-spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-top: 4px solid #4a90e2;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.loading-container p {
-    color: #f1f5f9;
-    font-size: 1rem;
-    font-weight: 500;
-    margin: 0;
-    letter-spacing: 0.5px;
-}
-
-[data-theme="light"] .loading-container p {
-    color: #1f2937;
-}
-
-/* Header User Menu */
-.header-user {
-    display: flex;
+.portal-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
-}
-
-.header-login-button {
-    border: 1px solid rgba(74, 144, 226, 0.55);
-    background: rgba(74, 144, 226, 0.15);
-    color: #dbeafe;
-    font-size: 0.85rem;
-    font-weight: 600;
-    border-radius: 999px;
-    padding: 0.5rem 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.header-login-button:hover {
-    background: rgba(74, 144, 226, 0.3);
-    border-color: rgba(74, 144, 226, 0.85);
-}
-
-[data-theme="light"] .header-login-button {
-    color: #1e3a8a;
-    background: rgba(74, 144, 226, 0.1);
-}
-
-/* App Root Styles */
-.app {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 2rem 1rem;
-    background: #0d0d0d;
-}
-
-[data-theme="light"] .app {
-    background: linear-gradient(135deg, #f7f5f2 0%, #faf8f5 100%);
-    /* Soft warm gradient */
-}
-
-/* App Container */
-.app-container {
-    width: 100%;
-    max-width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-/* Header Styles */
-.app-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.5rem 1rem;
-    background: rgba(22, 22, 22, 0.97);
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    backdrop-filter: blur(10px);
-}
-
-[data-theme="light"] .app-header {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.header-logo {
-    width: 50px;
-    height: 50px;
-    object-fit: contain;
-    /* Subtle glow to make it stand out */
-    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
-.header-content {
-    flex: 1;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.header-title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #f0f0f0 0%, #c8c8c8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0 0 0.25rem 0;
-}
-
-[data-theme="light"] .header-title {
-    background: linear-gradient(135deg, #0b42f5 0%, #1000eb 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.header-subtitle {
-    font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.7);
-    margin: 0;
-}
-
-[data-theme="light"] .header-subtitle {
-    color: rgba(0, 0, 0, 0.6);
-}
-
-.header-weather {
-    display: flex;
-    align-items: center;
-}
-
-.header-exam-countdown {
-    display: flex;
-    align-items: center;
-}
-
-/* Main Content */
-.app-main {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-/* Mobile Widget Order */
-.mobile-only-weather {
-    order: 1;
-}
-
-.meals-widget {
-    order: 2;
-}
-
-.bus-widget {
-    order: 3;
-}
-
-.schedule-widget {
-    order: 4;
-}
-
-.exam-countdown-widget {
-    order: 5;
-}
-
-.calendar-widget {
-    order: 6;
-}
-
-/* Footer Styles */
-.app-footer {
-    text-align: center;
-    padding: 1.5rem 1rem;
-    background: rgba(22, 22, 22, 0.97);
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    margin-top: 0.5rem;
-}
-
-[data-theme="light"] .app-footer {
+    gap: 16px;
+    padding: 12px 18px;
+    margin: 10px;
     background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 26px rgba(18, 38, 76, 0.1);
 }
 
-.footer-copyright {
-    font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.8);
-    margin: 0 0 0.25rem 0;
+.portal-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-[data-theme="light"] .footer-copyright {
-    color: rgba(0, 0, 0, 0.7);
+.portal-logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
 }
 
-.footer-info {
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.5);
+.portal-brand h1 {
     margin: 0;
+    font-family: 'Sora', sans-serif;
+    font-size: 1.08rem;
+    line-height: 1.1;
 }
 
-[data-theme="light"] .footer-info {
-    color: rgba(0, 0, 0, 0.5);
+.portal-brand p {
+    margin: 1px 0 0;
+    color: var(--portal-muted);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
-/* Responsive Design */
-@media (max-width: 640px) {
-    .app {
-        padding: 0.75rem 0.6rem;
-    }
-
-    .app-header {
-        padding: 1rem 0.875rem;
-        border-radius: 12px;
-    }
-
-    .header-title {
-        font-size: 1.25rem;
-    }
-
-    .header-subtitle {
-        font-size: 0.75rem;
-    }
-
-    .app-footer {
-        border-radius: 12px;
-        padding: 1rem 0.875rem;
-    }
-
-    .footer-copyright {
-        font-size: 0.75rem;
-    }
-
-    .footer-info {
-        font-size: 0.65rem;
-    }
+.portal-nav {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
 }
 
-@media (max-width: 480px) {
-    .header-title {
-        font-size: 1.1rem;
-    }
-
-    .header-subtitle {
-        font-size: 0.7rem;
-    }
-
-    .header-logo {
-        width: 38px;
-        height: 38px;
-    }
+.portal-nav a {
+    color: var(--portal-text);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 6px 10px;
+    border-radius: 10px;
 }
 
-/* Tablet & Desktop Styles */
-@media (min-width: 768px) {
-    .app-container {
-        max-width: 100%;
-        width: 100%;
-        padding: 0 2rem;
-    }
-
-    .app-header {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        text-align: left;
-        padding: 1rem 2rem;
-        gap: 1.5rem;
-        justify-content: space-between;
-    }
-
-    .header-logo {
-        width: 64px;
-        height: 64px;
-        margin-bottom: 0;
-    }
-
-    .header-content {
-        flex: 1;
-    }
-
-    .header-weather {
-        display: block;
-    }
-
-    .header-title {
-        font-size: 2rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .header-subtitle {
-        font-size: 1rem;
-    }
-
-    /* Widget Grid Layout - Tablet */
-    .app-main {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
+.portal-nav a:hover {
+    background: rgba(23, 86, 221, 0.1);
+    color: var(--portal-primary);
 }
 
-/* Large Desktop Styles - Bento Grid */
-@media (min-width: 1024px) {
-    .app-container {
-        max-width: 1400px;
-    }
-
-    .app-main {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        grid-template-rows: auto auto;
-        grid-template-areas:
-            "meals    schedule"
-            "calendar bus";
-        gap: 2rem;
-    }
-
-    .app-main.app-main-guest {
-        grid-template-areas:
-            "meals    bus"
-            "calendar bus";
-    }
-
-    .widget-wrapper {
-        min-width: 0;
-    }
-
-    /* Assign Areas */
-    .meals-widget {
-        grid-area: meals;
-    }
-
-    .schedule-widget {
-        grid-area: schedule;
-    }
-
-    .bus-widget {
-        grid-area: bus;
-    }
-
-    .calendar-widget {
-        grid-area: calendar;
-    }
-
-    /* Reset order for desktop grid layout */
-    .mobile-only-weather,
-    .meals-widget,
-    .bus-widget,
-    .schedule-widget,
-    .calendar-widget {
-        order: 0;
-    }
-
-    /* Force "Open" State on Desktop & Style Tweaks */
-    .card-content {
-        display: block !important;
-        max-height: none !important;
-        opacity: 1 !important;
-        transform: none !important;
-        padding-top: 1rem;
-    }
-
-    .toggle-icon {
-        display: none !important;
-    }
-
-    .card-header {
-        pointer-events: none;
-        cursor: default;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid var(--border-color);
-        margin-bottom: 1rem;
-    }
-
-    .card-header h2 {
-        font-size: 1.25rem;
-    }
-
-    /* Make widgets full height to match grid if needed */
-    .weather-card,
-    .meals-card,
-    .bus-card,
-    .calendar-card,
-    .schedule-card {
-        min-width: 0;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* Schedule Card Desktop Tweaks */
-    .schedule-card .toggle-icon {
-        display: none !important;
-    }
-
-    .schedule-card .card-content {
-        display: flex !important;
-        flex: 1;
-        max-height: none !important;
-        opacity: 1 !important;
-        padding-top: 1rem;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .schedule-card .card-header {
-        pointer-events: none;
-        cursor: default;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid var(--border-color);
-        margin-bottom: 1rem;
-        width: 100%;
-    }
-
-    .card-content {
-        flex: 1;
-    }
+.portal-auth {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-end;
 }
 
-/* Hide header weather on mobile */
-@media (max-width: 767px) {
-    .header-weather {
-        display: none;
-    }
-}
-
-/* Toggle visibility for mobile weather widget in main */
-.mobile-only-weather {
+.portal-navbar-countdown {
     display: block;
 }
 
-@media (min-width: 768px) {
-    .mobile-only-weather {
-        display: none;
-    }
-}
-
-/* ===== Mobile: Tek Sütun, Düzenli Kartlar ===== */
-@media (max-width: 767px) {
-    .app {
-        min-height: 100vh;
-        align-items: flex-start;
-        padding: 0.6rem;
-    }
-
-    .app-container {
-        width: 100%;
-    }
-
-    .app-main {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .widget-wrapper {
-        width: 100%;
-    }
-}
-
-.install-button {
-    position: fixed;
-    right: 1rem;
-    bottom: 1rem;
-    z-index: 1200;
-    border: 0;
-    border-radius: 999px;
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
+.portal-auth-btn {
+    border: none;
+    border-radius: 11px;
+    padding: 9px 14px;
     font-weight: 700;
-    color: #ffffff;
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    box-shadow: 0 10px 25px rgba(29, 78, 216, 0.35);
+    color: #fff;
     cursor: pointer;
+    background: linear-gradient(130deg, var(--portal-primary), #2e74ff);
 }
 
-.install-button:hover {
-    filter: brightness(1.06);
+.portal-auth-btn:hover {
+    background: linear-gradient(130deg, var(--portal-primary-hover), #2364df);
 }
 
-@media (max-width: 640px) {
-    .install-button {
-        left: 0.75rem;
-        right: 0.75rem;
-        bottom: 0.75rem;
-        width: calc(100% - 1.5rem);
-        text-align: center;
-    }
+.portal-main {
+    width: min(1320px, calc(100% - 20px));
+    margin: 0 auto;
+    padding: 0 0 26px;
+}
+
+.portal-anchor {
+    display: block;
+    position: relative;
+    top: -86px;
+    visibility: hidden;
+}
+
+.portal-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.portal-grid-main {
+    margin: 10px 0 14px;
+    margin-bottom: 14px;
+    align-items: stretch;
+}
+
+.portal-panel {
+    background: var(--portal-surface);
+    border: 1px solid var(--portal-border);
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: var(--portal-shadow);
+    min-width: 0;
+    height: 100%;
+}
+
+.portal-panel > h2 {
+    margin: 0 0 14px;
+    color: #253566;
+    font-family: 'Sora', sans-serif;
+    font-size: 1.2rem;
+    line-height: 1.1;
+}
+
+.portal-panel-weather {
+    grid-column: span 6;
+}
+
+.portal-panel-exam {
+    display: none;
+}
+
+.portal-panel-meals {
+    grid-column: span 6;
+}
+
+.portal-panel-calendar {
+    grid-column: span 6;
+}
+
+.portal-panel-bus,
+.portal-panel-schedule {
+    grid-column: span 6;
+}
+
+.portal-footer {
+    width: min(1320px, calc(100% - 20px));
+    margin: 0 auto 16px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--portal-border);
+    background: rgba(255, 255, 255, 0.78);
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    color: var(--portal-muted);
+    font-size: 0.9rem;
 }
 
 .auth-modal-overlay {
     position: fixed;
     inset: 0;
-    z-index: 1400;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(3px);
+    z-index: 100;
+    background: rgba(8, 18, 36, 0.62);
+    display: grid;
+    place-items: center;
+    padding: 12px;
 }
 
 .auth-modal {
-    width: min(100%, 460px);
+    width: min(440px, 100%);
+}
+
+.portal-app .weather-card,
+.portal-app .meals-card,
+.portal-app .bus-card,
+.portal-app .calendar-card,
+.portal-app .schedule-card,
+.portal-app .exam-countdown-card {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+}
+
+.portal-app .card-header {
+    display: none !important;
+}
+
+.portal-app .toggle-icon {
+    display: none !important;
+}
+
+.portal-app .card-content,
+.portal-app .card-content.open {
+    max-height: none !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    padding-top: 0 !important;
+}
+
+.portal-app .exam-countdown-card {
+    display: block !important;
+}
+
+.portal-app .exam-countdown-header-widget {
+    display: block !important;
+}
+
+.portal-locked-state {
+    min-height: 320px;
+    border: 1px dashed rgba(23, 40, 74, 0.25);
+    border-radius: 14px;
+    background: linear-gradient(180deg, #f7f9fd 0%, #eef3fb 100%);
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 18px;
+    color: #2a3e67;
+}
+
+.portal-lock-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.portal-locked-state p {
+    margin: 0 0 14px;
+    font-weight: 600;
+}
+
+.portal-lock-action {
+    min-width: 132px;
+}
+
+.portal-app .tab-container {
+    background: #e8eef8;
+}
+
+.portal-app .tab-container button {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    color: #2e436c;
+}
+
+.portal-app .tab-container button.active {
+    background: #1756dd;
+    color: #f5f9ff;
+    box-shadow: 0 8px 18px rgba(23, 86, 221, 0.25);
+}
+
+.portal-app .day-date,
+.portal-app .meal-column h3,
+.portal-app .meal-row,
+.portal-app .meal-name,
+.portal-app .meal-column,
+.portal-app .total-cal,
+.portal-app .cal {
+    color: #1d3157;
+}
+
+.portal-app .meal-row {
+    background: #f4f8ff;
+}
+
+.portal-app .schedule-scroll-container {
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 1100px) {
+    .portal-navbar {
+        grid-template-columns: 1fr;
+        justify-items: start;
+    }
+
+    .portal-nav {
+        justify-content: flex-start;
+    }
+
+    .portal-auth {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .portal-navbar-countdown {
+        display: none;
+    }
+}
+
+@media (max-width: 980px) {
+    .portal-panel-weather,
+    .portal-panel-exam,
+    .portal-panel-meals,
+    .portal-panel-calendar,
+    .portal-panel-bus,
+    .portal-panel-schedule {
+        grid-column: span 12;
+    }
+
+    .portal-panel-exam {
+        display: block;
+    }
+
+    .portal-panel-weather { order: 1; }
+    .portal-panel-meals { order: 2; }
+    .portal-panel-bus { order: 3; }
+    .portal-panel-exam { order: 4; }
+    .portal-panel-schedule { order: 5; }
+    .portal-panel-calendar { order: 6; }
+}
+
+@media (max-width: 760px) {
+    .portal-navbar {
+        margin: 8px;
+        border-radius: 14px;
+    }
+
+    .portal-nav {
+        overflow-x: auto;
+        width: 100%;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+    }
+
+    .portal-footer {
+        flex-direction: column;
+    }
 }

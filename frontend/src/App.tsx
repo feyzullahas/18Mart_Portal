@@ -1,23 +1,19 @@
 import { useEffect, useState } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { ThemeToggle } from './components/ThemeToggle';
 import { Weather } from './components/Weather';
 import { Meals } from './components/Meals';
 import { Bus } from './components/Bus';
 import { Calendar } from './components/Calendar';
 import { Schedule } from './components/Schedule';
 import { Auth } from './components/Auth';
-import { UserMenu } from './components/UserMenu';
 import { ExamCountdown } from './components/ExamCountdown';
 import { InstallPrompt } from './components/InstallPrompt';
 import './App.css';
 
 const AppContent = () => {
-    const { user, isLoading } = useAuth();
-    const [openCard, setOpenCard] = useState<string | null>(null);
+    const { user, isLoading, logout } = useAuth();
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-    const makeToggle = (id: string) => () => setOpenCard(prev => prev === id ? null : id);
 
     useEffect(() => {
         if (user && isAuthModalOpen) {
@@ -27,8 +23,8 @@ const AppContent = () => {
 
     if (isLoading) {
         return (
-            <div className="app">
-                <div className="loading-container">
+            <div className="portal-app portal-app-loading">
+                <div className="portal-loading-container">
                     <div className="loading-spinner"></div>
                     <p>Yükleniyor...</p>
                 </div>
@@ -37,69 +33,100 @@ const AppContent = () => {
     }
 
     return (
-        <div className="app">
-            <div className="app-container">
-                {/* Header */}
-                <header className="app-header">
-                    <img src="/favicon.png" alt="18 Mart Portal" className="header-logo" />
-                    <div className="header-content">
-                        <h1 className="header-title">18 Mart Portal</h1>
-                        <p className="header-subtitle">Çomü Öğrenci Portalı</p>
+        <div className="portal-app">
+            <header className="portal-navbar">
+                <div className="portal-brand">
+                    <img src="/favicon.png" alt="18 Mart Portal" className="portal-logo" />
+                    <div>
+                        <h1>18 Mart Portal</h1>
+                        <p>Campus Dashboard</p>
                     </div>
-                    <div className="header-weather">
-                        <Weather variant="header" />
-                    </div>
-                    <div className="header-exam-countdown">
+                </div>
+
+                <nav className="portal-nav" aria-label="Ana gezinme">
+                    <a href="#weather">Hava</a>
+                    <a href="#exam">Final</a>
+                    <a href="#meals">Yemek</a>
+                    <a href="#calendar">Takvim</a>
+                    <a href="#bus">Otobüs</a>
+                    <a href="#schedule">Ders Programı</a>
+                </nav>
+
+                <div className="portal-auth">
+                    <div className="portal-navbar-countdown" aria-hidden="false">
                         <ExamCountdown variant="header" />
                     </div>
-                    <div className="header-user">
-                        {user ? (
-                            <UserMenu />
-                        ) : (
-                            <button
-                                type="button"
-                                className="header-login-button"
-                                onClick={() => setIsAuthModalOpen(true)}
-                            >
-                                Giriş Yap
-                            </button>
-                        )}
-                    </div>
-                </header>
-
-                {/* Dashboard Cards */}
-                <main className={`app-main ${!user ? 'app-main-guest' : ''}`}>
-                    <div className="widget-wrapper weather-widget mobile-only-weather">
-                        <Weather isOpen={openCard === 'weather'} onToggle={makeToggle('weather')} />
-                    </div>
-                    <div className="widget-wrapper exam-countdown-widget">
-                        <ExamCountdown isOpen={openCard === 'exam'} onToggle={makeToggle('exam')} />
-                    </div>
-                    <div className="widget-wrapper meals-widget">
-                        <Meals isOpen={openCard === 'meals'} onToggle={makeToggle('meals')} />
-                    </div>
-                    {user && (
-                        <div className="widget-wrapper schedule-widget">
-                            <Schedule isOpen={openCard === 'schedule'} onToggle={makeToggle('schedule')} />
-                        </div>
+                    {user ? (
+                        <button type="button" className="portal-auth-btn" onClick={logout}>
+                            Çıkış Yap
+                        </button>
+                    ) : (
+                        <button
+                            type="button"
+                            className="portal-auth-btn"
+                            onClick={() => setIsAuthModalOpen(true)}
+                        >
+                            Giriş Yap
+                        </button>
                     )}
-                    <div className="widget-wrapper calendar-widget">
-                        <Calendar isOpen={openCard === 'calendar'} onToggle={makeToggle('calendar')} />
-                    </div>
-                    <div className="widget-wrapper bus-widget">
-                        <Bus isOpen={openCard === 'bus'} onToggle={makeToggle('bus')} />
-                    </div>
-                </main>
+                </div>
+            </header>
 
-                {/* Footer */}
-                <footer className="app-footer">
-                    <p className="footer-copyright">© Yazılım Geliştirme Kulübü - 18 Mart Portal - Tüm Hakları Saklıdır</p>
-                    <p className="footer-info">Versiyon 1.0 | Çanakkale Onsekiz Mart Üniversitesi için geliştirilmiştir</p>
-                </footer>
-            </div>
+            <main className="portal-main">
+                <span id="exam" className="portal-anchor"></span>
 
-            {/* Theme Toggle Button */}
-            <ThemeToggle />
+                <section className="portal-grid portal-grid-main">
+                    <article className="portal-panel portal-panel-weather" id="weather">
+                        <h2>Hava Durumu</h2>
+                        <Weather isOpen />
+                    </article>
+
+                    <article className="portal-panel portal-panel-exam" id="exam-mobile">
+                        <h2>Vize Final Sayacı</h2>
+                        <ExamCountdown isOpen />
+                    </article>
+
+                    <article className="portal-panel portal-panel-meals" id="meals">
+                        <h2>Günün Yemek Menüsü</h2>
+                        <Meals isOpen />
+                    </article>
+
+                    <article className="portal-panel portal-panel-calendar" id="calendar">
+                        <h2>Akademik Takvim</h2>
+                        <Calendar isOpen />
+                    </article>
+
+                    <article className="portal-panel portal-panel-bus" id="bus">
+                        <h2>Otobüs Saatleri</h2>
+                        <Bus isOpen />
+                    </article>
+
+                    <article className="portal-panel portal-panel-schedule" id="schedule">
+                        <h2>Ders Programım</h2>
+                        {user ? (
+                            <Schedule isOpen />
+                        ) : (
+                            <div className="portal-locked-state" role="note" aria-label="Kilitle korunuyor">
+                                <div className="portal-lock-icon" aria-hidden="true">🔒</div>
+                                <p>Bu özelliği kullanmak için giriş yapın.</p>
+                                <button
+                                    type="button"
+                                    className="portal-auth-btn portal-lock-action"
+                                    onClick={() => setIsAuthModalOpen(true)}
+                                >
+                                    Giriş Yap
+                                </button>
+                            </div>
+                        )}
+                    </article>
+                </section>
+            </main>
+
+            <footer className="portal-footer">
+                <p>Yazılım Geliştirme Kulübü - 18 Mart Portal</p>
+                <p>Çanakkale Onsekiz Mart Üniversitesi</p>
+            </footer>
+
             <InstallPrompt />
 
             {isAuthModalOpen && (
