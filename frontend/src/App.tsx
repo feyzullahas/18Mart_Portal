@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeToggle } from './components/ThemeToggle';
@@ -16,7 +16,14 @@ import './App.css';
 const AppContent = () => {
     const { user, isLoading } = useAuth();
     const [openCard, setOpenCard] = useState<string | null>(null);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const makeToggle = (id: string) => () => setOpenCard(prev => prev === id ? null : id);
+
+    useEffect(() => {
+        if (user && isAuthModalOpen) {
+            setIsAuthModalOpen(false);
+        }
+    }, [user, isAuthModalOpen]);
 
     if (isLoading) {
         return (
@@ -27,10 +34,6 @@ const AppContent = () => {
                 </div>
             </div>
         );
-    }
-
-    if (!user) {
-        return <Auth />;
     }
 
     return (
@@ -50,12 +53,22 @@ const AppContent = () => {
                         <ExamCountdown variant="header" />
                     </div>
                     <div className="header-user">
-                        <UserMenu />
+                        {user ? (
+                            <UserMenu />
+                        ) : (
+                            <button
+                                type="button"
+                                className="header-login-button"
+                                onClick={() => setIsAuthModalOpen(true)}
+                            >
+                                Giriş Yap
+                            </button>
+                        )}
                     </div>
                 </header>
 
                 {/* Dashboard Cards */}
-                <main className="app-main">
+                <main className={`app-main ${!user ? 'app-main-guest' : ''}`}>
                     <div className="widget-wrapper weather-widget mobile-only-weather">
                         <Weather isOpen={openCard === 'weather'} onToggle={makeToggle('weather')} />
                     </div>
@@ -65,9 +78,11 @@ const AppContent = () => {
                     <div className="widget-wrapper meals-widget">
                         <Meals isOpen={openCard === 'meals'} onToggle={makeToggle('meals')} />
                     </div>
-                    <div className="widget-wrapper schedule-widget">
-                        <Schedule isOpen={openCard === 'schedule'} onToggle={makeToggle('schedule')} />
-                    </div>
+                    {user && (
+                        <div className="widget-wrapper schedule-widget">
+                            <Schedule isOpen={openCard === 'schedule'} onToggle={makeToggle('schedule')} />
+                        </div>
+                    )}
                     <div className="widget-wrapper calendar-widget">
                         <Calendar isOpen={openCard === 'calendar'} onToggle={makeToggle('calendar')} />
                     </div>
@@ -86,6 +101,14 @@ const AppContent = () => {
             {/* Theme Toggle Button */}
             <ThemeToggle />
             <InstallPrompt />
+
+            {isAuthModalOpen && (
+                <div className="auth-modal-overlay" role="dialog" aria-modal="true" aria-label="Giriş ekranı">
+                    <div className="auth-modal">
+                        <Auth embedded onClose={() => setIsAuthModalOpen(false)} />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -8,7 +8,14 @@
     background: linear-gradient(135deg, #f7f5f2 0%, #faf8f5 100%);
 }
 
+.auth-container-embedded {
+    min-height: auto;
+    padding: 0;
+    background: transparent;
+}
+
 .auth-card {
+    position: relative;
     background: rgba(255, 255, 255, 0.95);
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 16px;
@@ -17,6 +24,29 @@
     max-width: 400px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
+}
+
+.auth-card-embedded {
+    max-width: 460px;
+}
+
+.auth-close-button {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 999px;
+    background: #ffffff;
+    color: #334155;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.auth-close-button:hover {
+    background: #f1f5f9;
 }
 
 /* Header */

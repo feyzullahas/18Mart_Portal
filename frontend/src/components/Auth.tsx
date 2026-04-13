@@ -2,7 +2,12 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Auth.css';
 
-export const Auth = () => {
+interface AuthProps {
+    embedded?: boolean;
+    onClose?: () => void;
+}
+
+export const Auth = ({ embedded = false, onClose }: AuthProps) => {
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -64,8 +69,13 @@ export const Auth = () => {
     };
 
     return (
-        <div className="auth-container">
-            <div className="auth-card">
+        <div className={`auth-container ${embedded ? 'auth-container-embedded' : ''}`}>
+            <div className={`auth-card ${embedded ? 'auth-card-embedded' : ''}`}>
+                {embedded && onClose && (
+                    <button type="button" className="auth-close-button" onClick={onClose} aria-label="Kapat">
+                        ×
+                    </button>
+                )}
                 {/* Header */}
                 <div className="auth-header">
                     <img src="/favicon.png" alt="18 Mart Portal" className="auth-logo" />
