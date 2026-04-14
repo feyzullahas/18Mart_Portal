@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import '../styles/UserMenu.css';
 
-export const UserMenu = () => {
+export const UserMenu = ({ onOpenProfile }: { onOpenProfile?: () => void }) => {
     const [isOpen, setIsOpen] = useState(false);
     const { user, logout } = useAuth();
     const displayName = user?.fullName?.trim() || 'Çomülü';
@@ -19,13 +19,18 @@ export const UserMenu = () => {
         <div className="user-menu">
             <button 
                 className="user-button"
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => {
+                    if (onOpenProfile) {
+                        onOpenProfile();
+                        return;
+                    }
+                    setIsOpen(!isOpen);
+                }}
             >
                 <div className="user-avatar">
                     {avatarChar}
                 </div>
-                <span className="user-email">Profil</span>
-                <span className={`dropdown-icon ${isOpen ? 'open' : ''}`}>▼</span>
+                <span className="user-email">Profilim</span>
             </button>
 
             {isOpen && (

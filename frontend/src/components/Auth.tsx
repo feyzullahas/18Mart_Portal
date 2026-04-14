@@ -113,7 +113,7 @@ export const Auth = ({ embedded = false, onClose }: AuthProps) => {
 
                     <div className="form-group">
                         <label htmlFor="email" className="form-label">
-                            E-posta
+                            E-mail
                         </label>
                         <input
                             type="email"
@@ -121,7 +121,7 @@ export const Auth = ({ embedded = false, onClose }: AuthProps) => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="form-input"
-                            placeholder="ornek@comu.edu.tr"
+                            placeholder="ornek@gmail.com"
                             required
                         />
                     </div>

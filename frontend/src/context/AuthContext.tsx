@@ -11,6 +11,7 @@ interface AuthContextType {
     user: User | null;
     login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
     register: (email: string, password: string, fullName?: string) => Promise<{ success: boolean; error?: string }>;
+    updateProfile: (profile: { fullName?: string; email?: string }) => { success: boolean; error?: string };
     logout: () => void;
     isLoading: boolean;
 }
@@ -43,6 +44,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } catch {
             return {};
         }
+    };
+
+    const getSavedProfiles = (): Record<string, { fullName?: string; email?: string }> => {
+        try {
+            return JSON.parse(localStorage.getItem('profileDataMap') || '{}');
+        } catch {
+            return {};
+        }
+    };
+
+    const saveProfileById = (id: string, profile: { fullName?: string; email?: string }) => {
+        const profileDataMap = getSavedProfiles();
+        profileDataMap[id] = {
+            ...profileDataMap[id],
+            ...profile
+        };
+        localStorage.setItem('profileDataMap', JSON.stringify(profileDataMap));
     };
 
     const saveProfileName = (email: string, fullName: string) => {
@@ -94,13 +112,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             if (response.ok) {
                 const data = await response.json();
                 const profileNames = getSavedProfileNames();
-                const savedFullName = profileNames[email.toLowerCase()];
-                
-                // Extract user info from JWT token
                 const tokenPayload = JSON.parse(atob(data.access_token.split('.')[1]));
+                const profileDataMap = getSavedProfiles();
+                const savedProfile = profileDataMap[tokenPayload.user_id] || {};
+                const savedFullName = savedProfile.fullName || profileNames[email.toLowerCase()];
+
+                // Extract user info from JWT token
                 const user: User = {
                     id: tokenPayload.user_id,
-                    email,
+                    email: savedProfile.email || email,
                     fullName: savedFullName
                 };
                 setUser(user);
@@ -151,10 +171,44 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.removeItem('token');
     };
 
+    const updateProfile = (profile: { fullName?: string; email?: string }): { success: boolean; error?: string } => {
+        if (!user) {
+            return { success: false, error: 'Kullanıcı bulunamadı' };
+        }
+
+        const nextEmail = profile.email?.trim() || user.email;
+        const nextFullName = profile.fullName?.trim() || user.fullName;
+
+        if (!nextEmail) {
+            return { success: false, error: 'E-mail boş olamaz' };
+        }
+
+        const updatedUser: User = {
+            ...user,
+            email: nextEmail,
+            fullName: nextFullName
+        };
+
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+
+        if (nextFullName) {
+            saveProfileName(nextEmail, nextFullName);
+        }
+
+        saveProfileById(user.id, {
+            email: nextEmail,
+            fullName: nextFullName
+        });
+
+        return { success: true };
+    };
+
     const value: AuthContextType = {
         user,
         login,
         register,
+        updateProfile,
         logout,
         isLoading
     };

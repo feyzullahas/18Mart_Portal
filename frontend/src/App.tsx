@@ -10,6 +10,7 @@ import { Auth } from './components/Auth';
 import { ExamCountdown } from './components/ExamCountdown';
 import { InstallPrompt } from './components/InstallPrompt';
 import { UserMenu } from './components/UserMenu';
+import { ProfileSettings } from './components/ProfileSettings';
 import { weatherService } from './services/weatherService';
 import { busService } from './services/busService';
 import { FiHome, FiCalendar, FiMapPin, FiBookOpen } from 'react-icons/fi';
@@ -17,7 +18,7 @@ import { MdRestaurantMenu } from 'react-icons/md';
 import { type IconType } from 'react-icons';
 import './App.css';
 
-type PortalPage = 'home' | 'meals' | 'calendar' | 'bus' | 'schedule';
+type PortalPage = 'home' | 'meals' | 'calendar' | 'bus' | 'schedule' | 'profile';
 
 interface NavItem {
     key: PortalPage;
@@ -194,6 +195,22 @@ const AppContent = () => {
                         </div>
                     )
                 };
+            case 'profile':
+                return {
+                    title: 'Profilim',
+                    content: user ? <ProfileSettings /> : (
+                        <div className="portal-locked-state" role="note" aria-label="Kilitle korunuyor">
+                            <p>Bu özelliği kullanmak için giriş yapın.</p>
+                            <button
+                                type="button"
+                                className="portal-auth-btn portal-lock-action"
+                                onClick={() => setIsAuthModalOpen(true)}
+                            >
+                                Giriş Yap
+                            </button>
+                        </div>
+                    )
+                };
         }
     };
 
@@ -224,7 +241,7 @@ const AppContent = () => {
 
                 <div className="portal-auth">
                     {user ? (
-                        <UserMenu />
+                        <UserMenu onOpenProfile={() => setActivePage('profile')} />
                     ) : (
                         <button
                             type="button"
