@@ -30,7 +30,7 @@ export const UserMenu = ({ onOpenProfile }: { onOpenProfile?: () => void }) => {
                 <div className="user-avatar">
                     {avatarChar}
                 </div>
-                <span className="user-email">Profilim</span>
+                <span className="user-email">Profil</span>
             </button>
 
             {isOpen && (

@@ -197,7 +197,7 @@ const AppContent = () => {
                 };
             case 'profile':
                 return {
-                    title: 'Profilim',
+                    title: '',
                     content: user ? <ProfileSettings /> : (
                         <div className="portal-locked-state" role="note" aria-label="Kilitle korunuyor">
                             <p>Bu özelliği kullanmak için giriş yapın.</p>
