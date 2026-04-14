@@ -13,8 +13,9 @@ import { UserMenu } from './components/UserMenu';
 import { ProfileSettings } from './components/ProfileSettings';
 import { weatherService } from './services/weatherService';
 import { busService } from './services/busService';
-import { FiHome, FiCalendar, FiMapPin, FiBookOpen } from 'react-icons/fi';
+import { FiHome, FiCalendar, FiBookOpen } from 'react-icons/fi';
 import { MdRestaurantMenu } from 'react-icons/md';
+import { FaBus } from 'react-icons/fa6';
 import { type IconType } from 'react-icons';
 import './App.css';
 
@@ -35,7 +36,7 @@ const AppContent = () => {
     const navItems: NavItem[] = [
         { key: 'home', label: 'Ana Sayfa', title: 'Ana Sayfa', icon: FiHome },
         { key: 'meals', label: 'Yemek', title: 'Günün Yemek Menüsü', icon: MdRestaurantMenu },
-        { key: 'bus', label: 'Otobüs', title: 'Otobüs Saatleri', icon: FiMapPin },
+        { key: 'bus', label: 'Otobüs', title: 'Otobüs Saatleri', icon: FaBus },
         { key: 'schedule', label: 'Program', title: 'Ders Programım', icon: FiBookOpen },
         { key: 'calendar', label: 'Takvim', title: 'Akademik Takvim', icon: FiCalendar }
     ];
