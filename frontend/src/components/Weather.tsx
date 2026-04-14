@@ -21,8 +21,19 @@ export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: Weat
 
     useEffect(() => {
         const fetchWeather = async () => {
+            const cachedCurrent = weatherService.getCachedCurrentWeather();
+            const cachedForecast = weatherService.getCachedForecast(7);
+
+            if (cachedCurrent && cachedForecast) {
+                setCurrent(cachedCurrent);
+                setForecast(cachedForecast);
+                setLoading(false);
+            }
+
             try {
-                setLoading(true);
+                if (!cachedCurrent || !cachedForecast) {
+                    setLoading(true);
+                }
                 const [currentData, forecastData] = await Promise.all([
                     weatherService.getCurrentWeather(),
                     weatherService.getForecast(7)
@@ -30,7 +41,9 @@ export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: Weat
                 setCurrent(currentData);
                 setForecast(forecastData);
             } catch (err) {
-                if (variant === 'card') setError('Hava durumu yüklenemedi');
+                if (variant === 'card' && (!cachedCurrent || !cachedForecast)) {
+                    setError('Hava durumu yüklenemedi');
+                }
                 console.error(err);
             } finally {
                 setLoading(false);

@@ -5,6 +5,8 @@ import '../styles/UserMenu.css';
 export const UserMenu = () => {
     const [isOpen, setIsOpen] = useState(false);
     const { user, logout } = useAuth();
+    const displayName = user?.fullName?.trim() || 'Çomülü';
+    const avatarChar = displayName.charAt(0).toUpperCase();
 
     const handleLogout = () => {
         logout();
@@ -20,9 +22,9 @@ export const UserMenu = () => {
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <div className="user-avatar">
-                    {user.email.charAt(0).toUpperCase()}
+                    {avatarChar}
                 </div>
-                <span className="user-email">{user.email}</span>
+                <span className="user-email">Profil</span>
                 <span className={`dropdown-icon ${isOpen ? 'open' : ''}`}>▼</span>
             </button>
 
@@ -30,10 +32,10 @@ export const UserMenu = () => {
                 <div className="dropdown-menu">
                     <div className="user-info">
                         <div className="user-avatar-large">
-                            {user.email.charAt(0).toUpperCase()}
+                            {avatarChar}
                         </div>
                         <div className="user-details">
-                            <p className="user-email-large">{user.email}</p>
+                            <p className="user-email-large">{displayName}</p>
                             <p className="user-role">Öğrenci</p>
                         </div>
                     </div>

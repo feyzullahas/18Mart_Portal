@@ -8,8 +8,8 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
+    background: transparent;
+    border: 0;
     border-radius: 12px;
     padding: 0.5rem 0.75rem;
     cursor: pointer;
@@ -18,17 +18,17 @@
 }
 
 [data-theme="light"] .user-button {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: transparent;
+    border: 0;
 }
 
 .user-button:hover {
-    border-color: var(--primary-color);
+    background: rgba(23, 86, 221, 0.08);
     transform: translateY(-1px);
 }
 
 [data-theme="light"] .user-button:hover {
-    border-color: rgba(0, 0, 0, 0.2);
+    background: rgba(23, 86, 221, 0.08);
 }
 
 .user-avatar {
@@ -77,8 +77,8 @@
     position: absolute;
     top: calc(100% + 0.5rem);
     right: 0;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
+    background: rgba(236, 243, 252, 0.96);
+    border: 1px solid rgba(23, 40, 74, 0.14);
     border-radius: 12px;
     padding: 1rem;
     min-width: 250px;
@@ -88,9 +88,9 @@
 }
 
 [data-theme="light"] .dropdown-menu {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    background: rgba(236, 243, 252, 0.98);
+    border: 1px solid rgba(23, 40, 74, 0.14);
+    box-shadow: 0 8px 26px rgba(18, 38, 76, 0.12);
 }
 
 .user-info {
@@ -220,7 +220,8 @@
 
 @media (max-width: 480px) {
     .user-email {
-        display: none;
+        display: inline;
+        max-width: 56px;
     }
     
     .dropdown-menu {

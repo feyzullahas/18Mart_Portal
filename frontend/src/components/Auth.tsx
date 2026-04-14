@@ -9,6 +9,7 @@ interface AuthProps {
 
 export const Auth = ({ embedded = false, onClose }: AuthProps) => {
     const [isLogin, setIsLogin] = useState(true);
+    const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -46,7 +47,7 @@ export const Auth = ({ embedded = false, onClose }: AuthProps) => {
 
             const result = isLogin 
                 ? await login(email, password)
-                : await register(email, password);
+                : await register(email, password, fullName);
 
             if (!result.success) {
                 setError(result.error || (isLogin
@@ -63,6 +64,7 @@ export const Auth = ({ embedded = false, onClose }: AuthProps) => {
     const toggleMode = () => {
         setIsLogin(!isLogin);
         setError('');
+        setFullName('');
         setEmail('');
         setPassword('');
         setConfirmPassword('');
@@ -90,6 +92,24 @@ export const Auth = ({ embedded = false, onClose }: AuthProps) => {
                     </h2>
 
                     {error && <div className="error-message">{error}</div>}
+
+                    {!isLogin && (
+                        <div className="form-group">
+                            <label htmlFor="fullName" className="form-label">
+                                İsim Soyisim
+                            </label>
+                            <input
+                                type="text"
+                                id="fullName"
+                                value={fullName}
+                                onChange={(e) => setFullName(e.target.value)}
+                                className="form-input"
+                                placeholder="Ad Soyad"
+                                required
+                                minLength={3}
+                            />
+                        </div>
+                    )}
 
                     <div className="form-group">
                         <label htmlFor="email" className="form-label">

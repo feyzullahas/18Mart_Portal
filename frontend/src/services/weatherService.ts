@@ -1,4 +1,55 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://18-mart-portal-4orl.vercel.app';
+const PROD_API_BASE_URL = 'https://18-mart-portal-4orl.vercel.app';
+const WEATHER_CURRENT_CACHE_KEY = 'weather_current_cache_v1';
+const WEATHER_FORECAST_CACHE_KEY = 'weather_forecast_cache_v1_7';
+
+const resolveApiBaseUrl = () => {
+    const envApiUrl = import.meta.env.VITE_API_URL;
+    if (envApiUrl) {
+        return envApiUrl.replace(/\/$/, '');
+    }
+
+    if (import.meta.env.DEV) {
+        return 'http://localhost:8000';
+    }
+
+    return PROD_API_BASE_URL;
+};
+
+const API_BASE_URL = resolveApiBaseUrl();
+
+type CachedPayload<T> = {
+    data: T;
+    expiresAt: number;
+};
+
+const getMidnightTimestamp = () => {
+    const midnight = new Date();
+    midnight.setHours(24, 0, 0, 0);
+    return midnight.getTime();
+};
+
+const getCachedData = <T,>(key: string): T | null => {
+    try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw) as CachedPayload<T>;
+        if (!parsed?.expiresAt || Date.now() > parsed.expiresAt) {
+            localStorage.removeItem(key);
+            return null;
+        }
+        return parsed.data;
+    } catch {
+        return null;
+    }
+};
+
+const setCachedData = <T,>(key: string, data: T) => {
+    const payload: CachedPayload<T> = {
+        data,
+        expiresAt: getMidnightTimestamp()
+    };
+    localStorage.setItem(key, JSON.stringify(payload));
+};
 
 export interface CurrentWeather {
     current: {
@@ -32,16 +83,46 @@ export interface Forecast {
 }
 
 export const weatherService = {
+    getCachedCurrentWeather(): CurrentWeather | null {
+        return getCachedData<CurrentWeather>(WEATHER_CURRENT_CACHE_KEY);
+    },
+
+    getCachedForecast(days: number = 7): Forecast | null {
+        if (days !== 7) return null;
+        return getCachedData<Forecast>(WEATHER_FORECAST_CACHE_KEY);
+    },
+
     async getCurrentWeather(): Promise<CurrentWeather> {
         const response = await fetch(`${API_BASE_URL}/weather/current`);
         if (!response.ok) throw new Error('Hava durumu alınamadı');
-        return response.json();
+        const data = await response.json();
+        setCachedData(WEATHER_CURRENT_CACHE_KEY, data);
+        return data;
     },
 
     async getForecast(days: number = 7): Promise<Forecast> {
         const response = await fetch(`${API_BASE_URL}/weather/forecast?days=${days}`);
         if (!response.ok) throw new Error('Tahmin alınamadı');
-        return response.json();
+        const data = await response.json();
+        if (days === 7) {
+            setCachedData(WEATHER_FORECAST_CACHE_KEY, data);
+        }
+        return data;
+    },
+
+    async prefetchDailyWeather(): Promise<void> {
+        const cachedCurrent = this.getCachedCurrentWeather();
+        const cachedForecast = this.getCachedForecast(7);
+        if (cachedCurrent && cachedForecast) return;
+
+        try {
+            await Promise.all([
+                cachedCurrent ? Promise.resolve(cachedCurrent) : this.getCurrentWeather(),
+                cachedForecast ? Promise.resolve(cachedForecast) : this.getForecast(7)
+            ]);
+        } catch {
+            // Prefetch hataları kullanıcı akışını engellememeli.
+        }
     }
 };
 

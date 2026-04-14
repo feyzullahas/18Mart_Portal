@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
-import { busService } from '../services/busService';
+import { busService, API_BASE_URL } from '../services/busService';
 import type { BusSchedule } from '../services/busService';
 import { PdfViewer } from './PdfViewer';
 import '../styles/Bus.css';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://18-mart-portal-4orl.vercel.app';
 
 export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onToggle?: () => void } = {}) => {
     const [schedule, setSchedule] = useState<BusSchedule | null>(null);
@@ -17,6 +15,12 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
 
     useEffect(() => {
         const fetchData = async () => {
+            const cached = busService.getCachedSchedule();
+            if (cached) {
+                setSchedule(cached);
+                setLoading(false);
+            }
+
             try {
                 const data = await busService.getSchedule();
                 setSchedule(data);
@@ -27,7 +31,9 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
                     setActiveType('weekend');
                 }
             } catch (err) {
-                setError('Otobüs saatleri yüklenemedi');
+                if (!cached) {
+                    setError('Otobüs saatleri yüklenemedi');
+                }
                 console.error(err);
             } finally {
                 setLoading(false);

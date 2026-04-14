@@ -82,7 +82,6 @@ export const ExamCountdown = ({ variant = 'card', isOpen: propIsOpen, onToggle }
                     <div className="exam-countdown-content">
                         <div className="exam-countdown-section">
                             <div className="exam-countdown-header">
-                                <h3>Finallere kalan süre</h3>
                                 <div className="exam-countdown-date">8 Haziran 2026</div>
                             </div>
                             <div className="exam-countdown-time-large">
