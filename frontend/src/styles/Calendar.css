@@ -398,20 +398,15 @@
 }
 
 .my-calendar-task-edit {
-    background: var(--item-bg);
-    color: var(--text-primary);
-}
-
-[data-theme="light"] .my-calendar-task-edit {
-    background: color-mix(in srgb, #2563eb 14%, white 86%);
-    color: #1d4ed8;
-    border-color: color-mix(in srgb, #2563eb 36%, var(--border-color) 64%);
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb !important;
 }
 
 .my-calendar-task-delete {
-    background: color-mix(in srgb, var(--error-color) 18%, var(--item-bg) 82%);
-    color: var(--error-color);
-    border-color: color-mix(in srgb, var(--error-color) 45%, var(--border-color) 55%) !important;
+    background: #dc2626;
+    color: #ffffff;
+    border-color: #dc2626 !important;
 }
 
 .my-calendar-task-actions button:disabled {

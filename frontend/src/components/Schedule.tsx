@@ -393,8 +393,10 @@ export const Schedule = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
                                         {schedule[day].map(subject => (
                                             <div key={subject.id} className="subject-item">
                                                 <div className="subject-info">
-                                                    <span className="subject-time">{subject.time}</span>
-                                                    <span className="subject-name">{subject.name}</span>
+                                                    <div className="subject-main-row">
+                                                        <span className="subject-name">{subject.name}</span>
+                                                        <span className="subject-time">{subject.time}</span>
+                                                    </div>
                                                     {subject.location && <span className="subject-location">📍 {subject.location}</span>}
                                                 </div>
                                                 <button 
