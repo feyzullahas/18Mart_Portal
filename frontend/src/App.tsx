@@ -183,7 +183,7 @@ const AppContent = () => {
             <div className="portal-app portal-app-loading">
                 <div className="portal-loading-container">
                     <div className="loading-spinner"></div>
-                    <p>Hazirlaniyor...</p>
+                    <p>Hazırlanıyor...</p>
                 </div>
             </div>
         );
