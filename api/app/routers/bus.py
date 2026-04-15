@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 router = APIRouter(prefix="/bus", tags=["bus"])
 
 # PDF bytes in-memory cache — her tür icin ayri
-_pdf_cache: dict = {}  # { "weekday": {"content": bytes, "expires": datetime} }
+_pdf_cache: dict = {}  # { "weekday": {"content": bytes, "expires": datetime, "source_url": str} }
 
 PDF_CACHE_TTL = timedelta(hours=1)
 
@@ -24,26 +24,31 @@ async def proxy_bus_pdf(schedule_type: str):
     if schedule_type not in ("weekday", "weekend"):
         raise HTTPException(status_code=400, detail="Geçersiz tür. 'weekday' veya 'weekend' olmalı.")
 
-    # Cache hit?
-    cached = _pdf_cache.get(schedule_type)
-    if cached and datetime.now() < cached["expires"]:
-        return Response(
-            content=cached["content"],
-            media_type="application/pdf",
-            headers={
-                "Content-Disposition": f"inline; filename={schedule_type}.pdf",
-                "Cache-Control": "public, max-age=3600",
-                "X-Cache": "HIT",
-            },
-        )
-
-    # Cache miss — belediye sitesinden cek
     schedule = await bus_service.get_bus_schedule()
     entry = schedule.get(schedule_type)
     if not entry or not entry.get("url"):
         raise HTTPException(status_code=404, detail="PDF bulunamadı")
 
     pdf_url = entry["url"]
+
+    # Cache hit?
+    cached = _pdf_cache.get(schedule_type)
+    if (
+        cached
+        and datetime.now() < cached["expires"]
+        and cached.get("source_url") == pdf_url
+    ):
+        return Response(
+            content=cached["content"],
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"inline; filename={schedule_type}.pdf",
+                "Cache-Control": "no-store",
+                "X-Cache": "HIT",
+            },
+        )
+
+    # Cache miss — belediye sitesinden cek
     try:
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -58,14 +63,18 @@ async def proxy_bus_pdf(schedule_type: str):
         raise HTTPException(status_code=502, detail=f"PDF istegi basarisiz: {str(e)}")
 
     # Cache'e kaydet
-    _pdf_cache[schedule_type] = {"content": content, "expires": datetime.now() + PDF_CACHE_TTL}
+    _pdf_cache[schedule_type] = {
+        "content": content,
+        "expires": datetime.now() + PDF_CACHE_TTL,
+        "source_url": pdf_url,
+    }
 
     return Response(
         content=content,
         media_type="application/pdf",
         headers={
             "Content-Disposition": f"inline; filename={schedule_type}.pdf",
-            "Cache-Control": "public, max-age=3600",
+            "Cache-Control": "no-store",
             "X-Cache": "MISS",
         },
     )

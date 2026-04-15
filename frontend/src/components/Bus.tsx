@@ -43,10 +43,11 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
     }, []);
 
     // Proxy URL (CORS bypass) ve download için orijinal URL
-    const proxyPdfUrl = `${API_BASE_URL}/bus/pdf/${activeType}`;
     const downloadPdfUrl = activeType === 'weekday'
         ? schedule?.weekday?.url
         : schedule?.weekend?.url;
+    const proxyVersion = encodeURIComponent(`${downloadPdfUrl ?? ''}|${schedule?.last_update ?? ''}`);
+    const proxyPdfUrl = `${API_BASE_URL}/bus/pdf/${activeType}?v=${proxyVersion}`;
 
     return (
         <div className="bus-card">

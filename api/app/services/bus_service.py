@@ -42,6 +42,42 @@ def remove_diacritics(text: str) -> str:
 
 class BusService:
     BUS_URL = "https://ulasim.canakkale.bel.tr/rehber/hatlar-otobus-saatleri/"
+
+    @staticmethod
+    def _get_today_date_tokens() -> list[str]:
+        """Bugünün tarihini farklı metin formatlarıyla döndürür."""
+        now = datetime.now()
+        day = now.day
+        month = now.month
+        month_names = {
+            1: "ocak", 2: "subat", 3: "mart", 4: "nisan", 5: "mayis", 6: "haziran",
+            7: "temmuz", 8: "agustos", 9: "eylul", 10: "ekim", 11: "kasim", 12: "aralik"
+        }
+        month_name = month_names[month]
+        day_2 = f"{day:02d}"
+        month_2 = f"{month:02d}"
+
+        return [
+            f"{day} {month_name}",
+            f"{day_2} {month_name}",
+            f"{day}.{month}",
+            f"{day_2}.{month}",
+            f"{day}.{month_2}",
+            f"{day_2}.{month_2}",
+            f"{day}/{month}",
+            f"{day_2}/{month}",
+            f"{day}/{month_2}",
+            f"{day_2}/{month_2}",
+            f"{day}-{month}",
+            f"{day_2}-{month}",
+            f"{day}-{month_2}",
+            f"{day_2}-{month_2}",
+        ]
+
+    def _is_today_specific_pdf(self, text: str, url: str) -> bool:
+        """PDF başlığı veya URL'inde bugünün tarihinin geçip geçmediğini kontrol eder."""
+        haystack = remove_diacritics(f"{text} {url}").lower()
+        return any(token in haystack for token in self._get_today_date_tokens())
     
     async def get_bus_schedule(self) -> Dict:
         """Haftaiçi ve haftasonu otobüs saatleri PDF'lerini döndürür"""
@@ -88,25 +124,43 @@ class BusService:
                     "source": "Çanakkale Belediyesi"
                 }
                 
-                # PDF'leri türüne göre kategorize et
+                # PDF'leri türüne göre kategorize et (bugüne özel olanları önceliklendir)
+                weekday_candidates = []
+                weekend_candidates = []
                 for pdf in all_pdfs:
                     text_lower = pdf['text_lower']
                     url = self._make_absolute_url(pdf['url'])
+                    is_today_specific = self._is_today_specific_pdf(pdf['text'], url)
                     
                     # Haftaiçi - "hafta içi" veya "ici" içerir ve "sonu" yok
                     if ('hafta' in text_lower and 'ici' in text_lower) or ('ici' in text_lower and 'sonu' not in text_lower):
-                        if not result["weekday"]:
-                            result["weekday"] = {
-                                "url": url,
-                                "label": pdf['text'] or "Haftaiçi Saatleri"
-                            }
+                        weekday_candidates.append({
+                            "url": url,
+                            "label": pdf['text'] or "Haftaiçi Saatleri",
+                            "is_today": is_today_specific
+                        })
                     # Haftasonu - "sonu" veya "hafta sonu" içerir
                     elif 'sonu' in text_lower:
-                        if not result["weekend"]:
-                            result["weekend"] = {
-                                "url": url,
-                                "label": pdf['text'] or "Haftasonu Saatleri"
-                            }
+                        weekend_candidates.append({
+                            "url": url,
+                            "label": pdf['text'] or "Haftasonu Saatleri",
+                            "is_today": is_today_specific
+                        })
+
+                # Bugüne özel PDF varsa onu, yoksa listedeki ilk uygun PDF'i seç
+                if weekday_candidates:
+                    result["weekday"] = next(
+                        (item for item in weekday_candidates if item["is_today"]),
+                        weekday_candidates[0]
+                    )
+                    result["weekday"].pop("is_today", None)
+
+                if weekend_candidates:
+                    result["weekend"] = next(
+                        (item for item in weekend_candidates if item["is_today"]),
+                        weekend_candidates[0]
+                    )
+                    result["weekend"].pop("is_today", None)
                 
                 # Eğer hiç bulunamadıysa, fallback kullan
                 if not result["weekday"] and not result["weekend"]:

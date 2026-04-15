@@ -1,5 +1,5 @@
 const PROD_API_BASE_URL = 'https://18-mart-portal-4orl.vercel.app';
-const BUS_CACHE_KEY = 'bus_schedule_cache_v1';
+const BUS_CACHE_KEY = 'bus_schedule_cache_v2';
 
 const resolveApiBaseUrl = () => {
     const envApiUrl = import.meta.env.VITE_API_URL;
