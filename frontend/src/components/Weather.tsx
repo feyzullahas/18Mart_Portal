@@ -101,7 +101,7 @@ export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: Weat
                 </div>
                 <div className={`card-content ${isOpen ? 'open' : ''}`}>
                     {loading
-                        ? <div className="weather-loading">Yükleniyor...</div>
+                        ? <div className="weather-loading"></div>
                         : <div className="weather-error">{error || 'Hava durumu yüklenemedi'}</div>}
                 </div>
             </div>

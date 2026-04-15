@@ -211,12 +211,10 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                 {activeTab === 'osem' && loadingOsem && !currentOsemDay ? (
                     <div className="loading-indicator">
                         <div className="loading-spinner"></div>
-                        <p>Menü getiriliyor...</p>
                     </div>
                 ) : activeTab === 'kyk' && loadingKyk && !currentKykDay ? (
                     <div className="loading-indicator">
                         <div className="loading-spinner"></div>
-                        <p>Menü getiriliyor...</p>
                     </div>
                 ) : activeTab === 'osem' && osemError && !currentOsemDay ? (
                     <div className="error-message">{osemError}</div>

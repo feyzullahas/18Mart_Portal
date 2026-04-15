@@ -59,7 +59,6 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
                 {loading ? (
                     <div className="loading-indicator">
                         <div className="loading-spinner"></div>
-                        <p>Yükleniyor...</p>
                     </div>
                 ) : error ? (
                     <div className="error-message">{error}</div>

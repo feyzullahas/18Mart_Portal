@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import '../styles/UserMenu.css';
 
-export const UserMenu = ({ onOpenProfile, onOpenLogin }: { onOpenProfile?: () => void; onOpenLogin?: () => void }) => {
+export const UserMenu = ({ onOpenProfile, onOpenLogin, closeMenuToken }: { onOpenProfile?: () => void; onOpenLogin?: () => void; closeMenuToken?: number }) => {
     const [isOpen, setIsOpen] = useState(false);
     const { user } = useAuth();
     const { theme, setThemeMode } = useTheme();
+
+    useEffect(() => {
+        setIsOpen(false);
+    }, [closeMenuToken]);
 
     const handleOpenProfile = () => {
         onOpenProfile?.();

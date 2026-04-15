@@ -33,6 +33,8 @@ const AppContent = () => {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [activePage, setActivePage] = useState<PortalPage>('home');
     const [calendarOpenToken, setCalendarOpenToken] = useState(0);
+    const [isBootstrapping, setIsBootstrapping] = useState(true);
+    const [closeTopMenuToken, setCloseTopMenuToken] = useState(0);
 
     const navItems: NavItem[] = [
         { key: 'home', label: 'Ana Sayfa', title: 'Ana Sayfa', icon: FiHome },
@@ -49,6 +51,10 @@ const AppContent = () => {
     }, [user, isAuthModalOpen]);
 
     useEffect(() => {
+        if (isLoading) return;
+
+        let cancelled = false;
+
         const getApiBaseUrl = () => {
             const envApiUrl = import.meta.env.VITE_API_URL;
             if (envApiUrl) {
@@ -134,17 +140,50 @@ const AppContent = () => {
             }
         };
 
-        void weatherService.prefetchDailyWeather();
-        void busService.prefetchDailySchedule();
-        void prefetchMeals();
-    }, []);
+        const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number): Promise<T | null> => {
+            return new Promise((resolve) => {
+                const timer = window.setTimeout(() => resolve(null), timeoutMs);
+                promise
+                    .then((result) => {
+                        clearTimeout(timer);
+                        resolve(result);
+                    })
+                    .catch(() => {
+                        clearTimeout(timer);
+                        resolve(null);
+                    });
+            });
+        };
 
-    if (isLoading) {
+        const bootstrap = async () => {
+            // İlk girişte verileri paralel ısıt; süreyi kısa tut.
+            await withTimeout(
+                Promise.allSettled([
+                    weatherService.prefetchDailyWeather(),
+                    busService.prefetchDailySchedule(),
+                    prefetchMeals(),
+                ]),
+                2500
+            );
+
+            if (!cancelled) {
+                setIsBootstrapping(false);
+            }
+        };
+
+        void bootstrap();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [isLoading]);
+
+    if (isLoading || isBootstrapping) {
         return (
             <div className="portal-app portal-app-loading">
                 <div className="portal-loading-container">
                     <div className="loading-spinner"></div>
-                    <p>Yükleniyor...</p>
+                    <p>Hazirlaniyor...</p>
                 </div>
             </div>
         );
@@ -236,6 +275,7 @@ const AppContent = () => {
                             className={`portal-nav-btn ${activePage === item.key ? 'active' : ''}`}
                             onClick={() => {
                                 setActivePage(item.key);
+                                setCloseTopMenuToken(prev => prev + 1);
                                 if (item.key === 'calendar') {
                                     setCalendarOpenToken(prev => prev + 1);
                                 }
@@ -250,6 +290,7 @@ const AppContent = () => {
                     <UserMenu
                         onOpenProfile={() => setActivePage('profile')}
                         onOpenLogin={() => setIsAuthModalOpen(true)}
+                        closeMenuToken={closeTopMenuToken}
                     />
                 </div>
             </header>
@@ -273,6 +314,7 @@ const AppContent = () => {
                             className={`portal-bottom-nav-btn ${activePage === item.key ? 'active' : ''}`}
                             onClick={() => {
                                 setActivePage(item.key);
+                                setCloseTopMenuToken(prev => prev + 1);
                                 if (item.key === 'calendar') {
                                     setCalendarOpenToken(prev => prev + 1);
                                 }
