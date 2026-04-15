@@ -5,6 +5,7 @@ export interface CalendarEvent {
     start: string; // YYYY-MM-DD
     end: string;
     title: string;
+    description?: string;
     type: string;
     start_formatted: string;
     end_formatted: string;
@@ -37,16 +38,18 @@ interface CreateMyCalendarEventPayload {
     description?: string;
 }
 
-const getAuthHeaders = () => {
+const getAuthHeaders = (): Record<string, string> => {
     const token = localStorage.getItem('token');
-    return token
-        ? {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        }
-        : {
-            'Content-Type': 'application/json'
-        };
+
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+    };
+
+    if (token) {
+        headers.Authorization = `Bearer ${token}`;
+    }
+
+    return headers;
 };
 
 export const calendarService = {
