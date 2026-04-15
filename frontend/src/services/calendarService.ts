@@ -1,6 +1,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://18-mart-portal-4orl.vercel.app';
 
 export interface CalendarEvent {
+    id?: number;
     start: string; // YYYY-MM-DD
     end: string;
     title: string;
@@ -30,6 +31,24 @@ export interface CalendarListResponse {
     sub_calendars: { [key: string]: CalendarType[] };
 }
 
+interface CreateMyCalendarEventPayload {
+    date: string;
+    title: string;
+    description?: string;
+}
+
+const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return token
+        ? {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+        : {
+            'Content-Type': 'application/json'
+        };
+};
+
 export const calendarService = {
     async getTypes(): Promise<CalendarListResponse> {
         const response = await fetch(`${API_BASE_URL}/calendar/list`);
@@ -41,5 +60,26 @@ export const calendarService = {
         const response = await fetch(`${API_BASE_URL}/calendar/?id=${calendarId}`);
         if (!response.ok) throw new Error('Takvim verileri alınamadı');
         return response.json();
+    },
+
+    async getMyEvents(): Promise<CalendarInfo> {
+        const response = await fetch(`${API_BASE_URL}/calendar/my`, {
+            headers: getAuthHeaders()
+        });
+        if (!response.ok) throw new Error('Benim takvimim verileri alınamadı');
+        return response.json();
+    },
+
+    async createMyEvent(payload: CreateMyCalendarEventPayload): Promise<void> {
+        const response = await fetch(`${API_BASE_URL}/calendar/my`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({ detail: 'Görev kaydedilemedi' }));
+            throw new Error(err.detail || 'Görev kaydedilemedi');
+        }
     }
 };

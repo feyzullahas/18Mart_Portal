@@ -7,6 +7,7 @@ type ThemePreference = Theme | 'system';
 interface ThemeContextType {
     theme: Theme;
     toggleTheme: () => void;
+    setThemeMode: (mode: Theme) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -58,12 +59,14 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     }, [preference]);
 
     useEffect(() => {
-        if (preference === 'system') {
-            localStorage.removeItem(THEME_PREF_KEY);
-            localStorage.removeItem(LEGACY_THEME_KEY);
-        } else {
-            localStorage.setItem(THEME_PREF_KEY, preference);
+        // Seçilen tema tercihinin kalıcı olması için her zaman sakla.
+        localStorage.setItem(THEME_PREF_KEY, preference);
+
+        // Geriye dönük destek: eski anahtar sadece manuel light/dark için tutulur.
+        if (preference === 'light' || preference === 'dark') {
             localStorage.setItem(LEGACY_THEME_KEY, preference);
+        } else {
+            localStorage.removeItem(LEGACY_THEME_KEY);
         }
 
         document.documentElement.setAttribute('data-theme', theme);
@@ -78,8 +81,12 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         });
     };
 
+    const setThemeMode = (mode: Theme) => {
+        setPreference(mode);
+    };
+
     return (
-        <ThemeContext.Provider value={{ theme, toggleTheme }}>
+        <ThemeContext.Provider value={{ theme, toggleTheme, setThemeMode }}>
             {children}
         </ThemeContext.Provider>
     );

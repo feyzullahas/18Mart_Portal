@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import '../styles/ProfileSettings.css';
 
 export const ProfileSettings = () => {
-    const { user, updateProfile } = useAuth();
+    const { user, updateProfile, logout } = useAuth();
     const [fullName, setFullName] = useState(user?.fullName || '');
     const [email, setEmail] = useState(user?.email || '');
     const [message, setMessage] = useState<string | null>(null);
@@ -13,6 +13,16 @@ export const ProfileSettings = () => {
         e.preventDefault();
         setMessage(null);
         setError(null);
+
+        const nextFullName = fullName.trim();
+        const nextEmail = email.trim();
+        const currentFullName = user?.fullName?.trim() || '';
+        const currentEmail = user?.email?.trim() || '';
+
+        if (nextFullName === currentFullName && nextEmail === currentEmail) {
+            setMessage('Henüz değişiklik yapmadınız');
+            return;
+        }
 
         const result = updateProfile({ fullName, email });
         if (!result.success) {
@@ -26,9 +36,6 @@ export const ProfileSettings = () => {
     return (
         <section className="profile-settings" aria-label="Profil ayarları">
             <h3>Profil Ayarları</h3>
-            <p className="profile-settings-note">
-                Buradan isim soyisim ve e-mail bilginizi güncelleyebilirsiniz.
-            </p>
 
             <form className="profile-settings-form" onSubmit={handleSubmit}>
                 <label htmlFor="profile-full-name">İsim Soyisim</label>
@@ -57,6 +64,14 @@ export const ProfileSettings = () => {
 
             {message && <p className="profile-settings-message">{message}</p>}
             {error && <p className="profile-settings-error">{error}</p>}
+
+            <button
+                type="button"
+                className="profile-settings-logout"
+                onClick={logout}
+            >
+                Çıkış Yap
+            </button>
         </section>
     );
 };

@@ -32,6 +32,7 @@ const AppContent = () => {
     const { user, isLoading } = useAuth();
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [activePage, setActivePage] = useState<PortalPage>('home');
+    const [calendarOpenToken, setCalendarOpenToken] = useState(0);
 
     const navItems: NavItem[] = [
         { key: 'home', label: 'Ana Sayfa', title: 'Ana Sayfa', icon: FiHome },
@@ -175,7 +176,7 @@ const AppContent = () => {
             case 'meals':
                 return { title: 'Günün Yemek Menüsü', content: <Meals isOpen /> };
             case 'calendar':
-                return { title: 'Akademik Takvim', content: <Calendar isOpen /> };
+                return { title: 'Takvimler', content: <Calendar isOpen openMyCalendarToken={calendarOpenToken} /> };
             case 'bus':
                 return { title: 'Otobüs Saatleri', content: <Bus isOpen /> };
             case 'schedule':
@@ -233,7 +234,12 @@ const AppContent = () => {
                             key={item.key}
                             type="button"
                             className={`portal-nav-btn ${activePage === item.key ? 'active' : ''}`}
-                            onClick={() => setActivePage(item.key)}
+                            onClick={() => {
+                                setActivePage(item.key);
+                                if (item.key === 'calendar') {
+                                    setCalendarOpenToken(prev => prev + 1);
+                                }
+                            }}
                         >
                             {item.label}
                         </button>
@@ -241,17 +247,10 @@ const AppContent = () => {
                 </nav>
 
                 <div className="portal-auth">
-                    {user ? (
-                        <UserMenu onOpenProfile={() => setActivePage('profile')} />
-                    ) : (
-                        <button
-                            type="button"
-                            className="portal-auth-btn"
-                            onClick={() => setIsAuthModalOpen(true)}
-                        >
-                            Giriş Yap
-                        </button>
-                    )}
+                    <UserMenu
+                        onOpenProfile={() => setActivePage('profile')}
+                        onOpenLogin={() => setIsAuthModalOpen(true)}
+                    />
                 </div>
             </header>
 
@@ -272,7 +271,12 @@ const AppContent = () => {
                             key={item.key}
                             type="button"
                             className={`portal-bottom-nav-btn ${activePage === item.key ? 'active' : ''}`}
-                            onClick={() => setActivePage(item.key)}
+                            onClick={() => {
+                                setActivePage(item.key);
+                                if (item.key === 'calendar') {
+                                    setCalendarOpenToken(prev => prev + 1);
+                                }
+                            }}
                             aria-label={item.title}
                         >
                             <Icon className="nav-icon" aria-hidden="true" />

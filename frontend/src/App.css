@@ -25,11 +25,36 @@
     --background: #eef3f9;
 }
 
+:root[data-theme='dark'] {
+    --portal-bg: #05080f;
+    --portal-surface: #0b1220;
+    --portal-text: #e7eefb;
+    --portal-muted: #90a6c9;
+    --portal-border: rgba(144, 166, 201, 0.22);
+    --portal-primary: #4b8dff;
+    --portal-primary-hover: #72a7ff;
+    --portal-shadow: 0 14px 34px rgba(0, 0, 0, 0.6);
+
+    --card-bg: #0d1626;
+    --card-shadow: rgba(0, 0, 0, 0.55);
+    --item-bg: #121d31;
+    --text-primary: #e7eefb;
+    --text-secondary: #96acd0;
+    --text-muted: #768dad;
+    --accent-color: #4b8dff;
+    --border-color: rgba(144, 166, 201, 0.2);
+    --primary-color: #4b8dff;
+    --primary-hover: #72a7ff;
+    --success-color: #2cbf8a;
+    --error-color: #ff6677;
+    --background: #05080f;
+}
+
 .portal-app {
     position: relative;
     isolation: isolate;
     min-height: 100vh;
-    background: radial-gradient(circle at 8% 12%, #ffffff 0%, #f4f8ff 35%, #edf3fc 100%);
+    background: radial-gradient(circle at 8% 12%, color-mix(in srgb, var(--portal-surface) 88%, white 12%) 0%, color-mix(in srgb, var(--portal-bg) 86%, white 14%) 35%, var(--portal-bg) 100%);
     color: var(--portal-text);
     font-family: 'Sora', sans-serif;
     overflow-x: hidden;
@@ -101,9 +126,9 @@
     width: calc(100% - 8px);
     padding: 14px 12px;
     margin: 0 auto;
-    background: rgba(244, 248, 255, 0.9);
+    background: color-mix(in srgb, var(--portal-bg) 86%, transparent 14%);
     border: 0;
-    border-bottom: 1px solid rgba(23, 40, 74, 0.12);
+    border-bottom: 1px solid var(--portal-border);
     backdrop-filter: blur(8px);
     box-shadow: none;
 }
@@ -172,8 +197,8 @@
     flex-wrap: nowrap;
     padding: 10px;
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid rgba(23, 40, 74, 0.08);
+    background: color-mix(in srgb, var(--portal-surface) 92%, transparent 8%);
+    border: 1px solid var(--portal-border);
     backdrop-filter: blur(10px);
     box-shadow: 0 14px 28px rgba(18, 38, 76, 0.12);
 }
@@ -258,7 +283,7 @@
 
 .portal-panel > h2 {
     margin: 0 0 18px;
-    color: #12284a;
+    color: var(--portal-text);
     font-family: 'Sora', sans-serif;
     font-size: clamp(1.35rem, 2.2vw, 2rem);
     font-weight: 800;
@@ -282,7 +307,7 @@
     line-height: 1;
     letter-spacing: -0.02em;
     font-weight: 800;
-    color: #10284d;
+    color: var(--portal-text);
 }
 
 .portal-home-block {
@@ -297,7 +322,7 @@
 .portal-home-block h3 {
     margin: 0 0 12px;
     font-size: 1.02rem;
-    color: #24406d;
+    color: var(--portal-text);
     font-weight: 700;
 }
 
@@ -317,12 +342,12 @@
     padding: 16px 2px 4px;
     border-radius: 0;
     border: 0;
-    border-top: 1px solid rgba(23, 40, 74, 0.12);
+    border-top: 1px solid var(--portal-border);
     background: transparent;
     display: flex;
     justify-content: space-between;
     gap: 10px;
-    color: #5d6f8a;
+    color: var(--portal-muted);
     font-size: 0.86rem;
 }
 
@@ -394,14 +419,14 @@
 
 .portal-locked-state {
     min-height: 320px;
-    border: 1px dashed rgba(23, 40, 74, 0.25);
+    border: 1px dashed var(--portal-border);
     border-radius: 14px;
-    background: linear-gradient(180deg, #f7f9fd 0%, #eef3fb 100%);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--portal-surface) 88%, white 12%) 0%, var(--portal-bg) 100%);
     display: grid;
     place-items: center;
     text-align: center;
     padding: 18px;
-    color: #2a3e67;
+    color: var(--portal-text);
 }
 
 .portal-lock-icon {
@@ -419,7 +444,7 @@
 }
 
 .portal-app .tab-container {
-    background: #eaf1fb;
+    background: var(--item-bg);
     border: 0;
     box-shadow: none;
 }
@@ -427,11 +452,11 @@
 .portal-app .tab-container button {
     font-family: 'Sora', sans-serif;
     font-weight: 700;
-    color: #2e436c;
+    color: var(--text-secondary);
 }
 
 .portal-app .tab-container button.active {
-    background: #1756dd;
+    background: var(--portal-primary);
     color: #f5f9ff;
     box-shadow: 0 8px 18px rgba(23, 86, 221, 0.25);
 }
@@ -443,7 +468,15 @@
 .portal-app .meal-column,
 .portal-app .total-cal,
 .portal-app .cal {
-    color: #1d3157;
+    color: var(--text-primary);
+}
+
+:root[data-theme='dark'] .portal-app::before {
+    background: rgba(75, 141, 255, 0.11);
+}
+
+:root[data-theme='dark'] .portal-app::after {
+    background: rgba(44, 191, 138, 0.1);
 }
 
 .portal-app .meal-row {

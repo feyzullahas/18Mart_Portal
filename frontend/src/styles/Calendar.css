@@ -53,6 +53,50 @@
     padding-top: 20px;
 }
 
+.calendar-mode-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.calendar-mode-tab {
+    border: 1px solid var(--border-color);
+    background: var(--item-bg);
+    color: var(--text-secondary);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.calendar-mode-tab.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+}
+
+.calendar-view-title {
+    margin: 0 0 12px;
+    color: var(--text-primary);
+    font-size: 0.96rem;
+    font-weight: 700;
+}
+
+.calendar-locked-state {
+    margin: 6px 0 0;
+    border: 1px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    color: var(--text-secondary);
+    background: color-mix(in srgb, var(--item-bg) 90%, transparent 10%);
+}
+
+.calendar-locked-state p {
+    margin: 0;
+}
+
 /* Selectors */
 .selectors-container {
     display: flex;
@@ -203,9 +247,18 @@
     cursor: default;
 }
 
+.day-cell.clickable {
+    cursor: pointer;
+}
+
 .day-cell.today {
     border-color: var(--accent-color);
     background: var(--card-bg);
+}
+
+.day-cell.selected {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 1px var(--primary-color) inset;
 }
 
 .day-number {
@@ -274,6 +327,121 @@
 
 .event-type-other {
     background: #6b7280;
+}
+
+.event-type-personal {
+    background: #3b82f6;
+}
+
+.my-calendar-tasks {
+    margin-top: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px;
+    background: color-mix(in srgb, var(--item-bg) 88%, transparent 12%);
+}
+
+.my-calendar-tasks h4 {
+    margin: 0 0 10px;
+    color: var(--text-primary);
+    font-size: 0.92rem;
+}
+
+.my-calendar-task-list {
+    display: grid;
+    gap: 8px;
+}
+
+.my-calendar-task-item {
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 10px;
+    background: var(--card-bg);
+}
+
+.my-calendar-task-title {
+    margin: 0 0 6px;
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 0.92rem;
+}
+
+.my-calendar-task-desc {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.86rem;
+    line-height: 1.35;
+}
+
+.my-calendar-empty {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.my-calendar-form {
+    margin-top: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px;
+    display: grid;
+    gap: 10px;
+    background: color-mix(in srgb, var(--card-bg) 95%, white 5%);
+}
+
+.my-calendar-form h4 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 0.92rem;
+}
+
+.my-calendar-form input,
+.my-calendar-form textarea {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 0.92rem;
+    color: var(--text-primary);
+    background: var(--item-bg);
+}
+
+.my-calendar-form textarea {
+    resize: vertical;
+    min-height: 70px;
+}
+
+.my-calendar-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.my-calendar-form-actions button {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-weight: 700;
+    cursor: pointer;
+    background: var(--item-bg);
+    color: var(--text-primary);
+}
+
+.my-calendar-form-actions button:last-child {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #fff;
+}
+
+.my-calendar-form-actions button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.calendar-error {
+    margin: 12px 0 0;
+    color: var(--error-color);
+    font-weight: 600;
 }
 
 /* Legend */

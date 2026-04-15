@@ -1,55 +1,69 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import '../styles/UserMenu.css';
 
-export const UserMenu = ({ onOpenProfile }: { onOpenProfile?: () => void }) => {
+export const UserMenu = ({ onOpenProfile, onOpenLogin }: { onOpenProfile?: () => void; onOpenLogin?: () => void }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const { user, logout } = useAuth();
-    const displayName = user?.fullName?.trim() || 'Çomülü';
-    const avatarChar = displayName.charAt(0).toUpperCase();
+    const { user } = useAuth();
+    const { theme, setThemeMode } = useTheme();
 
-    const handleLogout = () => {
-        logout();
+    const handleOpenProfile = () => {
+        onOpenProfile?.();
         setIsOpen(false);
     };
 
-    if (!user) return null;
+    const handleOpenLogin = () => {
+        onOpenLogin?.();
+        setIsOpen(false);
+    };
 
     return (
         <div className="user-menu">
-            <button 
+            <button
                 className="user-button"
-                onClick={() => {
-                    if (onOpenProfile) {
-                        onOpenProfile();
-                        return;
-                    }
-                    setIsOpen(!isOpen);
-                }}
+                onClick={() => setIsOpen(!isOpen)}
+                aria-label="Menüyü aç"
             >
-                <div className="user-avatar">
-                    {avatarChar}
-                </div>
-                <span className="user-email">Profil</span>
+                <span className="hamburger-icon">☰</span>
             </button>
 
             {isOpen && (
                 <div className="dropdown-menu">
-                    <div className="user-info">
-                        <div className="user-avatar-large">
-                            {avatarChar}
-                        </div>
-                        <div className="user-details">
-                            <p className="user-email-large">{displayName}</p>
-                            <p className="user-role">Öğrenci</p>
+                    <div className="menu-theme-row">
+                        <div className="menu-theme-switch" role="radiogroup" aria-label="Tema modu">
+                            <button
+                                type="button"
+                                role="radio"
+                                aria-checked={theme === 'light'}
+                                className={`menu-theme-option ${theme === 'light' ? 'active' : ''}`}
+                                onClick={() => setThemeMode('light')}
+                            >
+                                Light
+                            </button>
+                            <button
+                                type="button"
+                                role="radio"
+                                aria-checked={theme === 'dark'}
+                                className={`menu-theme-option ${theme === 'dark' ? 'active' : ''}`}
+                                onClick={() => setThemeMode('dark')}
+                            >
+                                Dark
+                            </button>
                         </div>
                     </div>
-                    
+
                     <div className="menu-divider"></div>
-                    
-                    <button className="menu-item logout-item" onClick={handleLogout}>
-                        Çıkış Yap
-                    </button>
+
+                    {user ? (
+                        <button className="menu-item" onClick={handleOpenProfile}>
+                            Profilim
+                        </button>
+                    ) : (
+                        <button className="menu-item" onClick={handleOpenLogin}>
+                            Giriş Yap
+                        </button>
+                    )}
                 </div>
             )}
         </div>

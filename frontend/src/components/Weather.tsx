@@ -196,7 +196,7 @@ export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: Weat
                                     <span className="hourly-icon">
                                         {getWeatherEmoji(forecast.hourly.weathercode[idx], date.getHours())}
                                     </span>
-                                    {precip > 0 && (
+                                    {precip >= 15 && (
                                         <span className="hourly-precip">💧{precip}%</span>
                                     )}
                                     <span className="hourly-temp">
@@ -233,7 +233,7 @@ export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: Weat
                                         {getWeatherEmoji(forecast.daily.weathercode[index])}
                                     </span>
                                     <span className="daily-precip">
-                                        {precip > 0 ? `💧${precip}%` : ''}
+                                        {precip >= 15 ? `💧${precip}%` : ''}
                                     </span>
                                     <span className="daily-temp-range">
                                         <span className="daily-temp-min">{Math.round(dayMin)}°</span>

@@ -11,10 +11,14 @@ html {
   scroll-behavior: smooth;
 }
 
+html[data-theme='dark'] {
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
-  color: #10223a;
-  background: #f4f7fb;
+  color: var(--portal-text, #10223a);
+  background: var(--background, #f4f7fb);
 }
 
 button,

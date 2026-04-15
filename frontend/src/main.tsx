@@ -6,6 +6,20 @@ import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import './index.css'
 import App from './App.tsx'
 
+const THEME_PREF_KEY = 'themePreference';
+
+const applyInitialTheme = () => {
+  const saved = localStorage.getItem(THEME_PREF_KEY);
+  const preference = (saved === 'light' || saved === 'dark' || saved === 'system') ? saved : 'system';
+  const theme = preference === 'system'
+    ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+    : preference;
+
+  document.documentElement.setAttribute('data-theme', theme);
+};
+
+applyInitialTheme();
+
 pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
 
 createRoot(document.getElementById('root')!).render(

@@ -55,7 +55,7 @@ def get_db():
 def create_tables():
     """Tüm tabloları oluştur"""
     # Modelleri import et ki Base onları tanısın
-    from app.models import user, course  # noqa
+    from app.models import user, course, calendar_task  # noqa
     Base.metadata.create_all(bind=engine)
     print("[OK] Database tablolari basariyla olusturuldu")
 
@@ -63,10 +63,10 @@ def create_tables():
 # Sadece PostgreSQL bağlantısı varsa çalıştır, yoksa startup event halleder
 try:
     if DATABASE_URL != "sqlite:///./portal_db.db":
-        from app.models import user, course  # noqa
+        from app.models import user, course, calendar_task  # noqa
         Base.metadata.create_all(bind=engine)
 except Exception as e:
-        print(f"[WARN] Tablo olusturma hatasi (devam ediliyor): {e}")
+    print(f"[WARN] Tablo olusturma hatasi (devam ediliyor): {e}")
 # Database bağlantısını test et
 def test_connection():
     """Database bağlantısını test et"""

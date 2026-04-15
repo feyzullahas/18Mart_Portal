@@ -4,14 +4,8 @@
 
 .profile-settings h3 {
     margin: 0 0 8px;
-    color: #1b3561;
+    color: var(--text-primary);
     font-size: 1.3rem;
-}
-
-.profile-settings-note {
-    margin: 0 0 18px;
-    color: #5b6f8c;
-    font-size: 0.95rem;
 }
 
 .profile-settings-form {
@@ -20,18 +14,18 @@
 }
 
 .profile-settings-form label {
-    color: #2d436b;
+    color: var(--text-primary);
     font-weight: 600;
     font-size: 0.9rem;
 }
 
 .profile-settings-form input {
-    border: 1px solid rgba(23, 40, 74, 0.16);
-    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid var(--border-color);
+    background: color-mix(in srgb, var(--card-bg) 90%, white 10%);
     border-radius: 10px;
     padding: 10px 12px;
     font-size: 0.96rem;
-    color: #17284a;
+    color: var(--text-primary);
 }
 
 .profile-settings-form input:focus {
@@ -50,6 +44,32 @@
     color: #fff;
     cursor: pointer;
     background: linear-gradient(130deg, #1756dd, #2e74ff);
+}
+
+.profile-settings-logout {
+    width: fit-content;
+    margin-top: 18px;
+    border: 1px solid rgba(212, 65, 80, 0.25);
+    border-radius: 10px;
+    padding: 9px 14px;
+    font-weight: 700;
+    color: #b72535;
+    cursor: pointer;
+    background: rgba(255, 235, 238, 0.95);
+}
+
+.profile-settings-logout:hover {
+    background: rgba(255, 220, 226, 0.95);
+}
+
+[data-theme="dark"] .profile-settings-logout {
+    border-color: rgba(180, 36, 48, 0.75);
+    background: #5c131b;
+    color: #ffdce1;
+}
+
+[data-theme="dark"] .profile-settings-logout:hover {
+    background: #6c1822;
 }
 
 .profile-settings-message {

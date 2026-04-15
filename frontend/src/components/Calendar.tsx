@@ -1,13 +1,18 @@
 import { useState, useEffect } from 'react';
 import { calendarService } from '../services/calendarService';
 import type { CalendarInfo, CalendarType } from '../services/calendarService';
+import { useAuth } from '../context/AuthContext';
 import '../styles/Calendar.css';
 
-export const Calendar = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onToggle?: () => void } = {}) => {
+export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: { isOpen?: boolean; onToggle?: () => void; openMyCalendarToken?: number } = {}) => {
+    const { user } = useAuth();
+
     // State
-    const [calendar, setCalendar] = useState<CalendarInfo | null>(null);
+    const [academicCalendar, setAcademicCalendar] = useState<CalendarInfo | null>(null);
+    const [myCalendar, setMyCalendar] = useState<CalendarInfo | null>(null);
     const [mainTypes, setMainTypes] = useState<CalendarType[]>([]);
     const [subTypes, setSubTypes] = useState<{ [key: string]: CalendarType[] }>({});
+    const [calendarMode, setCalendarMode] = useState<'academic' | 'my'>('my');
 
     // Selections
     const [selectedMain, setSelectedMain] = useState('general');
@@ -15,8 +20,17 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
 
     // Calendar Grid State
     const [currentDate, setCurrentDate] = useState(new Date());
-    const [loading, setLoading] = useState(true);
+    const [loadingAcademic, setLoadingAcademic] = useState(true);
+    const [loadingMyCalendar, setLoadingMyCalendar] = useState(false);
+    const [myCalendarError, setMyCalendarError] = useState<string | null>(null);
     const [localOpen, setLocalOpen] = useState(false);
+
+    // My calendar task form
+    const [selectedDay, setSelectedDay] = useState<number | null>(null);
+    const [taskTitle, setTaskTitle] = useState('');
+    const [taskDescription, setTaskDescription] = useState('');
+    const [savingTask, setSavingTask] = useState(false);
+
     const isOpen = propIsOpen !== undefined ? propIsOpen : localOpen;
     const handleToggle = onToggle ?? (() => setLocalOpen(prev => !prev));
 
@@ -37,16 +51,16 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
     // Fetch Events when selection changes
     useEffect(() => {
         const fetchData = async () => {
-            setLoading(true);
+            setLoadingAcademic(true);
             try {
                 // Eğer alt kategori seçildiyse onu, yoksa ana kategoriyi kullan
                 const idToFetch = selectedSub || selectedMain;
                 const data = await calendarService.getEvents(idToFetch);
-                setCalendar(data);
+                setAcademicCalendar(data);
             } catch (err) {
                 console.error("Takvim verisi yüklenemedi", err);
             } finally {
-                setLoading(false);
+                setLoadingAcademic(false);
             }
         };
 
@@ -58,6 +72,41 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
             }
         }
     }, [selectedMain, selectedSub, mainTypes]);
+
+    useEffect(() => {
+        const loadMyCalendar = async () => {
+            if (!user || calendarMode !== 'my') {
+                return;
+            }
+
+            setLoadingMyCalendar(true);
+            setMyCalendarError(null);
+
+            try {
+                const data = await calendarService.getMyEvents();
+                setMyCalendar(data);
+            } catch (err) {
+                const message = err instanceof Error ? err.message : 'Benim takvimim yüklenemedi';
+                setMyCalendarError(message);
+            } finally {
+                setLoadingMyCalendar(false);
+            }
+        };
+
+        void loadMyCalendar();
+    }, [calendarMode, user]);
+
+    useEffect(() => {
+        // Navbar'daki Takvim butonundan her gelişte Benim Takvimim'i aç.
+        setCalendarMode('my');
+    }, [openMyCalendarToken]);
+
+    useEffect(() => {
+        // Sekme değişince görev formunu sıfırla
+        setSelectedDay(null);
+        setTaskTitle('');
+        setTaskDescription('');
+    }, [calendarMode, currentDate]);
 
     // Main type değişince sub type'ı sıfırla ve gerekirse otomatik ilkini seç
     useEffect(() => {
@@ -92,21 +141,67 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
         setCurrentDate(newDate);
     };
 
+    const formatDateForSave = (day: number) => {
+        const year = currentDate.getFullYear();
+        const month = `${currentDate.getMonth() + 1}`.padStart(2, '0');
+        const formattedDay = `${day}`.padStart(2, '0');
+        return `${year}-${month}-${formattedDay}`;
+    };
+
+    const formatDateForDisplay = (day: number) => {
+        const monthNames = ['ocak', 'subat', 'mart', 'nisan', 'mayis', 'haziran', 'temmuz', 'agustos', 'eylul', 'ekim', 'kasim', 'aralik'];
+        const year = currentDate.getFullYear();
+        const month = monthNames[currentDate.getMonth()];
+        return `${day} ${month} ${year}`;
+    };
+
     // Etkinlikleri günlere dağıt
-    const getEventsForDay = (day: number) => {
-        if (!calendar?.events) return [];
+    const getEventsForDay = (events: CalendarInfo['events'], day: number) => {
+        if (!events) return [];
 
         const currentMonthStr = currentDate.toISOString().slice(0, 7); // YYYY-MM
         const dayStr = day < 10 ? `0${day}` : `${day}`;
         const targetDate = `${currentMonthStr}-${dayStr}`;
 
-        return calendar.events.filter(event => {
+        return events.filter(event => {
             // Basit string karşılaştırması (YYY-MM-DD)
             return targetDate >= event.start && targetDate <= event.end;
         });
     };
 
-    const renderCalendarGrid = () => {
+    const handleDayClick = (day: number, isEmpty: boolean) => {
+        if (isEmpty || calendarMode !== 'my' || !user) {
+            return;
+        }
+        setSelectedDay(day);
+    };
+
+    const handleSaveTask = async () => {
+        if (!selectedDay || !taskTitle.trim()) {
+            return;
+        }
+
+        setSavingTask(true);
+        try {
+            await calendarService.createMyEvent({
+                date: formatDateForSave(selectedDay),
+                title: taskTitle.trim(),
+                description: taskDescription.trim() || undefined,
+            });
+
+            const data = await calendarService.getMyEvents();
+            setMyCalendar(data);
+            setTaskTitle('');
+            setTaskDescription('');
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Yapılıcak kaydedilemedi';
+            setMyCalendarError(message);
+        } finally {
+            setSavingTask(false);
+        }
+    };
+
+    const renderCalendarGrid = (eventsSource: CalendarInfo['events']) => {
         const daysInMonth = getDaysInMonth(currentDate);
         const firstDay = getFirstDayOfMonth(currentDate);
         const days = [];
@@ -121,11 +216,16 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
         const isCurrentMonth = today.getMonth() === currentDate.getMonth() && today.getFullYear() === currentDate.getFullYear();
 
         for (let day = 1; day <= daysInMonth; day++) {
-            const events = getEventsForDay(day);
+            const events = getEventsForDay(eventsSource, day);
             const isToday = isCurrentMonth && day === today.getDate();
+            const isSelected = calendarMode === 'my' && selectedDay === day;
 
             days.push(
-                <div key={day} className={`day-cell ${isToday ? 'today' : ''} ${events.length > 0 ? 'has-events' : ''}`}>
+                <div
+                    key={day}
+                    className={`day-cell ${isToday ? 'today' : ''} ${events.length > 0 ? 'has-events' : ''} ${isSelected ? 'selected' : ''} ${calendarMode === 'my' ? 'clickable' : ''}`}
+                    onClick={() => handleDayClick(day, false)}
+                >
                     <span className="day-number">{day}</span>
                     <div className="day-events">
                         {events.map((event, idx) => (
@@ -147,53 +247,88 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
 
     const months = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
     const daysOfWeek = ["Pts", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
+    const activeCalendar = calendarMode === 'academic' ? academicCalendar : myCalendar;
+    const isLoading = calendarMode === 'academic' ? loadingAcademic : loadingMyCalendar;
+    const selectedMainName = mainTypes.find(t => t.id === selectedMain)?.name || 'Akademik Takvim';
+    const selectedDayEvents = selectedDay && calendarMode === 'my'
+        ? getEventsForDay(myCalendar?.events || [], selectedDay)
+        : [];
 
     return (
         <div className="calendar-card">
             <div className="card-header" onClick={handleToggle}>
-                <h2>📅 Akademik Takvim</h2>
+                <h2>📅 Takvimler</h2>
                 <span className={`toggle-icon ${isOpen ? 'open' : ''}`}>▼</span>
             </div>
 
             <div className={`card-content ${isOpen ? 'open' : ''}`}>
-                {/* Seçiciler */}
-                <div className="selectors-container">
-                    <div className="selector-group">
-                        <label>Birim Seçiniz:</label>
-                        <select
-                            value={selectedMain}
-                            onChange={(e) => setSelectedMain(e.target.value)}
-                            className="unit-select"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            {mainTypes.map(t => (
-                                <option key={t.id} value={t.id}>{t.name}</option>
-                            ))}
-                        </select>
-                    </div>
+                <div className="calendar-mode-tabs">
+                    <button
+                        type="button"
+                        className={`calendar-mode-tab ${calendarMode === 'my' ? 'active' : ''}`}
+                        onClick={() => setCalendarMode('my')}
+                    >
+                        Benim Takvimim
+                    </button>
+                    <button
+                        type="button"
+                        className={`calendar-mode-tab ${calendarMode === 'academic' ? 'active' : ''}`}
+                        onClick={() => setCalendarMode('academic')}
+                    >
+                        Akademik Takvim
+                    </button>
+                </div>
 
-                    {/* Alt Seçici (Varsa) */}
-                    {mainTypes.find(t => t.id === selectedMain)?.has_sub && (
+                {/* Seçiciler */}
+                {calendarMode === 'academic' && (
+                    <div className="selectors-container">
                         <div className="selector-group">
-                            <label>Dönem Seçiniz:</label>
+                            <label>Birim Seçiniz:</label>
                             <select
-                                value={selectedSub}
-                                onChange={(e) => setSelectedSub(e.target.value)}
+                                value={selectedMain}
+                                onChange={(e) => setSelectedMain(e.target.value)}
                                 className="unit-select"
                                 onClick={(e) => e.stopPropagation()}
                             >
-                                {subTypes[selectedMain]?.map(t => (
+                                {mainTypes.map(t => (
                                     <option key={t.id} value={t.id}>{t.name}</option>
                                 ))}
                             </select>
                         </div>
-                    )}
-                </div>
 
-                {loading ? (
+                        {/* Alt Seçici (Varsa) */}
+                        {mainTypes.find(t => t.id === selectedMain)?.has_sub && (
+                            <div className="selector-group">
+                                <label>Dönem Seçiniz:</label>
+                                <select
+                                    value={selectedSub}
+                                    onChange={(e) => setSelectedSub(e.target.value)}
+                                    className="unit-select"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    {subTypes[selectedMain]?.map(t => (
+                                        <option key={t.id} value={t.id}>{t.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {calendarMode === 'my' && !user && (
+                    <div className="calendar-locked-state" role="note" aria-label="Benim takvimim kilitli">
+                        <p>Benim Takvimim için giriş yapmanız gerekiyor.</p>
+                    </div>
+                )}
+
+                {isLoading ? (
                     <div className="loading">Yükleniyor...</div>
-                ) : (
+                ) : calendarMode === 'my' && !user ? null : (
                     <div className="calendar-grid-view">
+                        <p className="calendar-view-title">
+                            {calendarMode === 'academic' ? selectedMainName : 'Benim Takvimim'}
+                        </p>
+
                         {/* Navigasyon */}
                         <div className="calendar-nav">
                             <button onClick={() => changeMonth(-1)}>❮</button>
@@ -210,24 +345,76 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
 
                         {/* Günler Grid */}
                         <div className="days-grid">
-                            {renderCalendarGrid()}
+                            {renderCalendarGrid(activeCalendar?.events || [])}
                         </div>
 
+                        {calendarMode === 'my' && selectedDay && (
+                            <>
+                                <div className="my-calendar-tasks">
+                                    <h4>{formatDateForDisplay(selectedDay)} yapılacaklar</h4>
+                                    {selectedDayEvents.length > 0 ? (
+                                        <div className="my-calendar-task-list">
+                                            {selectedDayEvents.map((event) => (
+                                                <div key={event.id || `${event.title}-${event.start}`} className="my-calendar-task-item">
+                                                    <p className="my-calendar-task-title">{event.title}</p>
+                                                    <p className="my-calendar-task-desc">{event.description || 'Açıklama yok'}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="my-calendar-empty">Bu gün için henüz yapılacaklar yok.</p>
+                                    )}
+                                </div>
+
+                                <div className="my-calendar-form">
+                                    <h4>{formatDateForDisplay(selectedDay)} için yapılacaklar</h4>
+                                    <input
+                                        type="text"
+                                        placeholder="Yapılıcak / hatırlatma başlığı"
+                                        value={taskTitle}
+                                        onChange={(e) => setTaskTitle(e.target.value)}
+                                    />
+                                    <textarea
+                                        placeholder="Açıklama (opsiyonel)"
+                                        value={taskDescription}
+                                        onChange={(e) => setTaskDescription(e.target.value)}
+                                        rows={3}
+                                    />
+                                    <div className="my-calendar-form-actions">
+                                        <button type="button" onClick={() => setSelectedDay(null)}>
+                                            Vazgeç
+                                        </button>
+                                        <button type="button" onClick={handleSaveTask} disabled={savingTask || !taskTitle.trim()}>
+                                            {savingTask ? 'Kaydediliyor...' : 'Kaydet'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        {myCalendarError && calendarMode === 'my' && (
+                            <p className="calendar-error">{myCalendarError}</p>
+                        )}
+
                         {/* Legend */}
-                        <div className="calendar-legend">
-                            <div className="legend-item">
-                                <span className="legend-color event-type-registration"></span> Kayıt/Seçim
+                        {calendarMode === 'academic' && (
+                            <div className="calendar-legend">
+                                <>
+                                    <div className="legend-item">
+                                        <span className="legend-color event-type-registration"></span> Kayıt/Seçim
+                                    </div>
+                                    <div className="legend-item">
+                                        <span className="legend-color event-type-term"></span> Ders Dönemi
+                                    </div>
+                                    <div className="legend-item">
+                                        <span className="legend-color event-type-exam"></span> Sınav
+                                    </div>
+                                    <div className="legend-item">
+                                        <span className="legend-color event-type-holiday"></span> Tatil
+                                    </div>
+                                </>
                             </div>
-                            <div className="legend-item">
-                                <span className="legend-color event-type-term"></span> Ders Dönemi
-                            </div>
-                            <div className="legend-item">
-                                <span className="legend-color event-type-exam"></span> Sınav
-                            </div>
-                            <div className="legend-item">
-                                <span className="legend-color event-type-holiday"></span> Tatil
-                            </div>
-                        </div>
+                        )}
                     </div>
                 )}
             </div>

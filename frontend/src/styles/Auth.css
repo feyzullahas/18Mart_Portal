@@ -203,6 +203,70 @@
     color: #357abd;
 }
 
+[data-theme="dark"] .auth-container {
+    background: linear-gradient(135deg, #060b14 0%, #0b1321 100%);
+}
+
+[data-theme="dark"] .auth-card {
+    background: rgba(10, 17, 31, 0.94);
+    border: 1px solid rgba(146, 168, 204, 0.28);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
+}
+
+[data-theme="dark"] .auth-close-button {
+    border-color: rgba(146, 168, 204, 0.35);
+    background: #111a2c;
+    color: #d9e7ff;
+}
+
+[data-theme="dark"] .auth-close-button:hover {
+    background: #16233b;
+}
+
+[data-theme="dark"] .auth-title,
+[data-theme="dark"] .form-title {
+    color: #e7efff;
+}
+
+[data-theme="dark"] .auth-subtitle,
+[data-theme="dark"] .auth-toggle p {
+    color: #99aed0;
+}
+
+[data-theme="dark"] .form-label {
+    color: #c7d7f2;
+}
+
+[data-theme="dark"] .form-input {
+    border-color: rgba(146, 168, 204, 0.35);
+    background: rgba(18, 29, 49, 0.95);
+    color: #e7efff;
+}
+
+[data-theme="dark"] .form-input::placeholder {
+    color: #8fa6ca;
+}
+
+[data-theme="dark"] .form-input:-webkit-autofill,
+[data-theme="dark"] .form-input:-webkit-autofill:hover,
+[data-theme="dark"] .form-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #e7efff;
+    -webkit-box-shadow: 0 0 0px 1000px #12203a inset;
+    caret-color: #e7efff;
+}
+
+[data-theme="dark"] .auth-toggle {
+    border-top: 1px solid rgba(146, 168, 204, 0.28);
+}
+
+[data-theme="dark"] .toggle-button {
+    color: #7fb0ff;
+}
+
+[data-theme="dark"] .toggle-button:hover {
+    color: #a4c7ff;
+}
+
 /* Responsive Design */
 @media (max-width: 480px) {
     .auth-container {
