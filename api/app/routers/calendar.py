@@ -19,6 +19,12 @@ class PersonalCalendarCreateRequest(BaseModel):
     description: str | None = Field(default=None, max_length=1000)
 
 
+class PersonalCalendarUpdateRequest(BaseModel):
+    date: str = Field(..., description="YYYY-MM-DD")
+    title: str = Field(..., min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=1000)
+
+
 def _format_tr_date(target: date) -> str:
     months = {
         1: "Ocak", 2: "Şubat", 3: "Mart", 4: "Nisan", 5: "Mayıs", 6: "Haziran",
@@ -106,3 +112,60 @@ def create_my_calendar_event(
         "message": "Görev kaydedildi.",
         "id": task.id,
     }
+
+
+@router.put("/my/{task_id}")
+def update_my_calendar_event(
+    task_id: int,
+    payload: PersonalCalendarUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Giriş yapan kullanıcının kişisel takvim görevini günceller."""
+    task = (
+        db.query(CalendarTask)
+        .filter(CalendarTask.id == task_id, CalendarTask.user_id == current_user.id)
+        .first()
+    )
+
+    if not task:
+        raise HTTPException(status_code=404, detail="Görev bulunamadı.")
+
+    try:
+        target_date = datetime.strptime(payload.date, "%Y-%m-%d").date()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Geçersiz tarih formatı. YYYY-MM-DD bekleniyor.")
+
+    title = payload.title.strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="Görev başlığı boş olamaz.")
+
+    task.task_date = target_date
+    task.title = title
+    task.description = payload.description.strip() if payload.description else None
+
+    db.commit()
+
+    return {"message": "Görev güncellendi."}
+
+
+@router.delete("/my/{task_id}")
+def delete_my_calendar_event(
+    task_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Giriş yapan kullanıcının kişisel takvim görevini siler."""
+    task = (
+        db.query(CalendarTask)
+        .filter(CalendarTask.id == task_id, CalendarTask.user_id == current_user.id)
+        .first()
+    )
+
+    if not task:
+        raise HTTPException(status_code=404, detail="Görev bulunamadı.")
+
+    db.delete(task)
+    db.commit()
+
+    return {"message": "Görev silindi."}

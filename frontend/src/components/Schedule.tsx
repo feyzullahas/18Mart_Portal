@@ -37,7 +37,9 @@ export const Schedule = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
         'Salı': [],
         'Çarşamba': [],
         'Perşembe': [],
-        'Cuma': []
+        'Cuma': [],
+        'Cumartesi': [],
+        'Pazar': []
     });
     const [newSubject, setNewSubject] = useState({ 
         name: '', 
@@ -52,20 +54,41 @@ export const Schedule = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
     const [error, setError] = useState('');
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    const days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma'];
+    const getDayStepWidth = () => {
+        const container = scrollContainerRef.current;
+        if (!container) return 0;
+
+        const firstDay = container.querySelector('.day-column-horizontal') as HTMLElement | null;
+        const grid = container.querySelector('.schedule-grid-horizontal') as HTMLElement | null;
+        if (!firstDay) return 0;
+
+        let gap = 0;
+        if (grid) {
+            const styles = window.getComputedStyle(grid);
+            gap = parseFloat(styles.columnGap || styles.gap || '0') || 0;
+        }
+
+        return firstDay.getBoundingClientRect().width + gap;
+    };
+
+    const days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
     const dayShortLabels: { [key: string]: string } = {
         'Pazartesi': 'Pz',
         'Salı': 'Sa',
         'Çarşamba': 'Ça',
         'Perşembe': 'Pe',
-        'Cuma': 'Cu'
+        'Cuma': 'Cu',
+        'Cumartesi': 'Cmt',
+        'Pazar': 'Paz'
     };
     const dayMapping: { [key: string]: string } = {
         'Pazartesi': 'Monday',
         'Salı': 'Tuesday',
         'Çarşamba': 'Wednesday',
         'Perşembe': 'Thursday',
-        'Cuma': 'Friday'
+        'Cuma': 'Friday',
+        'Cumartesi': 'Saturday',
+        'Pazar': 'Sunday'
     };
 
     // Get auth token
@@ -112,7 +135,9 @@ export const Schedule = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
                 'Salı': [],
                 'Çarşamba': [],
                 'Perşembe': [],
-                'Cuma': []
+                'Cuma': [],
+                'Cumartesi': [],
+                'Pazar': []
             };
 
             courses.forEach(course => {
@@ -253,9 +278,9 @@ export const Schedule = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
         if (!container) return;
 
         const handleScroll = () => {
-            const dayWidth = container.scrollWidth / days.length;
-            if (dayWidth === 0) return;
-            const newIndex = Math.round(container.scrollLeft / dayWidth);
+            const stepWidth = getDayStepWidth();
+            if (stepWidth === 0) return;
+            const newIndex = Math.round(container.scrollLeft / stepWidth);
             const clamped = Math.max(0, Math.min(days.length - 1, newIndex));
             setCurrentDayIndex(clamped);
         };
@@ -287,7 +312,7 @@ export const Schedule = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
         setCurrentDayIndex(newIndex);
         
         if (scrollContainerRef.current) {
-            const dayWidth = scrollContainerRef.current.scrollWidth / days.length;
+            const dayWidth = getDayStepWidth();
             scrollContainerRef.current.scrollTo({
                 left: dayWidth * newIndex,
                 behavior: 'smooth'
@@ -298,7 +323,7 @@ export const Schedule = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
     const goToDay = (index: number) => {
         setCurrentDayIndex(index);
         if (scrollContainerRef.current) {
-            const dayWidth = scrollContainerRef.current.scrollWidth / days.length;
+            const dayWidth = getDayStepWidth();
             scrollContainerRef.current.scrollTo({
                 left: dayWidth * index,
                 behavior: 'smooth'

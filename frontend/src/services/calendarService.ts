@@ -38,6 +38,12 @@ interface CreateMyCalendarEventPayload {
     description?: string;
 }
 
+interface UpdateMyCalendarEventPayload {
+    date: string;
+    title: string;
+    description?: string;
+}
+
 const getAuthHeaders = (): Record<string, string> => {
     const token = localStorage.getItem('token');
 
@@ -83,6 +89,31 @@ export const calendarService = {
         if (!response.ok) {
             const err = await response.json().catch(() => ({ detail: 'Görev kaydedilemedi' }));
             throw new Error(err.detail || 'Görev kaydedilemedi');
+        }
+    },
+
+    async updateMyEvent(eventId: number, payload: UpdateMyCalendarEventPayload): Promise<void> {
+        const response = await fetch(`${API_BASE_URL}/calendar/my/${eventId}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({ detail: 'Görev güncellenemedi' }));
+            throw new Error(err.detail || 'Görev güncellenemedi');
+        }
+    },
+
+    async deleteMyEvent(eventId: number): Promise<void> {
+        const response = await fetch(`${API_BASE_URL}/calendar/my/${eventId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        });
+
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({ detail: 'Görev silinemedi' }));
+            throw new Error(err.detail || 'Görev silinemedi');
         }
     }
 };

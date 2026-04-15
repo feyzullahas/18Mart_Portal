@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { calendarService } from '../services/calendarService';
-import type { CalendarInfo, CalendarType } from '../services/calendarService';
+import type { CalendarInfo, CalendarType, CalendarEvent } from '../services/calendarService';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Calendar.css';
 
@@ -30,6 +30,8 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
     const [taskTitle, setTaskTitle] = useState('');
     const [taskDescription, setTaskDescription] = useState('');
     const [savingTask, setSavingTask] = useState(false);
+    const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
+    const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null);
 
     const isOpen = propIsOpen !== undefined ? propIsOpen : localOpen;
     const handleToggle = onToggle ?? (() => setLocalOpen(prev => !prev));
@@ -106,6 +108,7 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
         setSelectedDay(null);
         setTaskTitle('');
         setTaskDescription('');
+        setEditingTaskId(null);
     }, [calendarMode, currentDate]);
 
     // Main type değişince sub type'ı sıfırla ve gerekirse otomatik ilkini seç
@@ -174,6 +177,9 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
             return;
         }
         setSelectedDay(day);
+        setTaskTitle('');
+        setTaskDescription('');
+        setEditingTaskId(null);
     };
 
     const handleSaveTask = async () => {
@@ -183,21 +189,72 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
 
         setSavingTask(true);
         try {
-            await calendarService.createMyEvent({
-                date: formatDateForSave(selectedDay),
-                title: taskTitle.trim(),
-                description: taskDescription.trim() || undefined,
-            });
+            if (editingTaskId) {
+                await calendarService.updateMyEvent(editingTaskId, {
+                    date: formatDateForSave(selectedDay),
+                    title: taskTitle.trim(),
+                    description: taskDescription.trim() || undefined,
+                });
+            } else {
+                await calendarService.createMyEvent({
+                    date: formatDateForSave(selectedDay),
+                    title: taskTitle.trim(),
+                    description: taskDescription.trim() || undefined,
+                });
+            }
 
             const data = await calendarService.getMyEvents();
             setMyCalendar(data);
             setTaskTitle('');
             setTaskDescription('');
+            setEditingTaskId(null);
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Yapılıcak kaydedilemedi';
             setMyCalendarError(message);
         } finally {
             setSavingTask(false);
+        }
+    };
+
+    const handleEditTask = (event: CalendarEvent) => {
+        if (!event.id) {
+            return;
+        }
+
+        const eventDate = new Date(`${event.start}T00:00:00`);
+        if (
+            eventDate.getFullYear() === currentDate.getFullYear()
+            && eventDate.getMonth() === currentDate.getMonth()
+        ) {
+            setSelectedDay(eventDate.getDate());
+        }
+
+        setTaskTitle(event.title);
+        setTaskDescription(event.description || '');
+        setEditingTaskId(event.id);
+    };
+
+    const handleDeleteTask = async (eventId?: number) => {
+        if (!eventId) {
+            return;
+        }
+
+        setDeletingTaskId(eventId);
+        try {
+            await calendarService.deleteMyEvent(eventId);
+            const data = await calendarService.getMyEvents();
+            setMyCalendar(data);
+
+            if (editingTaskId === eventId) {
+                setEditingTaskId(null);
+                setTaskTitle('');
+                setTaskDescription('');
+            }
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Görev silinemedi';
+            setMyCalendarError(message);
+        } finally {
+            setDeletingTaskId(null);
         }
     };
 
@@ -268,7 +325,7 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
                         className={`calendar-mode-tab ${calendarMode === 'my' ? 'active' : ''}`}
                         onClick={() => setCalendarMode('my')}
                     >
-                        Benim Takvimim
+                        Ajandam
                     </button>
                     <button
                         type="button"
@@ -316,8 +373,8 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
                 )}
 
                 {calendarMode === 'my' && !user && (
-                    <div className="calendar-locked-state" role="note" aria-label="Benim takvimim kilitli">
-                        <p>Benim Takvimim için giriş yapmanız gerekiyor.</p>
+                    <div className="calendar-locked-state" role="note" aria-label="Ajandam kilitli">
+                        <p>Ajandam hizmetini kullanabilmek için giriş yapın.</p>
                     </div>
                 )}
 
@@ -326,7 +383,7 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
                 ) : calendarMode === 'my' && !user ? null : (
                     <div className="calendar-grid-view">
                         <p className="calendar-view-title">
-                            {calendarMode === 'academic' ? selectedMainName : 'Benim Takvimim'}
+                            {calendarMode === 'academic' ? selectedMainName : 'Ajandam'}
                         </p>
 
                         {/* Navigasyon */}
@@ -356,8 +413,28 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
                                         <div className="my-calendar-task-list">
                                             {selectedDayEvents.map((event) => (
                                                 <div key={event.id || `${event.title}-${event.start}`} className="my-calendar-task-item">
-                                                    <p className="my-calendar-task-title">{event.title}</p>
-                                                    <p className="my-calendar-task-desc">{event.description || 'Açıklama yok'}</p>
+                                                    <div className="my-calendar-task-content">
+                                                        <p className="my-calendar-task-title">{event.title}</p>
+                                                        <p className="my-calendar-task-desc">{event.description || 'Açıklama yok'}</p>
+                                                    </div>
+                                                    <div className="my-calendar-task-actions">
+                                                        <button
+                                                            type="button"
+                                                            className="my-calendar-task-edit"
+                                                            onClick={() => handleEditTask(event)}
+                                                            disabled={savingTask || deletingTaskId === event.id}
+                                                        >
+                                                            Düzenle
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="my-calendar-task-delete"
+                                                            onClick={() => void handleDeleteTask(event.id)}
+                                                            disabled={savingTask || deletingTaskId === event.id}
+                                                        >
+                                                            {deletingTaskId === event.id ? 'Siliniyor...' : 'Sil'}
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>
@@ -367,7 +444,11 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
                                 </div>
 
                                 <div className="my-calendar-form">
-                                    <h4>{formatDateForDisplay(selectedDay)} için yapılacaklar</h4>
+                                    <h4>
+                                        {editingTaskId
+                                            ? `${formatDateForDisplay(selectedDay)} görevi düzenle`
+                                            : `${formatDateForDisplay(selectedDay)} için yapılacaklar`}
+                                    </h4>
                                     <input
                                         type="text"
                                         placeholder="Yapılıcak / hatırlatma başlığı"
@@ -381,11 +462,19 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
                                         rows={3}
                                     />
                                     <div className="my-calendar-form-actions">
-                                        <button type="button" onClick={() => setSelectedDay(null)}>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedDay(null);
+                                                setEditingTaskId(null);
+                                                setTaskTitle('');
+                                                setTaskDescription('');
+                                            }}
+                                        >
                                             Vazgeç
                                         </button>
                                         <button type="button" onClick={handleSaveTask} disabled={savingTask || !taskTitle.trim()}>
-                                            {savingTask ? 'Kaydediliyor...' : 'Kaydet'}
+                                            {savingTask ? (editingTaskId ? 'Güncelleniyor...' : 'Kaydediliyor...') : (editingTaskId ? 'Güncelle' : 'Kaydet')}
                                         </button>
                                     </div>
                                 </div>

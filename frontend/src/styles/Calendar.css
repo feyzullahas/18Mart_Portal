@@ -357,6 +357,15 @@
     border-radius: 10px;
     padding: 10px;
     background: var(--card-bg);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.my-calendar-task-content {
+    min-width: 0;
+    flex: 1;
 }
 
 .my-calendar-task-title {
@@ -371,6 +380,43 @@
     color: var(--text-secondary);
     font-size: 0.86rem;
     line-height: 1.35;
+}
+
+.my-calendar-task-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.my-calendar-task-actions button {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.my-calendar-task-edit {
+    background: var(--item-bg);
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .my-calendar-task-edit {
+    background: color-mix(in srgb, #2563eb 14%, white 86%);
+    color: #1d4ed8;
+    border-color: color-mix(in srgb, #2563eb 36%, var(--border-color) 64%);
+}
+
+.my-calendar-task-delete {
+    background: color-mix(in srgb, var(--error-color) 18%, var(--item-bg) 82%);
+    color: var(--error-color);
+    border-color: color-mix(in srgb, var(--error-color) 45%, var(--border-color) 55%) !important;
+}
+
+.my-calendar-task-actions button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
 }
 
 .my-calendar-empty {
@@ -521,5 +567,47 @@
 
     .days-grid {
         gap: 3px;
+    }
+
+    .my-calendar-task-item {
+        flex-direction: row;
+        align-items: center;
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .my-calendar-task-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .my-calendar-task-actions {
+        justify-content: flex-end;
+        gap: 4px;
+        flex-shrink: 0;
+    }
+
+    .my-calendar-tasks {
+        padding: 10px;
+    }
+
+    .my-calendar-task-list {
+        gap: 6px;
+    }
+
+    .my-calendar-task-title {
+        margin-bottom: 4px;
+        font-size: 0.9rem;
+        line-height: 1.2;
+    }
+
+    .my-calendar-task-desc {
+        font-size: 0.82rem;
+        line-height: 1.25;
+    }
+
+    .my-calendar-task-actions button {
+        padding: 4px 8px;
+        font-size: 0.76rem;
     }
 }
