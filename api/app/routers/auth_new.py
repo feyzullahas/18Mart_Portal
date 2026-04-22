@@ -134,6 +134,12 @@ def login_with_google(request: Request, payload: GoogleLoginRequest, db: Session
 
     email = (google_payload.get("email") or "").lower().strip()
     email_verified = bool(google_payload.get("email_verified"))
+    full_name = (google_payload.get("name") or "").strip()
+
+    if not full_name:
+        given_name = (google_payload.get("given_name") or "").strip()
+        family_name = (google_payload.get("family_name") or "").strip()
+        full_name = f"{given_name} {family_name}".strip()
 
     if not email or not email_verified:
         raise HTTPException(status_code=401, detail="Doğrulanmış email bilgisi alınamadı")
@@ -152,7 +158,7 @@ def login_with_google(request: Request, payload: GoogleLoginRequest, db: Session
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.email, "user_id": str(user.id)},
+        data={"sub": user.email, "user_id": str(user.id), "full_name": full_name},
         expires_delta=access_token_expires
     )
 

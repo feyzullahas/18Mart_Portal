@@ -181,16 +181,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 const tokenPayload = JSON.parse(atob(data.access_token.split('.')[1]));
                 const profileDataMap = getSavedProfiles();
                 const savedProfile = profileDataMap[tokenPayload.user_id] || {};
+                const googleFullName = typeof tokenPayload.full_name === 'string'
+                    ? tokenPayload.full_name.trim()
+                    : '';
+                const resolvedFullName = googleFullName || savedProfile.fullName;
 
                 const user: User = {
                     id: tokenPayload.user_id,
                     email: savedProfile.email || tokenPayload.sub,
-                    fullName: savedProfile.fullName,
+                    fullName: resolvedFullName,
                 };
 
                 setUser(user);
                 localStorage.setItem('user', JSON.stringify(user));
                 localStorage.setItem('token', data.access_token);
+
+                if (resolvedFullName) {
+                    saveProfileName(user.email, resolvedFullName);
+                }
+
+                saveProfileById(user.id, {
+                    email: user.email,
+                    fullName: resolvedFullName,
+                });
 
                 return { success: true };
             }
