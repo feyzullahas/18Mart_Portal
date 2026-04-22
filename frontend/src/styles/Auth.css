@@ -28,6 +28,8 @@
 
 .auth-card-embedded {
     max-width: 460px;
+    width: min(460px, 100%);
+    margin: 0;
 }
 
 .auth-close-button {
@@ -325,6 +327,11 @@
     .auth-card {
         padding: 2rem 1.5rem;
         margin: 0 0.5rem;
+    }
+
+    .auth-card-embedded {
+        margin: 0;
+        width: 100%;
     }
     
     .auth-title {

@@ -116,17 +116,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 const tokenPayload = JSON.parse(atob(data.access_token.split('.')[1]));
                 const profileDataMap = getSavedProfiles();
                 const savedProfile = profileDataMap[tokenPayload.user_id] || {};
-                const savedFullName = savedProfile.fullName || profileNames[email.toLowerCase()];
+                const tokenFullName = typeof tokenPayload.full_name === 'string'
+                    ? tokenPayload.full_name.trim()
+                    : '';
+                const savedFullName = tokenFullName || savedProfile.fullName || profileNames[email.toLowerCase()];
 
                 // Extract user info from JWT token
                 const user: User = {
                     id: tokenPayload.user_id,
-                    email: savedProfile.email || email,
+                    email: savedProfile.email || tokenPayload.sub || email,
                     fullName: savedFullName
                 };
                 setUser(user);
                 localStorage.setItem('user', JSON.stringify(user));
                 localStorage.setItem('token', data.access_token);
+
+                if (savedFullName) {
+                    saveProfileName(user.email, savedFullName);
+                }
+
+                saveProfileById(user.id, {
+                    email: user.email,
+                    fullName: savedFullName,
+                });
+
                 return { success: true };
             } else {
                 const errorData = await response.json();
@@ -146,7 +159,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({
+                    email,
+                    password,
+                    full_name: fullName?.trim() || undefined,
+                }),
             });
 
             if (response.ok) {

@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.pool import NullPool
+from sqlalchemy import inspect, text
 import os
 import re
 from dotenv import load_dotenv
@@ -57,7 +58,27 @@ def create_tables():
     # Modelleri import et ki Base onları tanısın
     from app.models import user, course, calendar_task  # noqa
     Base.metadata.create_all(bind=engine)
+    ensure_user_full_name_column()
     print("[OK] Database tablolari basariyla olusturuldu")
+
+
+def ensure_user_full_name_column():
+    """Mevcut users tablosunda full_name kolonu yoksa ekler."""
+    try:
+        inspector = inspect(engine)
+        if "users" not in inspector.get_table_names():
+            return
+
+        columns = {column["name"] for column in inspector.get_columns("users")}
+        if "full_name" in columns:
+            return
+
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE users ADD COLUMN full_name VARCHAR(255)"))
+
+        print("[OK] users.full_name kolonu eklendi")
+    except Exception as e:
+        print(f"[WARN] users.full_name kolon kontrolu hatasi: {e}")
 
 # Uygulama başladığında tabloları otomatik oluştur (serverless için)
 # Sadece PostgreSQL bağlantısı varsa çalıştır, yoksa startup event halleder
@@ -65,6 +86,7 @@ try:
     if DATABASE_URL != "sqlite:///./portal_db.db":
         from app.models import user, course, calendar_task  # noqa
         Base.metadata.create_all(bind=engine)
+        ensure_user_full_name_column()
 except Exception as e:
     print(f"[WARN] Tablo olusturma hatasi (devam ediliyor): {e}")
 # Database bağlantısını test et

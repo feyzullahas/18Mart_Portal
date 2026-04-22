@@ -8,6 +8,7 @@ class User(Base):
     # Sütunlar
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(100), unique=True, index=True, nullable=False)
+    full_name = Column(String(255), nullable=True)
     password_hash = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -21,6 +22,7 @@ class User(Base):
         return {
             "id": self.id,
             "email": self.email,
+            "full_name": self.full_name,
             "is_active": self.is_active,
             "created_at": self.created_at,
             "updated_at": self.updated_at

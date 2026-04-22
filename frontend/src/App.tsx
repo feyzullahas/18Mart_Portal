@@ -46,6 +46,7 @@ const AppContent = () => {
 
     useEffect(() => {
         if (user && isAuthModalOpen) {
+            setActivePage('home');
             setIsAuthModalOpen(false);
         }
     }, [user, isAuthModalOpen]);

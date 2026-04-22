@@ -388,6 +388,9 @@
 
 .auth-modal {
     width: min(440px, 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .portal-app .weather-card,

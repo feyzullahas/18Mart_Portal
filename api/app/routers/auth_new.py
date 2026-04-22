@@ -78,6 +78,7 @@ def register(request: Request, user_data: UserCreate, db: Session = Depends(get_
     # Yeni kullanıcı oluştur
     new_user = User(
         email=user_data.email,
+        full_name=user_data.full_name.strip() if user_data.full_name else None,
         password_hash=hash_password(user_data.password)
     )
     
@@ -104,7 +105,7 @@ def login(request: Request, user_data: UserLogin, db: Session = Depends(get_db))
     # JWT token oluştur
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.email, "user_id": str(user.id)},
+        data={"sub": user.email, "user_id": str(user.id), "full_name": user.full_name or ""},
         expires_delta=access_token_expires
     )
 
@@ -150,15 +151,20 @@ def login_with_google(request: Request, payload: GoogleLoginRequest, db: Session
         # Uygulamada password_hash zorunlu olduğu için rastgele bir hash atanır.
         user = User(
             email=email,
+            full_name=full_name or None,
             password_hash=hash_password(secrets.token_urlsafe(32))
         )
         db.add(user)
         db.commit()
         db.refresh(user)
+    elif full_name and user.full_name != full_name:
+        user.full_name = full_name
+        db.commit()
+        db.refresh(user)
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.email, "user_id": str(user.id), "full_name": full_name},
+        data={"sub": user.email, "user_id": str(user.id), "full_name": user.full_name or ""},
         expires_delta=access_token_expires
     )
 

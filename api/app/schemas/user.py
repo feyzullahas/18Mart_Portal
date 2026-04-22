@@ -6,6 +6,7 @@ from datetime import datetime
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
+    full_name: Optional[str] = None
 
     @field_validator('password')
     @classmethod
@@ -27,6 +28,7 @@ class UserLogin(BaseModel):
 class UserResponse(BaseModel):
     id: int
     email: str
+    full_name: Optional[str] = None
     is_active: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
@@ -43,3 +45,4 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     email: Optional[str] = None
     user_id: Optional[str] = None
+    full_name: Optional[str] = None
