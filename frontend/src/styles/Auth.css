@@ -208,6 +208,26 @@
     justify-content: center;
 }
 
+.google-signin-shell {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 14px;
+    border: 1px solid rgba(23, 40, 74, 0.12);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(244, 247, 252, 0.94));
+}
+
+.google-signin-shell.dark {
+    border-color: rgba(146, 168, 204, 0.35);
+    background: linear-gradient(180deg, rgba(20, 30, 49, 0.92), rgba(14, 22, 37, 0.92));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.google-signin-shell.light {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
 .google-config-note {
     margin: 0;
     font-size: 0.8rem;

@@ -111,6 +111,8 @@ export const Auth = ({ embedded = false, onClose }: AuthProps) => {
                 return;
             }
 
+            const resolvedTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+
             googleButtonContainerRef.current.innerHTML = '';
             window.google.accounts.id.initialize({
                 client_id: googleClientId,
@@ -131,11 +133,11 @@ export const Auth = ({ embedded = false, onClose }: AuthProps) => {
             });
 
             window.google.accounts.id.renderButton(googleButtonContainerRef.current, {
-                theme: theme === 'dark' ? 'filled_black' : 'outline',
+                theme: resolvedTheme === 'dark' ? 'filled_black' : 'outline',
                 size: 'large',
                 type: 'standard',
                 text: 'signin_with',
-                shape: 'rectangular',
+                shape: 'pill',
                 logo_alignment: 'left',
                 width: 320,
             });
@@ -269,7 +271,9 @@ export const Auth = ({ embedded = false, onClose }: AuthProps) => {
                                 <span>veya</span>
                             </div>
                             {googleClientId ? (
-                                <div className="google-signin-container" ref={googleButtonContainerRef}></div>
+                                <div className={`google-signin-shell ${theme === 'dark' ? 'dark' : 'light'}`}>
+                                    <div className="google-signin-container" ref={googleButtonContainerRef}></div>
+                                </div>
                             ) : (
                                 <p className="google-config-note">
                                     Google giriş için VITE_GOOGLE_CLIENT_ID tanımlanmalı.
