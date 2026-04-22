@@ -30,6 +30,22 @@
     max-width: 460px;
     width: min(460px, 100%);
     margin: 0;
+    max-height: calc(100svh - 24px);
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.auth-card-embedded .auth-header {
+    margin-bottom: 1.2rem;
+}
+
+.auth-card-embedded .auth-form {
+    margin-bottom: 0.9rem;
+}
+
+.auth-card-embedded .form-group {
+    margin-bottom: 0.9rem;
 }
 
 .auth-close-button {
@@ -332,6 +348,38 @@
     .auth-card-embedded {
         margin: 0;
         width: 100%;
+        padding: 1.2rem 1rem;
+        max-height: calc(100svh - 16px);
+        max-height: calc(100dvh - 16px);
+    }
+
+    .auth-card-embedded .auth-logo {
+        width: 44px;
+        height: 44px;
+        margin-bottom: 0.55rem;
+    }
+
+    .auth-card-embedded .auth-title {
+        font-size: 1.9rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .auth-card-embedded .auth-subtitle {
+        font-size: 0.8rem;
+        line-height: 1.25;
+    }
+
+    .auth-card-embedded .form-title {
+        font-size: 1.15rem;
+        margin-bottom: 1rem;
+    }
+
+    .auth-card-embedded .auth-button {
+        margin-top: 0.25rem;
+    }
+
+    .auth-card-embedded .auth-toggle {
+        padding-top: 1rem;
     }
     
     .auth-title {
