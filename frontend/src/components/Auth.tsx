@@ -272,7 +272,13 @@ export const Auth = ({ embedded = false, onClose }: AuthProps) => {
                             </div>
                             {googleClientId ? (
                                 <div className={`google-signin-modern ${theme === 'dark' ? 'dark' : 'light'}`}>
-                                    <span className="google-signin-modern-icon" aria-hidden="true">G</span>
+                                    <span className="google-signin-modern-icon" aria-hidden="true">
+                                        <img
+                                            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                                            alt=""
+                                            className="google-signin-modern-icon-img"
+                                        />
+                                    </span>
                                     <span className="google-signin-modern-text">Google ile oturum açın</span>
                                     <div className="google-signin-hitbox" ref={googleButtonContainerRef}></div>
                                 </div>
