@@ -381,19 +381,22 @@
     inset: 0;
     z-index: 100;
     background: rgba(8, 18, 36, 0.62);
-    display: grid;
-    place-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
 
 .auth-modal {
-    width: min(440px, 100%);
+    width: 100%;
+    max-width: 440px;
     display: flex;
     justify-content: center;
     align-items: center;
     margin: auto;
+    margin-inline: auto;
 }
 
 .portal-app .weather-card,
