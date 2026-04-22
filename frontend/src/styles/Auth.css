@@ -213,33 +213,51 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.7rem;
+    gap: 0.65rem;
     width: 100%;
-    min-height: 44px;
-    border-radius: 12px;
+    min-height: 46px;
+    border-radius: 14px;
     border: 1px solid rgba(0, 0, 0, 0.12);
     overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .google-signin-modern.light {
-    background: linear-gradient(180deg, #ffffff 0%, #f5f8ff 100%);
-    border-color: rgba(0, 0, 0, 0.12);
+    background: linear-gradient(180deg, #ffffff 0%, #f4f7fc 100%);
+    border-color: rgba(31, 41, 55, 0.14);
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08);
 }
 
 .google-signin-modern.dark {
-    background: linear-gradient(180deg, #123a78 0%, #0d2d60 100%);
-    border-color: rgba(106, 142, 197, 0.55);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 6px 14px rgba(8, 19, 42, 0.32);
+    background: linear-gradient(180deg, #122846 0%, #0f223b 100%);
+    border-color: rgba(92, 122, 168, 0.48);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 18px rgba(4, 10, 22, 0.42);
+}
+
+.google-signin-modern:hover {
+    transform: translateY(-1px);
+}
+
+.google-signin-modern.light:hover {
+    border-color: rgba(57, 96, 152, 0.4);
+    box-shadow: 0 8px 16px rgba(35, 61, 103, 0.16);
+}
+
+.google-signin-modern.dark:hover {
+    border-color: rgba(122, 154, 203, 0.6);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 22px rgba(3, 9, 20, 0.5);
 }
 
 .google-signin-modern-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
     flex-shrink: 0;
 }
 
@@ -250,8 +268,9 @@
 }
 
 .google-signin-modern-text {
-    font-weight: 700;
-    font-size: 0.98rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.01em;
 }
 
 .google-signin-modern.light .google-signin-modern-text {
@@ -259,7 +278,7 @@
 }
 
 .google-signin-modern.dark .google-signin-modern-text {
-    color: #f7fbff;
+    color: #edf4ff;
 }
 
 .google-signin-hitbox {
