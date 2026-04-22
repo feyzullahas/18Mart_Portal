@@ -208,6 +208,74 @@
     justify-content: center;
 }
 
+.google-signin-modern {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    width: 100%;
+    min-height: 44px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+}
+
+.google-signin-modern.light {
+    background: linear-gradient(180deg, #ffffff 0%, #f5f8ff 100%);
+    border-color: rgba(0, 0, 0, 0.12);
+}
+
+.google-signin-modern.dark {
+    background: linear-gradient(180deg, #1d4d9a 0%, #153d7f 100%);
+    border-color: rgba(146, 168, 204, 0.35);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.google-signin-modern-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    color: #2563eb;
+    font-weight: 800;
+    font-size: 1rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.google-signin-modern-text {
+    font-weight: 700;
+    font-size: 0.98rem;
+}
+
+.google-signin-modern.light .google-signin-modern-text {
+    color: #1f2937;
+}
+
+.google-signin-modern.dark .google-signin-modern-text {
+    color: #f7fbff;
+}
+
+.google-signin-hitbox {
+    position: absolute;
+    inset: 0;
+    opacity: 0.01;
+    line-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.google-signin-hitbox > div,
+.google-signin-hitbox iframe {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
 .google-config-note {
     margin: 0;
     font-size: 0.8rem;
