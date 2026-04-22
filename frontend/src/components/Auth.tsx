@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import '../styles/Auth.css';
 
 declare global {
@@ -44,6 +45,7 @@ export const Auth = ({ embedded = false, onClose }: AuthProps) => {
     const [isLoading, setIsLoading] = useState(false);
     
     const { login, loginWithGoogle, register } = useAuth();
+    const { theme } = useTheme();
     const googleButtonContainerRef = useRef<HTMLDivElement | null>(null);
     const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
 
@@ -129,7 +131,7 @@ export const Auth = ({ embedded = false, onClose }: AuthProps) => {
             });
 
             window.google.accounts.id.renderButton(googleButtonContainerRef.current, {
-                theme: 'outline',
+                theme: theme === 'dark' ? 'filled_black' : 'outline',
                 size: 'large',
                 type: 'standard',
                 text: 'signin_with',
@@ -161,7 +163,7 @@ export const Auth = ({ embedded = false, onClose }: AuthProps) => {
         return () => {
             script.onload = null;
         };
-    }, [isLogin, googleClientId, loginWithGoogle]);
+    }, [isLogin, googleClientId, loginWithGoogle, theme]);
 
     return (
         <div className={`auth-container ${embedded ? 'auth-container-embedded' : ''}`}>
