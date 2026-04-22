@@ -227,9 +227,9 @@
 }
 
 .google-signin-modern.dark {
-    background: linear-gradient(180deg, #1d4d9a 0%, #153d7f 100%);
-    border-color: rgba(146, 168, 204, 0.35);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    background: linear-gradient(180deg, #123a78 0%, #0d2d60 100%);
+    border-color: rgba(106, 142, 197, 0.55);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 6px 14px rgba(8, 19, 42, 0.32);
 }
 
 .google-signin-modern-icon {
