@@ -358,9 +358,36 @@
     padding: 10px;
     background: var(--card-bg);
     display: flex;
-    align-items: flex-start;
+    align-items: stretch;
     justify-content: space-between;
     gap: 10px;
+}
+
+.my-calendar-task-item.dragging {
+    opacity: 0.92;
+    box-shadow: 0 12px 24px color-mix(in srgb, var(--accent-color) 20%, transparent 80%);
+}
+
+.my-calendar-drag-handle {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    width: 34px;
+    min-width: 34px;
+    background: var(--item-bg);
+    color: var(--text-secondary);
+    cursor: grab;
+    font-size: 1rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    touch-action: none;
+    align-self: stretch;
+}
+
+.my-calendar-drag-handle:active {
+    cursor: grabbing;
 }
 
 .my-calendar-task-content {
@@ -566,9 +593,14 @@
 
     .my-calendar-task-item {
         flex-direction: row;
-        align-items: center;
+        align-items: stretch;
         padding: 8px;
         gap: 8px;
+    }
+
+    .my-calendar-drag-handle {
+        width: 32px;
+        min-width: 32px;
     }
 
     .my-calendar-task-content {

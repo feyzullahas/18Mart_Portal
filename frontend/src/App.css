@@ -3,6 +3,7 @@
 :root {
     --portal-bg: #eef3f9;
     --portal-surface: #ffffff;
+    --portal-navbar-bg: color-mix(in srgb, var(--portal-bg) 86%, transparent 14%);
     --portal-text: #17284a;
     --portal-muted: #5b6f8c;
     --portal-border: rgba(23, 40, 74, 0.12);
@@ -28,6 +29,7 @@
 :root[data-theme='dark'] {
     --portal-bg: #05080f;
     --portal-surface: #0b1220;
+    --portal-navbar-bg: color-mix(in srgb, #3c434d 58%, transparent 42%);
     --portal-text: #e7eefb;
     --portal-muted: #90a6c9;
     --portal-border: rgba(144, 166, 201, 0.22);
@@ -126,7 +128,7 @@
     width: calc(100% - 8px);
     padding: 14px 12px;
     margin: 0 auto;
-    background: color-mix(in srgb, var(--portal-bg) 86%, transparent 14%);
+    background: var(--portal-navbar-bg);
     border: 0;
     border-bottom: 1px solid var(--portal-border);
     backdrop-filter: blur(8px);
@@ -137,6 +139,15 @@
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.portal-brand-btn {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
 }
 
 .portal-logo {

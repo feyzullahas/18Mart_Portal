@@ -246,6 +246,14 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                             {currentOsemDay.total_calories && (
                                 <div className="total-cal">Toplam: {currentOsemDay.total_calories} kcal</div>
                             )}
+                            <a
+                                href="https://odeme.comu.edu.tr/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="osem-balance-btn"
+                            >
+                                Bakiye Yükle
+                            </a>
                         </div>
                     </div>
                 ) : activeTab === 'kyk' && currentKykDay ? (

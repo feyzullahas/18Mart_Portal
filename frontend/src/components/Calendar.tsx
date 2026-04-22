@@ -1,8 +1,89 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import {
+    DndContext,
+    PointerSensor,
+    TouchSensor,
+    closestCenter,
+    useSensor,
+    useSensors,
+    type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    arrayMove,
+    useSortable,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { calendarService } from '../services/calendarService';
 import type { CalendarInfo, CalendarType, CalendarEvent } from '../services/calendarService';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Calendar.css';
+
+const TASK_ORDER_STORAGE_KEY = 'my_calendar_task_order_v1';
+
+interface SortableTaskItemProps {
+    event: CalendarEvent;
+    savingTask: boolean;
+    deletingTaskId: number | null;
+    onEditTask: (event: CalendarEvent) => void;
+    onDeleteTask: (eventId?: number) => void;
+}
+
+const SortableTaskItem = ({ event, savingTask, deletingTaskId, onEditTask, onDeleteTask }: SortableTaskItemProps) => {
+    const eventId = event.id;
+
+    if (!eventId) {
+        return null;
+    }
+
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: eventId });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`my-calendar-task-item ${isDragging ? 'dragging' : ''}`}
+        >
+            <button
+                type="button"
+                className="my-calendar-drag-handle"
+                aria-label="Görevi taşımak için basılı tut ve sürükle"
+                {...attributes}
+                {...listeners}
+            >
+                ⋮⋮
+            </button>
+            <div className="my-calendar-task-content">
+                <p className="my-calendar-task-title">{event.title}</p>
+                <p className="my-calendar-task-desc">{event.description || 'Açıklama yok'}</p>
+            </div>
+            <div className="my-calendar-task-actions">
+                <button
+                    type="button"
+                    className="my-calendar-task-edit"
+                    onClick={() => onEditTask(event)}
+                    disabled={savingTask || deletingTaskId === event.id}
+                >
+                    Düzenle
+                </button>
+                <button
+                    type="button"
+                    className="my-calendar-task-delete"
+                    onClick={() => onDeleteTask(event.id)}
+                    disabled={savingTask || deletingTaskId === event.id}
+                >
+                    {deletingTaskId === event.id ? 'Siliniyor...' : 'Sil'}
+                </button>
+            </div>
+        </div>
+    );
+};
 
 export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: { isOpen?: boolean; onToggle?: () => void; openMyCalendarToken?: number } = {}) => {
     const { user } = useAuth();
@@ -32,11 +113,26 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
     const [savingTask, setSavingTask] = useState(false);
     const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
     const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null);
+    const [taskOrderMap, setTaskOrderMap] = useState<Record<string, number[]>>({});
 
     const isOpen = propIsOpen !== undefined ? propIsOpen : localOpen;
     const handleToggle = onToggle ?? (() => setLocalOpen(prev => !prev));
 
     // Initial Load
+    useEffect(() => {
+        try {
+            const savedOrder = localStorage.getItem(TASK_ORDER_STORAGE_KEY);
+            if (!savedOrder) {
+                return;
+            }
+
+            const parsed = JSON.parse(savedOrder) as Record<string, number[]>;
+            setTaskOrderMap(parsed);
+        } catch {
+            localStorage.removeItem(TASK_ORDER_STORAGE_KEY);
+        }
+    }, []);
+
     useEffect(() => {
         const loadTypes = async () => {
             try {
@@ -311,6 +407,123 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
         ? getEventsForDay(myCalendar?.events || [], selectedDay)
         : [];
 
+    const selectedDayTaskIds = useMemo(() => (
+        selectedDayEvents
+            .map((event) => event.id)
+            .filter((id): id is number => typeof id === 'number')
+    ), [selectedDayEvents]);
+
+    const persistTaskOrder = (nextOrderMap: Record<string, number[]>) => {
+        localStorage.setItem(TASK_ORDER_STORAGE_KEY, JSON.stringify(nextOrderMap));
+    };
+
+    useEffect(() => {
+        if (!selectedDay || selectedDayTaskIds.length === 0) {
+            return;
+        }
+
+        const dateKey = formatDateForSave(selectedDay);
+
+        setTaskOrderMap((prev) => {
+            const existingOrder = prev[dateKey] || [];
+            const normalizedOrder = [
+                ...existingOrder.filter((id) => selectedDayTaskIds.includes(id)),
+                ...selectedDayTaskIds.filter((id) => !existingOrder.includes(id)),
+            ];
+
+            if (
+                existingOrder.length === normalizedOrder.length
+                && existingOrder.every((id, idx) => id === normalizedOrder[idx])
+            ) {
+                return prev;
+            }
+
+            const next = {
+                ...prev,
+                [dateKey]: normalizedOrder,
+            };
+
+            persistTaskOrder(next);
+            return next;
+        });
+    }, [selectedDay, selectedDayTaskIds]);
+
+    const orderedSelectedDayEvents = useMemo(() => {
+        if (!selectedDay || selectedDayEvents.length <= 1) {
+            return selectedDayEvents;
+        }
+
+        const dateKey = formatDateForSave(selectedDay);
+        const orderForDate = taskOrderMap[dateKey] || [];
+
+        if (orderForDate.length === 0) {
+            return selectedDayEvents;
+        }
+
+        const orderIndexMap = new Map(orderForDate.map((id, index) => [id, index]));
+
+        return [...selectedDayEvents].sort((a, b) => {
+            const aId = a.id ?? Number.MAX_SAFE_INTEGER;
+            const bId = b.id ?? Number.MAX_SAFE_INTEGER;
+            const aOrder = orderIndexMap.get(aId) ?? Number.MAX_SAFE_INTEGER;
+            const bOrder = orderIndexMap.get(bId) ?? Number.MAX_SAFE_INTEGER;
+
+            if (aOrder !== bOrder) {
+                return aOrder - bOrder;
+            }
+
+            return aId - bId;
+        });
+    }, [selectedDay, selectedDayEvents, taskOrderMap]);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 6,
+            },
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                delay: 220,
+                tolerance: 8,
+            },
+        }),
+    );
+
+    const handleTaskDragEnd = (event: DragEndEvent) => {
+        if (!selectedDay || !event.over) {
+            return;
+        }
+
+        const activeId = Number(event.active.id);
+        const overId = Number(event.over.id);
+
+        if (Number.isNaN(activeId) || Number.isNaN(overId) || activeId === overId) {
+            return;
+        }
+
+        const dateKey = formatDateForSave(selectedDay);
+        const currentOrder = taskOrderMap[dateKey] || selectedDayTaskIds;
+        const oldIndex = currentOrder.indexOf(activeId);
+        const newIndex = currentOrder.indexOf(overId);
+
+        if (oldIndex === -1 || newIndex === -1) {
+            return;
+        }
+
+        const nextOrder = arrayMove(currentOrder, oldIndex, newIndex);
+
+        setTaskOrderMap((prev) => {
+            const next = {
+                ...prev,
+                [dateKey]: nextOrder,
+            };
+
+            persistTaskOrder(next);
+            return next;
+        });
+    };
+
     return (
         <div className="calendar-card">
             <div className="card-header" onClick={handleToggle}>
@@ -410,34 +623,31 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
                                 <div className="my-calendar-tasks">
                                     <h4>{formatDateForDisplay(selectedDay)} yapılacaklar</h4>
                                     {selectedDayEvents.length > 0 ? (
-                                        <div className="my-calendar-task-list">
-                                            {selectedDayEvents.map((event) => (
-                                                <div key={event.id || `${event.title}-${event.start}`} className="my-calendar-task-item">
-                                                    <div className="my-calendar-task-content">
-                                                        <p className="my-calendar-task-title">{event.title}</p>
-                                                        <p className="my-calendar-task-desc">{event.description || 'Açıklama yok'}</p>
-                                                    </div>
-                                                    <div className="my-calendar-task-actions">
-                                                        <button
-                                                            type="button"
-                                                            className="my-calendar-task-edit"
-                                                            onClick={() => handleEditTask(event)}
-                                                            disabled={savingTask || deletingTaskId === event.id}
-                                                        >
-                                                            Düzenle
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            className="my-calendar-task-delete"
-                                                            onClick={() => void handleDeleteTask(event.id)}
-                                                            disabled={savingTask || deletingTaskId === event.id}
-                                                        >
-                                                            {deletingTaskId === event.id ? 'Siliniyor...' : 'Sil'}
-                                                        </button>
-                                                    </div>
+                                        <DndContext
+                                            sensors={sensors}
+                                            collisionDetection={closestCenter}
+                                            onDragEnd={handleTaskDragEnd}
+                                        >
+                                            <SortableContext
+                                                items={orderedSelectedDayEvents
+                                                    .map((event) => event.id)
+                                                    .filter((id): id is number => typeof id === 'number')}
+                                                strategy={verticalListSortingStrategy}
+                                            >
+                                                <div className="my-calendar-task-list">
+                                                    {orderedSelectedDayEvents.map((event) => (
+                                                        <SortableTaskItem
+                                                            key={event.id || `${event.title}-${event.start}`}
+                                                            event={event}
+                                                            savingTask={savingTask}
+                                                            deletingTaskId={deletingTaskId}
+                                                            onEditTask={handleEditTask}
+                                                            onDeleteTask={(eventId) => void handleDeleteTask(eventId)}
+                                                        />
+                                                    ))}
                                                 </div>
-                                            ))}
-                                        </div>
+                                            </SortableContext>
+                                        </DndContext>
                                     ) : (
                                         <p className="my-calendar-empty">Bu gün için henüz yapılacaklar yok.</p>
                                     )}

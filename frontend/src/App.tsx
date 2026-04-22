@@ -260,12 +260,20 @@ const AppContent = () => {
     return (
         <div className="portal-app">
             <header className="portal-navbar">
-                <div className="portal-brand">
+                <button
+                    type="button"
+                    className="portal-brand portal-brand-btn"
+                    onClick={() => {
+                        setActivePage('home');
+                        setCloseTopMenuToken(prev => prev + 1);
+                    }}
+                    aria-label="Ana sayfaya dön"
+                >
                     <img src="/favicon.png" alt="18 Mart Portal" className="portal-logo" />
                     <div>
                         <h1>18 Mart Portal</h1>
                     </div>
-                </div>
+                </button>
 
                 <nav className="portal-nav" aria-label="Ana gezinme">
                     {navItems.map((item) => (

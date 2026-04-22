@@ -237,6 +237,29 @@
     border-top: 1px dashed var(--border-color);
 }
 
+.osem-balance-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 14px auto 0;
+    width: fit-content;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #dc2626;
+    background: #dc2626;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.osem-balance-btn:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+    color: #fff;
+}
+
 /* Loading & Error */
 .loading-indicator {
     display: flex;
