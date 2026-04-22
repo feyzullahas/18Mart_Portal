@@ -661,7 +661,7 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
                                     </h4>
                                     <input
                                         type="text"
-                                        placeholder="Yapılıcak / hatırlatma başlığı"
+                                        placeholder="Başlık"
                                         value={taskTitle}
                                         onChange={(e) => setTaskTitle(e.target.value)}
                                     />

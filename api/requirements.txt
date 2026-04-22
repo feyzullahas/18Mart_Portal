@@ -4,6 +4,8 @@ slowapi
 sqlalchemy
 pydantic[email]
 python-dotenv
+google-auth
+requests
 httpx
 beautifulsoup4
 python-jose[cryptography]

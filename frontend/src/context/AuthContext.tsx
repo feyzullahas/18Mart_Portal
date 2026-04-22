@@ -10,6 +10,7 @@ interface User {
 interface AuthContextType {
     user: User | null;
     login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+    loginWithGoogle: (idToken: string) => Promise<{ success: boolean; error?: string }>;
     register: (email: string, password: string, fullName?: string) => Promise<{ success: boolean; error?: string }>;
     updateProfile: (profile: { fullName?: string; email?: string }) => { success: boolean; error?: string };
     logout: () => void;
@@ -165,6 +166,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
+    const loginWithGoogle = async (idToken: string): Promise<{ success: boolean; error?: string }> => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/google`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id_token: idToken }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const tokenPayload = JSON.parse(atob(data.access_token.split('.')[1]));
+                const profileDataMap = getSavedProfiles();
+                const savedProfile = profileDataMap[tokenPayload.user_id] || {};
+
+                const user: User = {
+                    id: tokenPayload.user_id,
+                    email: savedProfile.email || tokenPayload.sub,
+                    fullName: savedProfile.fullName,
+                };
+
+                setUser(user);
+                localStorage.setItem('user', JSON.stringify(user));
+                localStorage.setItem('token', data.access_token);
+
+                return { success: true };
+            }
+
+            const errorData = await response.json();
+            return { success: false, error: errorData.detail || 'Google ile giriş başarısız' };
+        } catch (error) {
+            console.error('Google login error:', error);
+            return { success: false, error: 'Google ile giriş sırasında sunucuya bağlanılamadı' };
+        }
+    };
+
     const logout = () => {
         setUser(null);
         localStorage.removeItem('user');
@@ -207,6 +245,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const value: AuthContextType = {
         user,
         login,
+        loginWithGoogle,
         register,
         updateProfile,
         logout,

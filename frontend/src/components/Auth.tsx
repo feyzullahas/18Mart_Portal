@@ -1,6 +1,33 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Auth.css';
+
+declare global {
+    interface Window {
+        google?: {
+            accounts: {
+                id: {
+                    initialize: (config: {
+                        client_id: string;
+                        callback: (response: { credential?: string }) => void;
+                    }) => void;
+                    renderButton: (
+                        parent: HTMLElement,
+                        options: {
+                            theme?: 'outline' | 'filled_blue' | 'filled_black';
+                            size?: 'large' | 'medium' | 'small';
+                            type?: 'standard' | 'icon';
+                            text?: 'signin_with' | 'signup_with' | 'continue_with' | 'signin';
+                            shape?: 'rectangular' | 'pill' | 'circle' | 'square';
+                            logo_alignment?: 'left' | 'center';
+                            width?: number;
+                        }
+                    ) => void;
+                };
+            };
+        };
+    }
+}
 
 interface AuthProps {
     embedded?: boolean;
@@ -16,7 +43,9 @@ export const Auth = ({ embedded = false, onClose }: AuthProps) => {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     
-    const { login, register } = useAuth();
+    const { login, loginWithGoogle, register } = useAuth();
+    const googleButtonContainerRef = useRef<HTMLDivElement | null>(null);
+    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -69,6 +98,70 @@ export const Auth = ({ embedded = false, onClose }: AuthProps) => {
         setPassword('');
         setConfirmPassword('');
     };
+
+    useEffect(() => {
+        if (!isLogin || !googleClientId || !googleButtonContainerRef.current) {
+            return;
+        }
+
+        const initGoogleSignIn = () => {
+            if (!window.google || !googleButtonContainerRef.current) {
+                return;
+            }
+
+            googleButtonContainerRef.current.innerHTML = '';
+            window.google.accounts.id.initialize({
+                client_id: googleClientId,
+                callback: async ({ credential }) => {
+                    if (!credential) {
+                        setError('Google kimlik bilgisi alınamadı.');
+                        return;
+                    }
+
+                    setIsLoading(true);
+                    setError('');
+                    const result = await loginWithGoogle(credential);
+                    if (!result.success) {
+                        setError(result.error || 'Google ile giriş başarısız.');
+                    }
+                    setIsLoading(false);
+                },
+            });
+
+            window.google.accounts.id.renderButton(googleButtonContainerRef.current, {
+                theme: 'outline',
+                size: 'large',
+                type: 'standard',
+                text: 'signin_with',
+                shape: 'rectangular',
+                logo_alignment: 'left',
+                width: 320,
+            });
+        };
+
+        if (window.google) {
+            initGoogleSignIn();
+            return;
+        }
+
+        const existingScript = document.querySelector<HTMLScriptElement>('script[data-google-identity="true"]');
+        if (existingScript) {
+            existingScript.addEventListener('load', initGoogleSignIn, { once: true });
+            return () => existingScript.removeEventListener('load', initGoogleSignIn);
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.dataset.googleIdentity = 'true';
+        script.onload = initGoogleSignIn;
+        document.head.appendChild(script);
+
+        return () => {
+            script.onload = null;
+        };
+    }, [isLogin, googleClientId, loginWithGoogle]);
 
     return (
         <div className={`auth-container ${embedded ? 'auth-container-embedded' : ''}`}>
@@ -167,6 +260,21 @@ export const Auth = ({ embedded = false, onClose }: AuthProps) => {
                     >
                         {isLoading ? 'İşleniyor...' : (isLogin ? 'Giriş Yap' : 'Kayıt Ol')}
                     </button>
+
+                    {isLogin && (
+                        <>
+                            <div className="auth-divider" role="separator" aria-label="veya">
+                                <span>veya</span>
+                            </div>
+                            {googleClientId ? (
+                                <div className="google-signin-container" ref={googleButtonContainerRef}></div>
+                            ) : (
+                                <p className="google-config-note">
+                                    Google giriş için VITE_GOOGLE_CLIENT_ID tanımlanmalı.
+                                </p>
+                            )}
+                        </>
+                    )}
                 </form>
 
                 {/* Toggle */}

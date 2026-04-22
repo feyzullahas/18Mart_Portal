@@ -158,6 +158,42 @@
     transform: none;
 }
 
+.auth-divider {
+    position: relative;
+    margin: 1rem 0 0.85rem;
+    text-align: center;
+}
+
+.auth-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.auth-divider span {
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.95);
+    color: #64748b;
+    font-size: 0.8rem;
+    padding: 0 0.5rem;
+}
+
+.google-signin-container {
+    display: flex;
+    justify-content: center;
+}
+
+.google-config-note {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #b45309;
+    text-align: center;
+}
+
 /* Error Message */
 .error-message {
     background: rgba(231, 76, 60, 0.1);
@@ -257,6 +293,19 @@
 
 [data-theme="dark"] .auth-toggle {
     border-top: 1px solid rgba(146, 168, 204, 0.28);
+}
+
+[data-theme="dark"] .auth-divider::before {
+    border-top-color: rgba(146, 168, 204, 0.28);
+}
+
+[data-theme="dark"] .auth-divider span {
+    background: rgba(10, 17, 31, 0.94);
+    color: #99aed0;
+}
+
+[data-theme="dark"] .google-config-note {
+    color: #fbbf24;
 }
 
 [data-theme="dark"] .toggle-button {
