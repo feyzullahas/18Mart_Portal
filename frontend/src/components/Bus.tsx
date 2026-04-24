@@ -75,13 +75,13 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
                                     className={`type-btn ${activeType === 'weekday' ? 'active' : ''}`}
                                     onClick={() => setActiveType('weekday')}
                                 >
-                                    Haftaiçi
+                                    Hafta içi
                                 </button>
                                 <button
                                     className={`type-btn ${activeType === 'weekend' ? 'active' : ''}`}
                                     onClick={() => setActiveType('weekend')}
                                 >
-                                    Haftasonu
+                                    Hafta sonu
                                 </button>
                             </div>
                             <p className="last-update">
