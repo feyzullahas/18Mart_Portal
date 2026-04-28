@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 type BeforeInstallPromptEvent = Event & {
   readonly platforms: string[];
@@ -6,20 +6,61 @@ type BeforeInstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
 };
 
-export function InstallPrompt() {
+type NavigatorWithStandalone = Navigator & {
+  standalone?: boolean;
+};
+
+const TOAST_KEY = 'pwa_install_toast_dismissed_v1';
+const DEFAULT_TOAST = 'Uygulamayi ana ekrana ekleyerek daha hizli kullanabilirsiniz.';
+const IOS_FALLBACK = 'Safari uzerinden Paylas > Ana Ekrana Ekle secenegi ile ekleyebilirsiniz.';
+const UNSUPPORTED = 'Bu tarayicida kurulum desteklenmiyor.';
+
+const isIosDevice = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isSafariBrowser = () => /safari/i.test(navigator.userAgent) && !/chrome|crios|android/i.test(navigator.userAgent);
+
+const isStandaloneMode = () => {
+  if (window.matchMedia('(display-mode: standalone)').matches) return true;
+  return (navigator as NavigatorWithStandalone).standalone === true;
+};
+
+export type InstallPromptState = {
+  canInstall: boolean;
+  isInstalled: boolean;
+  isSupported: boolean;
+  isIos: boolean;
+  showToast: boolean;
+  toastMessage: string;
+  promptInstall: () => Promise<void>;
+  dismissToast: () => void;
+};
+
+export const useInstallPrompt = (): InstallPromptState => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState(DEFAULT_TOAST);
+  const isIos = useMemo(() => isIosDevice(), []);
+  const isSafari = useMemo(() => isSafariBrowser(), []);
+  const isSupported = useMemo(() => 'BeforeInstallPromptEvent' in window, []);
+
+  useEffect(() => {
+    setIsInstalled(isStandaloneMode());
+  }, []);
 
   useEffect(() => {
     const onBeforeInstallPrompt = (event: Event) => {
       event.preventDefault();
       setDeferredPrompt(event as BeforeInstallPromptEvent);
-      setIsVisible(true);
+      if (!isInstalled && !sessionStorage.getItem(TOAST_KEY)) {
+        setToastMessage(DEFAULT_TOAST);
+        setShowToast(true);
+      }
     };
 
     const onInstalled = () => {
       setDeferredPrompt(null);
-      setIsVisible(false);
+      setIsInstalled(true);
+      setShowToast(false);
     };
 
     window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt);
@@ -29,23 +70,76 @@ export function InstallPrompt() {
       window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt);
       window.removeEventListener('appinstalled', onInstalled);
     };
-  }, []);
+  }, [isInstalled]);
 
-  const handleInstall = async () => {
-    if (!deferredPrompt) return;
+  useEffect(() => {
+    if (!isInstalled && isIos && isSafari && !sessionStorage.getItem(TOAST_KEY)) {
+      setToastMessage(DEFAULT_TOAST);
+      setShowToast(true);
+    }
+  }, [isInstalled, isIos, isSafari]);
 
-    await deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-
-    setDeferredPrompt(null);
-    setIsVisible(false);
+  const dismissToast = () => {
+    sessionStorage.setItem(TOAST_KEY, '1');
+    setShowToast(false);
   };
+
+  const promptInstall = async () => {
+    if (isInstalled) return;
+
+    if (deferredPrompt) {
+      await deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      setDeferredPrompt(null);
+      setShowToast(false);
+      return;
+    }
+
+    if (isIos && isSafari) {
+      setToastMessage(IOS_FALLBACK);
+      setShowToast(true);
+      return;
+    }
+
+    setToastMessage(UNSUPPORTED);
+    setShowToast(true);
+  };
+
+  return {
+    canInstall: !!deferredPrompt,
+    isInstalled,
+    isSupported,
+    isIos,
+    showToast,
+    toastMessage,
+    promptInstall,
+    dismissToast,
+  };
+};
+
+export const InstallToast = ({
+  isVisible,
+  message,
+  onDismiss,
+}: {
+  isVisible: boolean;
+  message: string;
+  onDismiss: () => void;
+}) => {
+  useEffect(() => {
+    if (!isVisible) return;
+    const timer = window.setTimeout(() => onDismiss(), 7000);
+    return () => window.clearTimeout(timer);
+  }, [isVisible, onDismiss]);
 
   if (!isVisible) return null;
 
   return (
-    <button type="button" className="install-button" onClick={handleInstall}>
-      Uygulamayi Yukle
-    </button>
+    <div className="pwa-toast" role="status" aria-live="polite">
+      <span>{message}</span>
+      <button type="button" onClick={onDismiss} aria-label="Toast mesajini kapat">
+        Kapat
+      </button>
+    </div>
   );
-}
+};

@@ -137,6 +137,7 @@
     background: color-mix(in srgb, var(--item-bg) 80%, var(--portal-primary) 20%);
 }
 
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .user-menu {

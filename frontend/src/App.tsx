@@ -8,7 +8,7 @@ import { Calendar } from './components/Calendar';
 import { Schedule } from './components/Schedule';
 import { Auth } from './components/Auth';
 import { ExamCountdown } from './components/ExamCountdown';
-import { InstallPrompt } from './components/InstallPrompt';
+import { InstallToast, useInstallPrompt } from './components/InstallPrompt';
 import { UserMenu } from './components/UserMenu';
 import { ProfileSettings } from './components/ProfileSettings';
 import { weatherService } from './services/weatherService';
@@ -35,6 +35,7 @@ const AppContent = () => {
     const [calendarOpenToken, setCalendarOpenToken] = useState(0);
     const [isBootstrapping, setIsBootstrapping] = useState(true);
     const [closeTopMenuToken, setCloseTopMenuToken] = useState(0);
+    const installPrompt = useInstallPrompt();
 
     const navItems: NavItem[] = [
         { key: 'home', label: 'Ana Sayfa', title: 'Ana Sayfa', icon: FiHome },
@@ -299,6 +300,8 @@ const AppContent = () => {
                     <UserMenu
                         onOpenProfile={() => setActivePage('profile')}
                         onOpenLogin={() => setIsAuthModalOpen(true)}
+                        onInstallApp={installPrompt.promptInstall}
+                        showInstallOption={!installPrompt.isInstalled}
                         closeMenuToken={closeTopMenuToken}
                     />
                 </div>
@@ -342,7 +345,11 @@ const AppContent = () => {
                 <p>Çanakkale Onsekiz Mart Üniversitesi</p>
             </footer>
 
-            <InstallPrompt />
+            <InstallToast
+                isVisible={installPrompt.showToast}
+                message={installPrompt.toastMessage}
+                onDismiss={installPrompt.dismissToast}
+            />
 
             {isAuthModalOpen && (
                 <div className="auth-modal-overlay" role="dialog" aria-modal="true" aria-label="Giriş ekranı">

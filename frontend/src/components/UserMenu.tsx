@@ -3,7 +3,23 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import '../styles/UserMenu.css';
 
-export const UserMenu = ({ onOpenProfile, onOpenLogin, closeMenuToken }: { onOpenProfile?: () => void; onOpenLogin?: () => void; closeMenuToken?: number }) => {
+type UserMenuProps = {
+    onOpenProfile?: () => void;
+    onOpenLogin?: () => void;
+    onInstallApp?: () => void;
+    showInstallOption?: boolean;
+    installLabel?: string;
+    closeMenuToken?: number;
+};
+
+export const UserMenu = ({
+    onOpenProfile,
+    onOpenLogin,
+    onInstallApp,
+    showInstallOption,
+    installLabel,
+    closeMenuToken
+}: UserMenuProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const { user } = useAuth();
     const { theme, setThemeMode } = useTheme();
@@ -19,6 +35,11 @@ export const UserMenu = ({ onOpenProfile, onOpenLogin, closeMenuToken }: { onOpe
 
     const handleOpenLogin = () => {
         onOpenLogin?.();
+        setIsOpen(false);
+    };
+
+    const handleInstall = () => {
+        onInstallApp?.();
         setIsOpen(false);
     };
 
@@ -67,6 +88,15 @@ export const UserMenu = ({ onOpenProfile, onOpenLogin, closeMenuToken }: { onOpe
                         <button className="menu-item" onClick={handleOpenLogin}>
                             Giriş Yap
                         </button>
+                    )}
+
+                    {showInstallOption && (
+                        <>
+                            <div className="menu-divider"></div>
+                            <button className="menu-item" onClick={handleInstall}>
+                                {installLabel ?? 'Ana Ekrana Ekle'}
+                            </button>
+                        </>
                     )}
                 </div>
             )}
