@@ -1,6 +1,6 @@
 {
   "name": "18 Mart Portal",
-  "short_name": "18Mart",
+  "short_name": "18 Mart Portal",
   "description": "18 Mart Universitesi ogrencileri icin kampus bilgi portali.",
   "id": "/",
   "start_url": "/?source=pwa",
