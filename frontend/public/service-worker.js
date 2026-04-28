@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v3";
+const CACHE_VERSION = "v4";
 const STATIC_CACHE = `portal-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `portal-runtime-${CACHE_VERSION}`;
 const API_CACHE = `portal-api-${CACHE_VERSION}`;
