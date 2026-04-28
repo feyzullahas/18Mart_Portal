@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v4";
+const CACHE_VERSION = "v5";
 const STATIC_CACHE = `portal-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `portal-runtime-${CACHE_VERSION}`;
 const API_CACHE = `portal-api-${CACHE_VERSION}`;
@@ -7,7 +7,6 @@ const OFFLINE_URL = "/offline.html";
 const APP_SHELL = [
   "/",
   "/index.html",
-  "/manifest.json",
   "/icon-192.png",
   "/icon-512.png",
   "/favicon.png",
