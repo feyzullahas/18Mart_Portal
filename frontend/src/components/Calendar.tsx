@@ -255,16 +255,31 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
     };
 
     // Etkinlikleri günlere dağıt
+    const parseDateString = (value: string) => {
+        const [year, month, day] = value.split('-').map(Number);
+        if (!year || !month || !day) {
+            return null;
+        }
+        return new Date(year, month - 1, day);
+    };
+
     const getEventsForDay = (events: CalendarInfo['events'], day: number) => {
         if (!events) return [];
 
-        const currentMonthStr = currentDate.toISOString().slice(0, 7); // YYYY-MM
-        const dayStr = day < 10 ? `0${day}` : `${day}`;
-        const targetDate = `${currentMonthStr}-${dayStr}`;
+        const targetDate = new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth(),
+            day,
+        );
 
         return events.filter(event => {
-            // Basit string karşılaştırması (YYY-MM-DD)
-            return targetDate >= event.start && targetDate <= event.end;
+            const startDate = parseDateString(event.start);
+            const endDate = parseDateString(event.end);
+            if (!startDate || !endDate) {
+                return false;
+            }
+
+            return targetDate >= startDate && targetDate <= endDate;
         });
     };
 

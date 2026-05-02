@@ -342,7 +342,6 @@ const AppContent = () => {
 
             <footer className="portal-footer">
                 <p>Yazılım Geliştirme Kulübü - 18 Mart Portal</p>
-                <p>Çanakkale Onsekiz Mart Üniversitesi</p>
             </footer>
 
             <InstallToast

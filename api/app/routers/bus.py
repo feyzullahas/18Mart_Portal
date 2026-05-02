@@ -21,8 +21,8 @@ async def get_bus_schedule():
 @router.get("/pdf/{schedule_type}")
 async def proxy_bus_pdf(schedule_type: str):
     """Otobüs saatleri PDF'ini proxy'leyerek döndürür (CORS bypass + cache)"""
-    if schedule_type not in ("weekday", "weekend"):
-        raise HTTPException(status_code=400, detail="Geçersiz tür. 'weekday' veya 'weekend' olmalı.")
+    if schedule_type not in ("weekday", "weekend", "special"):
+        raise HTTPException(status_code=400, detail="Geçersiz tür. 'weekday', 'weekend' veya 'special' olmalı.")
 
     schedule = await bus_service.get_bus_schedule()
     entry = schedule.get(schedule_type)

@@ -4,6 +4,8 @@ import type { BusSchedule } from '../services/busService';
 import { PdfViewer } from './PdfViewer';
 import '../styles/Bus.css';
 
+type ScheduleType = 'weekday' | 'weekend' | 'special';
+
 export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onToggle?: () => void } = {}) => {
     const [schedule, setSchedule] = useState<BusSchedule | null>(null);
     const [loading, setLoading] = useState(true);
@@ -11,25 +13,21 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
     const [localOpen, setLocalOpen] = useState(false);
     const isOpen = propIsOpen !== undefined ? propIsOpen : localOpen;
     const handleToggle = onToggle ?? (() => setLocalOpen(prev => !prev));
-    const [activeType, setActiveType] = useState<'weekday' | 'weekend'>('weekday');
+    const [activeType, setActiveType] = useState<ScheduleType>('weekday');
 
     useEffect(() => {
         const fetchData = async () => {
             const cached = busService.getCachedSchedule();
             if (cached) {
                 setSchedule(cached);
+                autoSelectType(cached);
                 setLoading(false);
             }
 
             try {
                 const data = await busService.getSchedule();
                 setSchedule(data);
-
-                // Bugüne göre default seç
-                const day = new Date().getDay();
-                if (day === 0 || day === 6) {
-                    setActiveType('weekend');
-                }
+                autoSelectType(data);
             } catch (err) {
                 if (!cached) {
                     setError('Otobüs saatleri yüklenemedi');
@@ -42,10 +40,31 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
         fetchData();
     }, []);
 
-    // Proxy URL (CORS bypass) ve download için orijinal URL
-    const downloadPdfUrl = activeType === 'weekday'
-        ? schedule?.weekday?.url
-        : schedule?.weekend?.url;
+    const autoSelectType = (data: BusSchedule) => {
+        // Özel gün PDF'i varsa onu göster
+        if (data.special) {
+            setActiveType('special');
+            return;
+        }
+        // Hafta sonu ise hafta sonu seç
+        const day = new Date().getDay();
+        if (day === 0 || day === 6) {
+            setActiveType('weekend');
+        } else {
+            setActiveType('weekday');
+        }
+    };
+
+    // Aktif türe göre URL'leri belirle
+    const getActiveEntry = () => {
+        if (!schedule) return null;
+        if (activeType === 'special') return schedule.special;
+        if (activeType === 'weekend') return schedule.weekend;
+        return schedule.weekday;
+    };
+
+    const activeEntry = getActiveEntry();
+    const downloadPdfUrl = activeEntry?.url;
     const proxyVersion = encodeURIComponent(`${downloadPdfUrl ?? ''}|${schedule?.last_update ?? ''}`);
     const proxyPdfUrl = `${API_BASE_URL}/bus/pdf/${activeType}?v=${proxyVersion}`;
 
@@ -71,6 +90,14 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
 
                         <div className="schedule-selector">
                             <div className="type-buttons">
+                                {schedule.special && (
+                                    <button
+                                        className={`type-btn special-btn ${activeType === 'special' ? 'active' : ''}`}
+                                        onClick={() => setActiveType('special')}
+                                    >
+                                        ⭐ {schedule.special.label}
+                                    </button>
+                                )}
                                 <button
                                     className={`type-btn ${activeType === 'weekday' ? 'active' : ''}`}
                                     onClick={() => setActiveType('weekday')}
@@ -90,10 +117,14 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
                         </div>
 
                         {/* PDF Viewer — tüm cihazlarda inline, zoom destekli */}
-                        <PdfViewer
-                            url={proxyPdfUrl}
-                            downloadUrl={downloadPdfUrl}
-                        />
+                        {activeEntry ? (
+                            <PdfViewer
+                                url={proxyPdfUrl}
+                                downloadUrl={downloadPdfUrl}
+                            />
+                        ) : (
+                            <div className="error-message">Bu tür için PDF bulunamadı</div>
+                        )}
                     </div>
                 ) : (
                     <div className="error-message">Veri bulunamadı</div>
@@ -102,3 +133,4 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
         </div>
     );
 };
+

@@ -338,7 +338,7 @@
 }
 
 .portal-page-container {
-    margin: 8px 0 18px;
+    margin: 8px 0 0;
 }
 
 .portal-panel {
@@ -348,7 +348,6 @@
     padding: 4px 0;
     box-shadow: none;
     min-width: 0;
-    height: 100%;
 }
 
 .portal-panel > h2 {
@@ -362,7 +361,7 @@
 }
 
 .portal-panel-single {
-    min-height: 520px;
+    min-height: 0;
 }
 
 .portal-home-sections {
@@ -384,7 +383,7 @@
     border: 0;
     border-radius: 0;
     background: transparent;
-    padding: 10px 0;
+    padding: 4px 0;
     min-width: 0;
     overflow: hidden;
 }
@@ -496,6 +495,12 @@
     display: block !important;
 }
 
+@media (max-width: 768px) {
+    .portal-app .exam-countdown-header-widget {
+        display: none !important;
+    }
+}
+
 .portal-locked-state {
     min-height: 320px;
     border: 1px dashed var(--portal-border);
@@ -599,16 +604,13 @@
 }
 
 @media (max-width: 980px) {
-    .portal-panel-single {
-        min-height: 360px;
-    }
-
     .portal-home-greeting {
         margin-bottom: 14px;
     }
 
     .portal-home-sections {
         grid-template-columns: 1fr;
+        gap: 10px;
     }
 }
 
@@ -627,7 +629,7 @@
 
     .portal-main {
         width: min(100%, calc(100% - 20px));
-        padding-bottom: 98px;
+        padding-bottom: 16px;
     }
 
     .portal-bottom-nav {
@@ -644,5 +646,6 @@
     .portal-footer {
         width: min(100%, calc(100% - 20px));
         flex-direction: column;
+        margin-bottom: 80px;
     }
 }

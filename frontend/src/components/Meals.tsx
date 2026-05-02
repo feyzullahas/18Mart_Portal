@@ -70,29 +70,88 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
         localStorage.setItem(key, JSON.stringify(payload));
     };
 
-    const setDefaultOsemIndex = (osem: OsemDay[]) => {
-        const todayOsemIdx = osem.findIndex((d) => d.isToday);
-        if (todayOsemIdx >= 0) {
-            setSelectedOsemIndex(todayOsemIdx);
-            return;
+    const parseDate = (dateRaw?: string, fallbackText?: string): Date | null => {
+        if (dateRaw) {
+            const [y, m, d] = dateRaw.split('-').map((p) => Number(p));
+            if (y && m && d) return new Date(y, m - 1, d);
         }
+        if (!fallbackText) return null;
+        const months: Record<string, number> = {
+            ocak: 0,
+            subat: 1,
+            mart: 2,
+            nisan: 3,
+            mayis: 4,
+            haziran: 5,
+            temmuz: 6,
+            agustos: 7,
+            eylul: 8,
+            ekim: 9,
+            kasim: 10,
+            aralik: 11,
+        };
+        const parts = fallbackText.trim().split(' ');
+        if (parts.length < 3) return null;
+        const day = Number(parts[0]);
+        const monthKey = parts[1]
+            .toLowerCase()
+            .replace('ş', 's')
+            .replace('ı', 'i')
+            .replace('ğ', 'g')
+            .replace('ü', 'u')
+            .replace('ö', 'o')
+            .replace('ç', 'c');
+        const month = months[monthKey];
+        const year = Number(parts[2]);
+        if (!day || month === undefined || !year) return null;
+        return new Date(year, month, day);
+    };
 
-        // Haftasonu ise bir önceki Cuma'yı seç
-        const currentDate = new Date();
-        const dayOfWeek = currentDate.getDay();
-        if (dayOfWeek === 6 || dayOfWeek === 0) {
-            const daysToFriday = dayOfWeek === 6 ? 1 : 2;
-            const friday = new Date(currentDate);
-            friday.setDate(currentDate.getDate() - daysToFriday);
-            const fridayStr = friday.toISOString().split('T')[0];
-            const fridayIdx = osem.findIndex((d) => d.dateRaw === fridayStr);
-            if (fridayIdx >= 0) setSelectedOsemIndex(fridayIdx);
+    const getTargetDate = () => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (today.getMonth() === 4 && today.getDate() < 4) {
+            return new Date(today.getFullYear(), 4, 4);
         }
+        return today;
+    };
+
+    const pickDefaultIndex = <T extends { dateRaw?: string; date: string; isToday?: boolean }>(days: T[]) => {
+        const todayIdx = days.findIndex((d) => d.isToday);
+        if (todayIdx >= 0) return todayIdx;
+
+        const target = getTargetDate();
+        let nextIdx = -1;
+        let nextDate: Date | null = null;
+        for (let i = 0; i < days.length; i += 1) {
+            const dt = parseDate(days[i].dateRaw, days[i].date);
+            if (!dt || dt < target) continue;
+            if (!nextDate || dt < nextDate) {
+                nextDate = dt;
+                nextIdx = i;
+            }
+        }
+        if (nextIdx >= 0) return nextIdx;
+
+        let prevIdx = -1;
+        let prevDate: Date | null = null;
+        for (let i = 0; i < days.length; i += 1) {
+            const dt = parseDate(days[i].dateRaw, days[i].date);
+            if (!dt) continue;
+            if (!prevDate || dt > prevDate) {
+                prevDate = dt;
+                prevIdx = i;
+            }
+        }
+        return prevIdx >= 0 ? prevIdx : 0;
+    };
+
+    const setDefaultOsemIndex = (osem: OsemDay[]) => {
+        setSelectedOsemIndex(pickDefaultIndex(osem));
     };
 
     const setDefaultKykIndex = (kyk: KykDay[]) => {
-        const todayKykIdx = kyk.findIndex((d) => d.isToday);
-        if (todayKykIdx >= 0) setSelectedKykIndex(todayKykIdx);
+        setSelectedKykIndex(pickDefaultIndex(kyk));
     };
 
     const fetchOsemData = useCallback(async () => {

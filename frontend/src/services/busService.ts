@@ -31,6 +31,10 @@ export interface BusSchedule {
         url: string;
         label: string;
     } | null;
+    special: {
+        url: string;
+        label: string;
+    } | null;
     last_update: string;
     source: string;
 }

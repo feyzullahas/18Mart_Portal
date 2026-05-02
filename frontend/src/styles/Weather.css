@@ -154,6 +154,7 @@
     align-items: center;
     gap: 16px;
     margin-bottom: 18px;
+    justify-content: space-between;
 }
 
 .current-weather-icon {
@@ -166,6 +167,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    flex: 1;
 }
 
 .current-temp {
@@ -195,6 +197,28 @@
     font-size: 18px;
     font-weight: 600;
     color: var(--text-primary);
+}
+
+.current-date {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.current-date-day {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.current-date-weekday {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: capitalize;
 }
 
 .current-feels {
@@ -439,6 +463,14 @@
 
     .current-weather-info {
         min-width: 0;
+    }
+
+    .current-date-day {
+        font-size: 26px;
+    }
+
+    .current-date-weekday {
+        font-size: 15px;
     }
 
     .current-desc,

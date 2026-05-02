@@ -1,10 +1,11 @@
 import asyncio
 import httpx
 from bs4 import BeautifulSoup
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from datetime import datetime, timedelta
 import re
 import json
+from app.data.kyk_manual_menus import get_manual_kyk_menu
 
 # Basit memory cache
 class SimpleCache:
@@ -36,7 +37,7 @@ cache = SimpleCache()
 
 class MealService:
     OSEM_URL = "https://yemek.comu.edu.tr/"
-    KYK_BASE_URL = "https://kykyemek.com"
+    KYK_BASE_URL = "https://kykyemekliste.com"
     KYK_CITY = "Çanakkale"
 
     def _format_date(self, date_str: str) -> str:
@@ -86,6 +87,46 @@ class MealService:
         if match:
             return int(match.group(2))
         return None
+
+    def _normalize_city_name(self, name: str) -> str:
+        return (
+            name.lower()
+            .replace("ç", "c")
+            .replace("ğ", "g")
+            .replace("ı", "i")
+            .replace("ö", "o")
+            .replace("ş", "s")
+            .replace("ü", "u")
+            .replace(" ", "")
+            .replace("-", "")
+        )
+
+    def _parse_kyk_item_list(self, names: str, calories: Optional[str]) -> List[Dict]:
+        if not names:
+            return []
+        name_parts = [part.strip() for part in re.split(r"\s*/\s*", names) if part.strip()]
+        cal_parts = [part.strip() for part in (calories or "").split(",") if part.strip()]
+
+        items = []
+        for idx, name in enumerate(name_parts):
+            cal_val = None
+            if idx < len(cal_parts):
+                range_val = self._parse_calorie_range(cal_parts[idx])
+                if range_val is not None:
+                    cal_val = range_val
+                else:
+                    digits = re.findall(r"\d+", cal_parts[idx])
+                    cal_val = int(digits[0]) if digits else None
+            items.append({"name": name, "calories": cal_val})
+        return items
+
+    def _parse_total_calories(self, value: Optional[Any]) -> Optional[int]:
+        if value is None:
+            return None
+        if isinstance(value, (int, float)):
+            return int(value)
+        digits = re.findall(r"\d+", str(value))
+        return int(digits[0]) if digits else None
 
     async def get_osem_meals(self) -> List[Dict]:
         """ÖSEM web sitesinden tüm günlerin yemek listesini çeker (günlük cache)"""
@@ -227,43 +268,46 @@ class MealService:
             })
         return result
 
-    async def _fetch_kyk_html(self, client: httpx.AsyncClient, meal_type_dinner: bool, month_shift: int) -> str:
-        """kykyemek.com AJAX endpoint'inden HTML çeker (session cookie gerektirir)"""
-        params = {
-            "city": self.KYK_CITY,
-            "mealType": str(meal_type_dinner).lower(),
-            "hidePast": "false",
-            "monthShift": month_shift,
-        }
-        ajax_headers = {
-            "X-Requested-With": "XMLHttpRequest",
-            "Referer": f"{self.KYK_BASE_URL}/",
-            "Accept": "application/json, text/javascript, */*; q=0.01",
-        }
-        url = f"{self.KYK_BASE_URL}/Menu/GetDailyMenu/{self.KYK_CITY}"
-        response = await client.get(url, params=params, headers=ajax_headers, timeout=10.0)
-        if response.status_code != 200:
-            raise Exception(f"KYK AJAX isteği başarısız: {response.status_code}")
+    async def _fetch_kyk_city_id(self, client: httpx.AsyncClient) -> int:
+        cache_key = f"kyk_city_id_{self.KYK_CITY}"
+        cached = cache.get(cache_key)
+        if cached:
+            return cached
+
+        response = await client.get(f"{self.KYK_BASE_URL}/api/city", timeout=10.0)
+        response.raise_for_status()
+        cities = response.json()
+        target = self._normalize_city_name(self.KYK_CITY)
+        for city in cities:
+            name = city.get("name", "")
+            if self._normalize_city_name(name) == target:
+                cache.set(cache_key, city.get("id"), _minutes_until_midnight())
+                return city.get("id")
+
+        raise Exception(f"KYK şehir bulunamadı: {self.KYK_CITY}")
+
+    async def _fetch_kyk_menu_list(self, client: httpx.AsyncClient, city_id: int, meal_type: int) -> List[Dict]:
+        url = f"{self.KYK_BASE_URL}/api/menu/liste?cityId={city_id}&mealType={meal_type}"
+        response = await client.get(url, timeout=10.0)
+        response.raise_for_status()
         data = response.json()
-        return data.get("html", "")
+        return data if isinstance(data, list) else []
 
     async def get_kyk_meals(self, year: Optional[int] = None, month: Optional[int] = None) -> List[Dict]:
-        """kykyemek.com'dan tüm günlerin yemek listesini çeker (kahvaltı + akşam)"""
+        """KYK yemek listesini getirir. Önce manuel veriyi kontrol eder, yoksa API'den çeker."""
         now = datetime.now()
         if year is None:
             year = now.year
         if month is None:
             month = now.month
 
-        # monthShift hesapla (kykyemek.com mevcut aya göre ofset kullanıyor)
-        month_shift = (year - now.year) * 12 + (month - now.month)
+        # 1) Önce manuel veriyi kontrol et
+        manual = get_manual_kyk_menu(year, month)
+        if manual is not None:
+            print(f"KYK: Manuel veriden döndü ({year}-{month:02d}, {len(manual)} gün)")
+            return manual
 
-        # monthShift sınır kontrolü (-2 ile +2 arası destekleniyor)
-        if month_shift < -2 or month_shift > 2:
-            print(f"KYK: monthShift={month_shift} desteklenmiyor (max ±2). Fallback dönülüyor.")
-            return self._get_fallback_kyk()
-
-        # Cache key'i ay ve yıla göre oluştur
+        # 2) Cache key'i ay ve yıla göre oluştur
         cache_key = f"kyk_meals_{year}_{month}"
         cached = cache.get(cache_key)
         if cached:
@@ -276,47 +320,72 @@ class MealService:
                 follow_redirects=True,
                 timeout=10.0
             ) as client:
-                # Önce ana sayfayı ziyaret ederek session cookie'lerini al
-                await client.get(f"{self.KYK_BASE_URL}/", timeout=10.0)
+                city_id = await self._fetch_kyk_city_id(client)
 
-                # Kahvaltı ve akşam yemeği verilerini paralel çek
-                breakfast_html, dinner_html = await asyncio.gather(
-                    self._fetch_kyk_html(client, False, month_shift),
-                    self._fetch_kyk_html(client, True, month_shift)
+                breakfast_list, dinner_list = await asyncio.gather(
+                    self._fetch_kyk_menu_list(client, city_id, 0),
+                    self._fetch_kyk_menu_list(client, city_id, 1)
                 )
 
-                breakfast_cards = self._parse_kyk_cards(breakfast_html)
-                dinner_cards = self._parse_kyk_cards(dinner_html)
-
-                # Akşam yemeğini tarih bazlı dict'e çevir
-                dinner_by_date = {}
-                for card in dinner_cards:
-                    dinner_by_date[card["date_text"]] = card
+                def in_requested_month(date_str: str) -> bool:
+                    try:
+                        dt = datetime.strptime(date_str, "%Y-%m-%d")
+                        return dt.year == year and dt.month == month
+                    except ValueError:
+                        return False
 
                 today = now.date()
-                result = []
-                for b_card in breakfast_cards:
-                    date_text = b_card["date_text"]
-                    dt = self._parse_turkish_date(date_text)
-                    is_today = (dt.date() == today) if dt else False
+                combined: Dict[str, Dict] = {}
 
-                    d_card = dinner_by_date.get(date_text, {})
-
-                    result.append({
-                        "date": date_text,
-                        "dateRaw": dt.strftime("%Y-%m-%d") if dt else "",
-                        "breakfast": b_card.get("meals", []),
-                        "dinner": d_card.get("meals", []),
-                        "total_calories_breakfast": b_card.get("total_calories"),
-                        "total_calories_dinner": d_card.get("total_calories"),
-                        "isToday": is_today,
+                for item in breakfast_list:
+                    date_raw = item.get("date", "")
+                    if not in_requested_month(date_raw):
+                        continue
+                    entry = combined.setdefault(date_raw, {
+                        "date": self._format_date(date_raw),
+                        "dateRaw": date_raw,
+                        "breakfast": [],
+                        "dinner": [],
+                        "total_calories_breakfast": None,
+                        "total_calories_dinner": None,
+                        "isToday": date_raw == today.strftime("%Y-%m-%d"),
                     })
+                    meals = []
+                    meals += self._parse_kyk_item_list(item.get("first", ""), item.get("firstCalories"))
+                    meals += self._parse_kyk_item_list(item.get("second", ""), item.get("secondCalories"))
+                    meals += self._parse_kyk_item_list(item.get("third", ""), item.get("thirdCalories"))
+                    meals += self._parse_kyk_item_list(item.get("fourth", ""), item.get("fourthCalories"))
+                    entry["breakfast"] = meals
+                    entry["total_calories_breakfast"] = self._parse_total_calories(item.get("totalCalories"))
+
+                for item in dinner_list:
+                    date_raw = item.get("date", "")
+                    if not in_requested_month(date_raw):
+                        continue
+                    entry = combined.setdefault(date_raw, {
+                        "date": self._format_date(date_raw),
+                        "dateRaw": date_raw,
+                        "breakfast": [],
+                        "dinner": [],
+                        "total_calories_breakfast": None,
+                        "total_calories_dinner": None,
+                        "isToday": date_raw == today.strftime("%Y-%m-%d"),
+                    })
+                    meals = []
+                    meals += self._parse_kyk_item_list(item.get("first", ""), item.get("firstCalories"))
+                    meals += self._parse_kyk_item_list(item.get("second", ""), item.get("secondCalories"))
+                    meals += self._parse_kyk_item_list(item.get("third", ""), item.get("thirdCalories"))
+                    meals += self._parse_kyk_item_list(item.get("fourth", ""), item.get("fourthCalories"))
+                    entry["dinner"] = meals
+                    entry["total_calories_dinner"] = self._parse_total_calories(item.get("totalCalories"))
+
+                result = sorted(combined.values(), key=lambda x: x.get("dateRaw", ""))
 
                 if not result:
                     return self._get_fallback_kyk()
 
                 cache.set(cache_key, result, _minutes_until_midnight())
-                print(f"KYK: kykyemek.com'dan çekildi ve cache'lendi ({year}-{month}, {len(result)} gün)")
+                print(f"KYK: kykyemekliste.com'dan çekildi ve cache'lendi ({year}-{month}, {len(result)} gün)")
                 return result
 
         except Exception as e:

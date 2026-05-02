@@ -159,6 +159,10 @@ export const Weather = ({ variant = 'card', isOpen: propIsOpen, onToggle }: Weat
                                 Hissedilen {Math.round(current.current.apparent_temperature)}°C
                             </div>
                         </div>
+                        <div className="current-date">
+                            <span className="current-date-day">{now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}</span>
+                            <span className="current-date-weekday">{now.toLocaleDateString('tr-TR', { weekday: 'long' })}</span>
+                        </div>
                     </div>
                     <div className="current-details">
                         <div className="current-detail-item">
