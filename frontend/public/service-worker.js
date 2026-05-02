@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v5";
+const CACHE_VERSION = "v7";
 const STATIC_CACHE = `portal-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `portal-runtime-${CACHE_VERSION}`;
 const API_CACHE = `portal-api-${CACHE_VERSION}`;
@@ -78,21 +78,14 @@ self.addEventListener("fetch", (event) => {
 
   if (isNavigation) {
     event.respondWith(
-      caches.match("/index.html").then((cached) => {
-        const fetchPromise = fetch(request)
-          .then((response) => {
-            cacheResponse(RUNTIME_CACHE, "/index.html", response);
-            return response;
-          })
-          .catch(() => undefined);
-
-        if (cached) {
-          event.waitUntil(fetchPromise);
-          return cached;
-        }
-
-        return fetchPromise.then((response) => response || caches.match(OFFLINE_URL));
-      })
+      fetch(request)
+        .then((response) => {
+          cacheResponse(RUNTIME_CACHE, "/index.html", response);
+          return response;
+        })
+        .catch(() => {
+          return caches.match("/index.html").then((cached) => cached || caches.match(OFFLINE_URL));
+        })
     );
     return;
   }
