@@ -110,9 +110,6 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
     const getTargetDate = () => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        if (today.getMonth() === 4 && today.getDate() < 4) {
-            return new Date(today.getFullYear(), 4, 4);
-        }
         return today;
     };
 

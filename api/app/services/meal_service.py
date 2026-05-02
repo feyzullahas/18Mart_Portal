@@ -2,8 +2,12 @@ import asyncio
 import httpx
 from bs4 import BeautifulSoup
 from typing import List, Dict, Optional, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import re
+
+def get_tr_now() -> datetime:
+    return datetime.now(timezone(timedelta(hours=3)))
+
 import json
 from app.data.kyk_manual_menus import get_manual_kyk_menu
 
@@ -15,7 +19,7 @@ class SimpleCache:
     def get(self, key: str) -> Optional[any]:
         if key in self._cache:
             item = self._cache[key]
-            if datetime.now() < item["expires"]:
+            if get_tr_now() < item["expires"]:
                 return item["data"]
             else:
                 del self._cache[key]
@@ -24,12 +28,12 @@ class SimpleCache:
     def set(self, key: str, data: any, ttl_minutes: int = 60):
         self._cache[key] = {
             "data": data,
-            "expires": datetime.now() + timedelta(minutes=ttl_minutes)
+            "expires": get_tr_now() + timedelta(minutes=ttl_minutes)
         }
 
 def _minutes_until_midnight() -> int:
     """Gece yarısına kadar kalan dakika sayısını döndürür (minimum 1 dakika)"""
-    now = datetime.now()
+    now = get_tr_now()
     midnight = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
     return max(1, int((midnight - now).total_seconds() / 60))
 
@@ -68,7 +72,7 @@ class MealService:
             0: "Pazartesi", 1: "Salı", 2: "Çarşamba", 3: "Perşembe",
             4: "Cuma", 5: "Cumartesi", 6: "Pazar"
         }
-        now = datetime.now()
+        now = get_tr_now()
         return f"{now.day} {months[now.month]} {now.year} {days[now.weekday()]}"
 
     def _parse_meal_with_calorie(self, text: str) -> Dict:
@@ -130,7 +134,7 @@ class MealService:
 
     async def get_osem_meals(self) -> List[Dict]:
         """ÖSEM web sitesinden tüm günlerin yemek listesini çeker (günlük cache)"""
-        today_str = datetime.today().strftime("%Y-%m-%d")
+        today_str = get_tr_now().strftime("%Y-%m-%d")
         cache_key = f"osem_meals_{today_str}"
         cached = cache.get(cache_key)
         if cached:
@@ -165,7 +169,7 @@ class MealService:
                 json_text = match.group(1)
                 data = json.loads(json_text)
                 
-                today = datetime.today().strftime("%Y-%m-%d")
+                today = get_tr_now().strftime("%Y-%m-%d")
                 
                 all_days = []
                 
@@ -201,7 +205,7 @@ class MealService:
             return self._get_fallback_osem()
     
     def _get_fallback_osem(self) -> List[Dict]:
-        today = datetime.today().strftime("%Y-%m-%d")
+        today = get_tr_now().strftime("%Y-%m-%d")
         return [{
             "date": self._get_today_turkish(),
             "dateRaw": today,
@@ -295,7 +299,7 @@ class MealService:
 
     async def get_kyk_meals(self, year: Optional[int] = None, month: Optional[int] = None) -> List[Dict]:
         """KYK yemek listesini getirir. Önce manuel veriyi kontrol eder, yoksa API'den çeker."""
-        now = datetime.now()
+        now = get_tr_now()
         if year is None:
             year = now.year
         if month is None:
@@ -393,7 +397,7 @@ class MealService:
             return self._get_fallback_kyk()
     
     def _get_fallback_kyk(self) -> List[Dict]:
-        today = datetime.today().strftime("%Y-%m-%d")
+        today = get_tr_now().strftime("%Y-%m-%d")
         return [{
             "date": self._get_today_turkish(),
             "breakfast": [

@@ -3,9 +3,11 @@ KYK Yemek Menüleri - Manuel Veri
 Fotoğraflardan manuel olarak çıkarılmıştır.
 Her ay için ayrı bir liste tutulur.
 """
-from datetime import datetime
-from typing import List, Dict, Optional
+from datetime import datetime, timedelta, timezone
+from typing import Optional, List, Dict
 
+def get_tr_now() -> datetime:
+    return datetime.now(timezone(timedelta(hours=3)))
 
 def get_manual_kyk_menu(year: int, month: int) -> Optional[List[Dict]]:
     """Manuel KYK menü verisi döndürür. Veri yoksa None döner."""
@@ -13,7 +15,7 @@ def get_manual_kyk_menu(year: int, month: int) -> Optional[List[Dict]]:
     data = MANUAL_MENUS.get(key)
     if data is None:
         return None
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = get_tr_now().strftime("%Y-%m-%d")
     return [{**day, "isToday": day["dateRaw"] == today} for day in data]
 
 
