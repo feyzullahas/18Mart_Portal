@@ -17,6 +17,30 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <title>18 Mart Portal</title>
+  <script>
+    window.addEventListener('error', function(e) {
+      var isSyntaxError = e.message && (e.message.indexOf('Unexpected token') !== -1 || e.message.indexOf('expected expression') !== -1 || e.message.indexOf('SyntaxError') !== -1);
+      var isScriptError = e.target && e.target.nodeName === 'SCRIPT';
+      if (isSyntaxError || isScriptError) {
+        var reloadKey = 'portal_auto_reload';
+        if (!sessionStorage.getItem(reloadKey)) {
+          sessionStorage.setItem(reloadKey, 'true');
+          console.warn('Gecersiz JS onbellek algilandi, SW temizleniyor ve yenileniyor...');
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+              for (var i = 0; i < regs.length; i++) regs[i].unregister();
+            }).catch(function(){});
+          }
+          if ('caches' in window) {
+            caches.keys().then(function(names) {
+              for (var j = 0; j < names.length; j++) caches.delete(names[j]);
+            }).catch(function(){});
+          }
+          setTimeout(function() { window.location.reload(); }, 500);
+        }
+      }
+    }, true);
+  </script>
 </head>
 
 <body>
