@@ -85,7 +85,7 @@ const SortableTaskItem = ({ event, savingTask, deletingTaskId, onEditTask, onDel
     );
 };
 
-export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: { isOpen?: boolean; onToggle?: () => void; openMyCalendarToken?: number } = {}) => {
+export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken, onOpenLogin }: { isOpen?: boolean; onToggle?: () => void; openMyCalendarToken?: number; onOpenLogin?: () => void } = {}) => {
     const { user } = useAuth();
 
     // State
@@ -200,8 +200,18 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
     }, [openMyCalendarToken]);
 
     useEffect(() => {
-        // Sekme değişince görev formunu sıfırla
-        setSelectedDay(null);
+        // Sekme veya ay değiştiğinde durumu güncelle
+        const today = new Date();
+        if (
+            calendarMode === 'my' &&
+            currentDate.getMonth() === today.getMonth() &&
+            currentDate.getFullYear() === today.getFullYear()
+        ) {
+            setSelectedDay(today.getDate());
+        } else {
+            setSelectedDay(null);
+        }
+
         setTaskTitle('');
         setTaskDescription('');
         setEditingTaskId(null);
@@ -248,7 +258,7 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
     };
 
     const formatDateForDisplay = (day: number) => {
-        const monthNames = ['ocak', 'subat', 'mart', 'nisan', 'mayis', 'haziran', 'temmuz', 'agustos', 'eylul', 'ekim', 'kasim', 'aralik'];
+        const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
         const year = currentDate.getFullYear();
         const month = monthNames[currentDate.getMonth()];
         return `${day} ${month} ${year}`;
@@ -601,8 +611,17 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken }: 
                 )}
 
                 {calendarMode === 'my' && !user && (
-                    <div className="calendar-locked-state" role="note" aria-label="Ajandam kilitli">
+                    <div className="calendar-locked-state portal-locked-state" role="note" aria-label="Ajandam kilitli">
                         <p>Ajandam hizmetini kullanabilmek için giriş yapın.</p>
+                        {onOpenLogin && (
+                            <button
+                                type="button"
+                                className="portal-auth-btn portal-lock-action"
+                                onClick={onOpenLogin}
+                            >
+                                Giriş Yap
+                            </button>
+                        )}
                     </div>
                 )}
 

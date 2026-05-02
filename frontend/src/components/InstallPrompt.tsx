@@ -11,9 +11,9 @@ type NavigatorWithStandalone = Navigator & {
 };
 
 const TOAST_KEY = 'pwa_install_toast_dismissed_v1';
-const DEFAULT_TOAST = 'Uygulamayi ana ekrana ekleyerek daha hizli kullanabilirsiniz.';
-const IOS_FALLBACK = 'Safari uzerinden Paylas > Ana Ekrana Ekle secenegi ile ekleyebilirsiniz.';
-const UNSUPPORTED = 'Bu tarayicida kurulum desteklenmiyor.';
+const DEFAULT_TOAST = 'Uygulamayı ana ekrana ekleyerek daha hızlı kullanabilirsiniz.';
+const IOS_FALLBACK = 'Safari üzerinden Paylaş > Ana Ekrana Ekle seçeneği ile ekleyebilirsiniz.';
+const UNSUPPORTED = 'Bu tarayıcıda kurulum desteklenmiyor.';
 
 const isIosDevice = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
 const isSafariBrowser = () => /safari/i.test(navigator.userAgent) && !/chrome|crios|android/i.test(navigator.userAgent);

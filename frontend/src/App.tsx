@@ -185,7 +185,7 @@ const AppContent = () => {
             <div className="portal-app portal-app-loading">
                 <div className="portal-loading-container">
                     <div className="loading-spinner"></div>
-                    <p>Hazırlanıyor...</p>
+                    <p>Yükleniyor...</p>
                 </div>
             </div>
         );
@@ -217,7 +217,7 @@ const AppContent = () => {
             case 'meals':
                 return { title: 'Günün Yemek Menüsü', content: <Meals isOpen /> };
             case 'calendar':
-                return { title: 'Takvimler', content: <Calendar isOpen openMyCalendarToken={calendarOpenToken} /> };
+                return { title: 'Takvimler', content: <Calendar isOpen openMyCalendarToken={calendarOpenToken} onOpenLogin={() => setIsAuthModalOpen(true)} /> };
             case 'bus':
                 return { title: 'Otobüs Saatleri', content: <Bus isOpen /> };
             case 'schedule':
@@ -227,7 +227,7 @@ const AppContent = () => {
                         <Schedule isOpen />
                     ) : (
                         <div className="portal-locked-state" role="note" aria-label="Kilitle korunuyor">
-                            <p>Bu özelliği kullanmak için giriş yapın.</p>
+                            <p>Programım hizmetini kullanmak için giriş yapın.</p>
                             <button
                                 type="button"
                                 className="portal-auth-btn portal-lock-action"
