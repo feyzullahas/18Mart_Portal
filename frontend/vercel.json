@@ -29,6 +29,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/assets/(.*)\\.js", "destination": "/fallback.js" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
