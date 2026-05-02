@@ -22,21 +22,26 @@
       var isSyntaxError = e.message && (e.message.indexOf('Unexpected token') !== -1 || e.message.indexOf('expected expression') !== -1 || e.message.indexOf('SyntaxError') !== -1);
       var isScriptError = e.target && e.target.nodeName === 'SCRIPT';
       if (isSyntaxError || isScriptError) {
-        var reloadKey = 'portal_auto_reload';
+        var reloadKey = 'portal_auto_reload_v2';
         if (!sessionStorage.getItem(reloadKey)) {
           sessionStorage.setItem(reloadKey, 'true');
           console.warn('Gecersiz JS onbellek algilandi, SW temizleniyor ve yenileniyor...');
+          var promises = [];
           if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(regs) {
-              for (var i = 0; i < regs.length; i++) regs[i].unregister();
-            }).catch(function(){});
+            promises.push(navigator.serviceWorker.getRegistrations().then(function(regs) {
+              return Promise.all(regs.map(function(reg) { return reg.unregister(); }));
+            }).catch(function(){}));
           }
           if ('caches' in window) {
-            caches.keys().then(function(names) {
-              for (var j = 0; j < names.length; j++) caches.delete(names[j]);
-            }).catch(function(){});
+            promises.push(caches.keys().then(function(names) {
+              return Promise.all(names.map(function(name) { return caches.delete(name); }));
+            }).catch(function(){}));
           }
-          setTimeout(function() { window.location.reload(); }, 500);
+          Promise.all(promises).then(function() {
+            window.location.reload();
+          }).catch(function() {
+            setTimeout(function() { window.location.reload(); }, 500);
+          });
         }
       }
     }, true);
