@@ -96,7 +96,7 @@ const AppContent = () => {
             const now = new Date();
             const year = now.getFullYear();
             const month = now.getMonth() + 1;
-            const osemKey = 'meals_osem_cache_v1';
+            const osemKey = 'meals_osem_cache_v2';
             const kykKey = `meals_kyk_cache_v1_${year}_${month}`;
             const apiUrl = getApiBaseUrl();
 

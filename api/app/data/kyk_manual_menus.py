@@ -241,7 +241,7 @@ _MAY_2026 = [
           "Garnitürlü Pirinç Pilavı", "Ayran"]),
 
     _day("2026-05-29", "29 Mayıs 2026 Cuma",
-         ["Sosisli Patates Kızartması", "Haşlanmış Yumurta", "Beyaz Peynir",
+         ["Sosili Patates Kızartması", "Haşlanmış Yumurta", "Beyaz Peynir",
           "Siyah/Yeşil Zeytin", "Bal+Tereyağ"],
          ["Ezogelin Çorba / Şafak Çorba",
           "Çiftlik Köfte / Mücver (+Yoğurt)",

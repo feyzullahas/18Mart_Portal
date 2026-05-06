@@ -237,6 +237,14 @@
     border-top: 1px dashed var(--border-color);
 }
 
+.meal-note {
+    margin: 12px 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+}
+
 .osem-balance-btn {
     display: flex;
     align-items: center;
@@ -390,6 +398,11 @@
         margin-bottom: 12px;
     }
 
+    .meal-note {
+        margin: 10px 0;
+        font-size: 12px;
+    }
+
     .meal-row {
         padding: 8px;
         font-size: 13px;
@@ -422,5 +435,9 @@
 
     .cal {
         align-self: flex-end;
+    }
+
+    .meal-note {
+        margin: 8px 0;
     }
 }

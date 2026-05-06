@@ -41,7 +41,7 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth() + 1;
-    const OSEM_CACHE_KEY = 'meals_osem_cache_v1';
+    const OSEM_CACHE_KEY = 'meals_osem_cache_v2';
     const KYK_CACHE_KEY = `meals_kyk_cache_v1_${year}_${month}`;
 
     const getCachedData = <T,>(key: string): T | null => {
@@ -68,6 +68,10 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
             expiresAt: midnight.getTime(),
         };
         localStorage.setItem(key, JSON.stringify(payload));
+    };
+
+    const isOsemClosedDay = (day: OsemDay) => {
+        return day.menu.length === 1 && day.menu[0]?.name === 'ÖSEM kapalı';
     };
 
     const parseDate = (dateRaw?: string, fallbackText?: string): Date | null => {
@@ -172,8 +176,9 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
         // 1) Varsa cache'i anında göster
         const cachedOsem = getCachedData<OsemDay[]>(OSEM_CACHE_KEY);
         if (cachedOsem && cachedOsem.length > 0) {
-            setOsemData(cachedOsem);
-            setDefaultOsemIndex(cachedOsem);
+            const filtered = cachedOsem.filter((day) => !isOsemClosedDay(day));
+            setOsemData(filtered);
+            setDefaultOsemIndex(filtered);
             setLoadingOsem(false);
         }
 
@@ -190,9 +195,10 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
             setOsemError(null);
             try {
                 const osem = await fetchOsemData();
-                setOsemData(osem);
-                setDefaultOsemIndex(osem);
-                setCachedData(OSEM_CACHE_KEY, osem);
+                const filtered = (osem as OsemDay[]).filter((day) => !isOsemClosedDay(day));
+                setOsemData(filtered);
+                setDefaultOsemIndex(filtered);
+                setCachedData(OSEM_CACHE_KEY, filtered);
             } catch (err) {
                 console.error(err);
                 if (!cachedOsem) setOsemError('ÖSEM verisi çekilemedi');
@@ -280,12 +286,12 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                     <div className="osem-section">
                         {/* Gün Seçici */}
                         <div className="day-navigator">
-                            <button className="nav-btn" onClick={goToNextOsem}>◀</button>
+                            <button className="nav-btn" onClick={goToPrevOsem}>◀</button>
                             <div className="day-info">
                                 <span className="day-date">{currentOsemDay.date}</span>
                                 {currentOsemDay.isToday && <span className="today-badge">Bugün</span>}
                             </div>
-                            <button className="nav-btn" onClick={goToPrevOsem}>▶</button>
+                            <button className="nav-btn" onClick={goToNextOsem}>▶</button>
                         </div>
 
                         {/* Menü */}
@@ -302,6 +308,7 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                             {currentOsemDay.total_calories && (
                                 <div className="total-cal">Toplam: {currentOsemDay.total_calories} kcal</div>
                             )}
+                            <div className="meal-note">Açık saatler: 11:30-14:00 ve 16:00-18:30</div>
                             <a
                                 href="https://odeme.comu.edu.tr/"
                                 target="_blank"
