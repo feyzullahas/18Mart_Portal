@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 from fastapi.responses import Response
 import httpx
 from app.services.bus_service import bus_service
@@ -9,12 +9,14 @@ router = APIRouter(prefix="/bus", tags=["bus"])
 # PDF bytes in-memory cache — her tür icin ayri
 _pdf_cache: dict = {}  # { "weekday": {"content": bytes, "expires": datetime, "source_url": str} }
 
-PDF_CACHE_TTL = timedelta(hours=1)
+PDF_CACHE_TTL = timedelta(seconds=43200)
+PDF_CACHE_CONTROL = "public, s-maxage=43200, stale-while-revalidate=43200"
 
 
 @router.get("/schedule")
-async def get_bus_schedule():
+async def get_bus_schedule(response: Response):
     """Otobüs saatleri PDF linklerini getirir"""
+    response.headers["Cache-Control"] = PDF_CACHE_CONTROL
     return await bus_service.get_bus_schedule()
 
 
@@ -43,7 +45,7 @@ async def proxy_bus_pdf(schedule_type: str):
             media_type="application/pdf",
             headers={
                 "Content-Disposition": f"inline; filename={schedule_type}.pdf",
-                "Cache-Control": "no-store",
+                "Cache-Control": PDF_CACHE_CONTROL,
                 "X-Cache": "HIT",
             },
         )
@@ -74,7 +76,7 @@ async def proxy_bus_pdf(schedule_type: str):
         media_type="application/pdf",
         headers={
             "Content-Disposition": f"inline; filename={schedule_type}.pdf",
-            "Cache-Control": "no-store",
+            "Cache-Control": PDF_CACHE_CONTROL,
             "X-Cache": "MISS",
         },
     )
