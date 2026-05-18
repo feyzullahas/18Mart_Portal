@@ -1,7 +1,7 @@
 import httpx
 from bs4 import BeautifulSoup
 from typing import Dict, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 BUS_CACHE_TTL = timedelta(seconds=43200)
 
@@ -116,6 +116,45 @@ class BusService:
         text_lower = remove_diacritics(text).lower()
         return 'itibariyle' in text_lower or 'itibari' in text_lower
 
+    def _extract_date_from_text(self, text: str) -> Optional[date]:
+        """Metinden tarih (gun/ay) yakalar; yil yoksa bu yil varsayilir."""
+        import re
+        text_ascii = remove_diacritics(text).lower()
+        month_map = {
+            'ocak': 1, 'subat': 2, 'mart': 3, 'nisan': 4,
+            'mayis': 5, 'haziran': 6, 'temmuz': 7, 'agustos': 8,
+            'eylul': 9, 'ekim': 10, 'kasim': 11, 'aralik': 12
+        }
+
+        match = re.search(r'(\d{1,2})\s*(ocak|subat|mart|nisan|mayis|haziran|temmuz|agustos|eylul|ekim|kasim|aralik)', text_ascii)
+        if match:
+            day = int(match.group(1))
+            month = month_map.get(match.group(2))
+            if month:
+                return date(datetime.now().year, month, day)
+
+        numeric = re.search(r'(\d{1,2})[./-](\d{1,2})(?:[./-](\d{2,4}))?', text_ascii)
+        if numeric:
+            day = int(numeric.group(1))
+            month = int(numeric.group(2))
+            year = numeric.group(3)
+            if year:
+                year_val = int(year)
+                if year_val < 100:
+                    year_val += 2000
+            else:
+                year_val = datetime.now().year
+            return date(year_val, month, day)
+
+        return None
+
+    def _is_itibariyle_effective(self, text: str, url: str) -> bool:
+        """'itibariyle' PDF'i bugun veya gecmis tarihliyse gecerli sayar."""
+        effective_date = self._extract_date_from_text(f"{text} {url}")
+        if not effective_date:
+            return True
+        return effective_date <= datetime.now().date()
+
     async def get_bus_schedule(self) -> Dict:
         """Haftaiçi, haftasonu ve güne özel otobüs saatleri PDF'lerini döndürür"""
         
@@ -173,6 +212,7 @@ class BusService:
                     is_today_specific = self._is_today_specific_pdf(pdf['text'], url)
                     is_special = self._is_special_day_pdf(pdf['text'])
                     is_itibariyle = self._is_itibariyle_pdf(pdf['text'])
+                    is_itibariyle_effective = is_itibariyle and self._is_itibariyle_effective(pdf['text'], url)
                     
                     # Güne özel PDF (tatil, bayram vb.) — bugünün tarihini içeriyorsa
                     if is_special and is_today_specific:
@@ -185,6 +225,9 @@ class BusService:
                     
                     # "İtibariyle" PDF'ler — hafta içi güncelleme (yeni tarihten itibaren geçerli)
                     if is_itibariyle:
+                        if not is_itibariyle_effective:
+                            print(f"  -> Gelecek tarihli itibariyle PDF atlandi: {pdf['text']}")
+                            continue
                         if 'ici' in text_lower or ('sonu' not in text_lower):
                             weekday_candidates.insert(0, {
                                 "url": url,
