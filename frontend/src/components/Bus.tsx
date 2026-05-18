@@ -4,7 +4,68 @@ import type { BusSchedule } from '../services/busService';
 import { PdfViewer } from './PdfViewer';
 import '../styles/Bus.css';
 
-type ScheduleType = 'weekday' | 'weekend' | 'special';
+const removeDiacritics = (text: string) =>
+    text
+        .replace(/ı/g, 'i')
+        .replace(/İ/g, 'I')
+        .replace(/ğ/g, 'g')
+        .replace(/Ğ/g, 'G')
+        .replace(/ü/g, 'u')
+        .replace(/Ü/g, 'U')
+        .replace(/ş/g, 's')
+        .replace(/Ş/g, 'S')
+        .replace(/ö/g, 'o')
+        .replace(/Ö/g, 'O')
+        .replace(/ç/g, 'c')
+        .replace(/Ç/g, 'C');
+
+const getTodayDateTokens = () => {
+    const now = new Date();
+    const day = now.getDate();
+    const month = now.getMonth() + 1;
+    const monthNames = [
+        'ocak', 'subat', 'mart', 'nisan', 'mayis', 'haziran',
+        'temmuz', 'agustos', 'eylul', 'ekim', 'kasim', 'aralik'
+    ];
+    const monthName = monthNames[month - 1];
+    const day2 = `${day}`.padStart(2, '0');
+    const month2 = `${month}`.padStart(2, '0');
+
+    return [
+        `${day} ${monthName}`,
+        `${day2} ${monthName}`,
+        `${day}.${month}`,
+        `${day2}.${month}`,
+        `${day}.${month2}`,
+        `${day2}.${month2}`,
+        `${day}/${month}`,
+        `${day2}/${month}`,
+        `${day}/${month2}`,
+        `${day2}/${month2}`,
+        `${day}-${month}`,
+        `${day2}-${month}`,
+        `${day}-${month2}`,
+        `${day2}-${month2}`
+    ];
+};
+
+const findTodayPdfIndex = (pdfs: BusSchedule['pdfs']) => {
+    const tokens = getTodayDateTokens();
+    return pdfs.findIndex(pdf => {
+        const haystack = removeDiacritics(`${pdf.label} ${pdf.url}`).toLowerCase();
+        return tokens.some(token => haystack.includes(token));
+    });
+};
+
+const toTitleCaseTr = (text: string) => {
+    const cleaned = text.replace(/\s+/g, ' ').trim();
+    if (!cleaned) return cleaned;
+    return cleaned
+        .toLocaleLowerCase('tr-TR')
+        .split(' ')
+        .map(word => (word ? word[0].toLocaleUpperCase('tr-TR') + word.slice(1) : ''))
+        .join(' ');
+};
 
 export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onToggle?: () => void } = {}) => {
     const [schedule, setSchedule] = useState<BusSchedule | null>(null);
@@ -13,21 +74,21 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
     const [localOpen, setLocalOpen] = useState(false);
     const isOpen = propIsOpen !== undefined ? propIsOpen : localOpen;
     const handleToggle = onToggle ?? (() => setLocalOpen(prev => !prev));
-    const [activeType, setActiveType] = useState<ScheduleType>('weekday');
+    const [activeIndex, setActiveIndex] = useState(0);
 
     useEffect(() => {
         const fetchData = async () => {
             const cached = busService.getCachedSchedule();
             if (cached) {
                 setSchedule(cached);
-                autoSelectType(cached);
+                autoSelectIndex(cached);
                 setLoading(false);
             }
 
             try {
                 const data = await busService.getSchedule();
                 setSchedule(data);
-                autoSelectType(data);
+                autoSelectIndex(data);
             } catch (err) {
                 if (!cached) {
                     setError('Otobüs saatleri yüklenemedi');
@@ -40,33 +101,19 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
         fetchData();
     }, []);
 
-    const autoSelectType = (data: BusSchedule) => {
-        // Özel gün PDF'i varsa onu göster
-        if (data.special) {
-            setActiveType('special');
-            return;
-        }
-        // Hafta sonu ise hafta sonu seç
-        const day = new Date().getDay();
-        if (day === 0 || day === 6) {
-            setActiveType('weekend');
-        } else {
-            setActiveType('weekday');
-        }
+    const autoSelectIndex = (data: BusSchedule) => {
+        if (data.pdfs.length === 0) return;
+        const todayIndex = findTodayPdfIndex(data.pdfs);
+        setActiveIndex(todayIndex >= 0 ? todayIndex : 0);
     };
 
-    // Aktif türe göre URL'leri belirle
-    const getActiveEntry = () => {
-        if (!schedule) return null;
-        if (activeType === 'special') return schedule.special;
-        if (activeType === 'weekend') return schedule.weekend;
-        return schedule.weekday;
-    };
-
-    const activeEntry = getActiveEntry();
+    const pdfs = schedule?.pdfs ?? [];
+    const activeEntry = pdfs[activeIndex] ?? null;
     const downloadPdfUrl = activeEntry?.url;
-    const proxyVersion = encodeURIComponent(`${downloadPdfUrl ?? ''}|${schedule?.last_update ?? ''}`);
-    const proxyPdfUrl = `${API_BASE_URL}/bus/pdf/${activeType}?v=${proxyVersion}`;
+    const proxyVersion = encodeURIComponent(`${schedule?.last_update ?? ''}`);
+    const proxyPdfUrl = downloadPdfUrl
+        ? `${API_BASE_URL}/bus/pdf?url=${encodeURIComponent(downloadPdfUrl)}&v=${proxyVersion}`
+        : '';
 
     return (
         <div className="bus-card">
@@ -90,26 +137,15 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
 
                         <div className="schedule-selector">
                             <div className="type-buttons">
-                                {schedule.special && (
+                                {pdfs.map((pdf, index) => (
                                     <button
-                                        className={`type-btn special-btn ${activeType === 'special' ? 'active' : ''}`}
-                                        onClick={() => setActiveType('special')}
+                                        key={`${pdf.url}-${index}`}
+                                        className={`type-btn ${activeIndex === index ? 'active' : ''}`}
+                                        onClick={() => setActiveIndex(index)}
                                     >
-                                        ⭐ {schedule.special.label}
+                                        {toTitleCaseTr(pdf.label || `PDF ${index + 1}`)}
                                     </button>
-                                )}
-                                <button
-                                    className={`type-btn ${activeType === 'weekday' ? 'active' : ''}`}
-                                    onClick={() => setActiveType('weekday')}
-                                >
-                                    Hafta içi
-                                </button>
-                                <button
-                                    className={`type-btn ${activeType === 'weekend' ? 'active' : ''}`}
-                                    onClick={() => setActiveType('weekend')}
-                                >
-                                    Hafta sonu
-                                </button>
+                                ))}
                             </div>
                             <p className="last-update">
                                 Son güncelleme: {new Date(schedule.last_update).toLocaleDateString('tr-TR')}
@@ -117,13 +153,13 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
                         </div>
 
                         {/* PDF Viewer — tüm cihazlarda inline, zoom destekli */}
-                        {activeEntry ? (
+                        {activeEntry && proxyPdfUrl ? (
                             <PdfViewer
                                 url={proxyPdfUrl}
                                 downloadUrl={downloadPdfUrl}
                             />
                         ) : (
-                            <div className="error-message">Bu tür için PDF bulunamadı</div>
+                            <div className="error-message">PDF bulunamadı</div>
                         )}
                     </div>
                 ) : (

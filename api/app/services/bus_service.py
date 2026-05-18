@@ -156,7 +156,7 @@ class BusService:
         return effective_date <= datetime.now().date()
 
     async def get_bus_schedule(self) -> Dict:
-        """Haftaiçi, haftasonu ve güne özel otobüs saatleri PDF'lerini döndürür"""
+        """Belediye sitesindeki tum otobus PDF'lerini dondurur"""
         
         # Cache kontrol
         cached = cache.get()
@@ -185,111 +185,32 @@ class BusService:
                     text = link.get_text().strip()
                     
                     if '.pdf' in href.lower():
-                        text_normalized = remove_diacritics(text).lower()
                         all_pdfs.append({
                             'url': href,
-                            'text': text,
-                            'text_lower': text_normalized
+                            'text': text
                         })
                         print(f"PDF Bulundu: {text} -> {href}")
                 
                 result = {
-                    "weekday": None,
-                    "weekend": None,
-                    "special": None,
+                    "pdfs": [],
                     "last_update": datetime.now().isoformat(),
                     "source": "Çanakkale Belediyesi"
                 }
-                
-                # PDF'leri türüne göre kategorize et
-                weekday_candidates = []
-                weekend_candidates = []
-                special_candidates = []
-                
+
                 for pdf in all_pdfs:
-                    text_lower = pdf['text_lower']
                     url = self._make_absolute_url(pdf['url'])
-                    is_today_specific = self._is_today_specific_pdf(pdf['text'], url)
-                    is_special = self._is_special_day_pdf(pdf['text'])
-                    is_itibariyle = self._is_itibariyle_pdf(pdf['text'])
-                    is_itibariyle_effective = is_itibariyle and self._is_itibariyle_effective(pdf['text'], url)
-                    
-                    # Güne özel PDF (tatil, bayram vb.) — bugünün tarihini içeriyorsa
-                    if is_special and is_today_specific:
-                        special_candidates.append({
-                            "url": url,
-                            "label": self._extract_short_date_label(pdf['text']),
-                        })
-                        print(f"  -> ÖZEL GÜN PDF (bugüne ait): {pdf['text']}")
-                        continue
-                    
-                    # "İtibariyle" PDF'ler — hafta içi güncelleme (yeni tarihten itibaren geçerli)
-                    if is_itibariyle:
-                        if not is_itibariyle_effective:
-                            print(f"  -> Gelecek tarihli itibariyle PDF atlandi: {pdf['text']}")
-                            continue
-                        if 'ici' in text_lower or ('sonu' not in text_lower):
-                            weekday_candidates.insert(0, {
-                                "url": url,
-                                "label": pdf['text'] or "Haftaiçi Saatleri",
-                                "is_today": is_today_specific,
-                                "is_itibariyle": True
-                            })
-                        elif 'sonu' in text_lower:
-                            weekend_candidates.insert(0, {
-                                "url": url,
-                                "label": pdf['text'] or "Haftasonu Saatleri",
-                                "is_today": is_today_specific,
-                                "is_itibariyle": True
-                            })
-                        continue
-                    
-                    # Haftaiçi - "hafta içi" veya "ici" içerir ve "sonu" yok
-                    if ('hafta' in text_lower and 'ici' in text_lower) or ('ici' in text_lower and 'sonu' not in text_lower):
-                        weekday_candidates.append({
-                            "url": url,
-                            "label": pdf['text'] or "Haftaiçi Saatleri",
-                            "is_today": is_today_specific
-                        })
-                    # Haftasonu - "sonu" veya "hafta sonu" içerir
-                    elif 'sonu' in text_lower:
-                        weekend_candidates.append({
-                            "url": url,
-                            "label": pdf['text'] or "Haftasonu Saatleri",
-                            "is_today": is_today_specific
-                        })
+                    label = pdf['text'] or url.split('/')[-1]
+                    result["pdfs"].append({
+                        "url": url,
+                        "label": label
+                    })
 
-                # Bugüne özel PDF varsa onu seç
-                if special_candidates:
-                    result["special"] = special_candidates[0]
-                    print(f"  -> Bugüne özel PDF bulundu: {result['special']['label']}")
-
-                # Hafta içi: bugüne özel olan veya itibariyle olan veya ilk uygun
-                if weekday_candidates:
-                    result["weekday"] = next(
-                        (item for item in weekday_candidates if item.get("is_today")),
-                        weekday_candidates[0]
-                    )
-                    result["weekday"].pop("is_today", None)
-                    result["weekday"].pop("is_itibariyle", None)
-
-                if weekend_candidates:
-                    result["weekend"] = next(
-                        (item for item in weekend_candidates if item.get("is_today")),
-                        weekend_candidates[0]
-                    )
-                    result["weekend"].pop("is_today", None)
-                    result["weekend"].pop("is_itibariyle", None)
-                
-                # Eğer hiç bulunamadıysa, fallback kullan
-                if not result["weekday"] and not result["weekend"]:
+                if not result["pdfs"]:
                     print("BUS: PDF bulunamadı, fallback kullanılıyor")
                     return self._get_fallback()
-                
-                # Cache'e kaydet (gece yarısına kadar)
+
                 cache.set(result)
-                print(f"BUS: Siteden çekildi - Weekday: {result['weekday']}, Weekend: {result['weekend']}, Special: {result['special']}")
-                
+                print(f"BUS: Siteden çekildi - PDF sayisi: {len(result['pdfs'])}")
                 return result
                 
         except Exception as e:
@@ -305,17 +226,18 @@ class BusService:
         return f"https://ulasim.canakkale.bel.tr/{url}"
     
     def _get_fallback(self) -> Dict:
-        """Fallback veri - güncel PDF linkleri"""
+        """Fallback veri - guncel PDF linkleri"""
         return {
-            "weekday": {
-                "url": "https://ulasim.canakkale.bel.tr/wp-content/uploads/2018/02/19-OCAK-11.pdf",
-                "label": "Haftaiçi Sefer Saatleri"
-            },
-            "weekend": {
-                "url": "https://ulasim.canakkale.bel.tr/wp-content/uploads/2018/02/17-OCAK-7.pdf",
-                "label": "Haftasonu Sefer Saatleri"
-            },
-            "special": None,
+            "pdfs": [
+                {
+                    "url": "https://ulasim.canakkale.bel.tr/wp-content/uploads/2018/02/19-OCAK-11.pdf",
+                    "label": "Haftaiçi Sefer Saatleri"
+                },
+                {
+                    "url": "https://ulasim.canakkale.bel.tr/wp-content/uploads/2018/02/17-OCAK-7.pdf",
+                    "label": "Haftasonu Sefer Saatleri"
+                }
+            ],
             "last_update": datetime.now().isoformat(),
             "source": "Çanakkale Belediyesi"
         }
