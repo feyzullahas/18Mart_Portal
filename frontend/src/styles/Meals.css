@@ -437,6 +437,22 @@
         align-self: flex-end;
     }
 
+    .osem-section .meal-row {
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .osem-section .meal-name {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .osem-section .cal {
+        flex-shrink: 0;
+        align-self: center;
+    }
+
     .meal-note {
         margin: 8px 0;
     }
