@@ -262,6 +262,34 @@ _MAY_2026 = [
           "Salçalı Bulgur Pilavı", "Triliçe"]),
 ]
 
+# ──────────────────────────────────────────────
+# HAZİRAN 2026
+# ──────────────────────────────────────────────
+_JUNE_2026 = [
+    _day("2026-06-01", "1 Haziran 2026 Pazartesi", [], ["Tavuksuyu Çorba", "Patlıcan Musakka", "Nohutlu Bulgur Pilavı", "Yoğurt"]),
+    _day("2026-06-02", "2 Haziran 2026 Salı", [], ["Buğday Çorba", "Fırın Tavuk But", "Kızarmış Biber", "Tel Şehriyeli Pirinç Pilavı", "Kazandibi"]),
+    _day("2026-06-03", "3 Haziran 2026 Çarşamba", [], ["Ezogelin Çorba", "Macar Gulaş", "Patates Püresi", "Arpa Şehriye Pilavı", "Cevizli Baklava"]),
+    _day("2026-06-04", "4 Haziran 2026 Perşembe", [], ["Mercimek Çorba", "Barbekü Soslu Tavuk", "Yoğurtlu Mantı", "Karpuz"]),
+    _day("2026-06-05", "5 Haziran 2026 Cuma", [], ["Domates Çorba", "Et Burger", "Elma Dilim Patates", "Peynirli Makarna", "Ayran"]),
+    _day("2026-06-08", "8 Haziran 2026 Pazartesi", [], ["Ezogelin Çorba", "Ekşili Köfte", "Erişte Kavurma", "Kemalpaşa Tatlısı"]),
+    _day("2026-06-09", "9 Haziran 2026 Salı", [], ["Düğün Çorba", "Tavuk Pane", "Rus Salatası", "Kısır", "Meyve Suyu"]),
+    _day("2026-06-10", "10 Haziran 2026 Çarşamba", [], ["Tarhana Çorba", "Hünkarbeğendi", "Yeşil Mercimekli Bulgur Pilavı", "Fıstıklı İrmik Helvası"]),
+    _day("2026-06-11", "11 Haziran 2026 Perşembe", [], ["Sebze Çorba", "Tavuk Döner", "Domates Salatası", "Dereotlu Pirinç Pilavı", "Ayran"]),
+    _day("2026-06-12", "12 Haziran 2026 Cuma", [], ["Mercimek Çorba", "Ankara Tava", "Su Böreği", "Yoğurtlu Semizotu Salatası"]),
+    _day("2026-06-15", "15 Haziran 2026 Pazartesi", [], ["Domates Çorba", "Buğu Kebabı", "Şehriyeli Kuskus", "Çikolatalı Puding"]),
+    _day("2026-06-16", "16 Haziran 2026 Salı", [], ["Ezogelin Çorba", "Kadınbudu Köfte", "Haydari", "Fırın Makarna", "Nektarin"]),
+    _day("2026-06-17", "17 Haziran 2026 Çarşamba", [], ["Buğday Çorba", "Kıymalı Ali Nazik", "Nohutlu Pirinç Pilavı", "Aşure"]),
+    _day("2026-06-18", "18 Haziran 2026 Perşembe", [], ["Mercimek Çorba", "Beşamel Soslu Tavuk", "Domates Soslu Spagetti", "Mısırlı Kıvırcık Salata"]),
+    _day("2026-06-19", "19 Haziran 2026 Cuma", [], ["Tavuksuyu Çorba", "Soslu Fırın Köfte", "Fasulye Piyazı", "Arpa Şehriye Pilavı", "Yoğurt"]),
+    _day("2026-06-22", "22 Haziran 2026 Pazartesi", [], ["Toyga Çorba", "Et Döner", "Lavaş", "Melek Pilavı", "Ayran"]),
+    _day("2026-06-23", "23 Haziran 2026 Salı", [], ["Tarhana Çorba", "Tavuk Kanat", "Çoban Salata", "Sade Bulgur Pilavı", "Keşkül"]),
+    _day("2026-06-24", "24 Haziran 2026 Çarşamba", [], ["Ezogelin Çorba", "Beğendili Misket Köfte", "Erişte Kavurma", "Cacık"]),
+    _day("2026-06-25", "25 Haziran 2026 Perşembe", [], ["Düğün Çorba", "Tavuk Sote", "Zeytinyağlı Biber Dolma", "Yoğurt"]),
+    _day("2026-06-26", "26 Haziran 2026 Cuma", [], ["Arpa Şehriye Çorba", "Karnıyarık", "Bahar Pilavı", "Kadayıf"]),
+]
+
+
 MANUAL_MENUS = {
     "2026-05": _MAY_2026,
+    "2026-06": _JUNE_2026,
 }
