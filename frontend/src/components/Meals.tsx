@@ -270,7 +270,11 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                 </div>
 
                 {/* İçerik */}
-                {activeTab === 'osem' && loadingOsem && !currentOsemDay ? (
+                {activeTab === 'kyk' && new Date().getMonth() === 5 ? (
+                    <div className="error-message" style={{padding: '20px'}}>
+                        Haziran ayı KYK yemek menüsü verisi henüz yüklenmedi, en kısa sürede menü yüklenicektir.
+                    </div>
+                ) : activeTab === 'osem' && loadingOsem && !currentOsemDay ? (
                     <div className="loading-indicator">
                         <div className="loading-spinner"></div>
                     </div>
@@ -281,7 +285,12 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                 ) : activeTab === 'osem' && osemError && !currentOsemDay ? (
                     <div className="error-message">{osemError}</div>
                 ) : activeTab === 'kyk' && kykError && !currentKykDay ? (
-                    <div className="error-message">{kykError}</div>
+                    <div className="error-message">
+                        {kykError}
+                        <p style={{ fontSize: '0.9em', marginTop: '10px', color: '#888' }}>
+                            Haziran ayı kyk yemek menüsünün yüklenmesi birkaç gün sürebilir.
+                        </p>
+                    </div>
                 ) : activeTab === 'osem' && currentOsemDay ? (
                     <div className="osem-section">
                         {/* Gün Seçici */}
