@@ -14,6 +14,8 @@ interface KykDay {
     total_calories_breakfast?: number;
     total_calories_dinner?: number;
     isToday?: boolean;
+    isError?: boolean;
+    errorMessage?: string;
 }
 
 interface OsemDay {
@@ -270,11 +272,7 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                 </div>
 
                 {/* İçerik */}
-                {activeTab === 'kyk' && new Date().getMonth() === 5 ? (
-                    <div className="error-message" style={{padding: '20px'}}>
-                        Haziran ayı KYK yemek menüsü verisi henüz yüklenmedi, en kısa sürede menü yüklenicektir.
-                    </div>
-                ) : activeTab === 'osem' && loadingOsem && !currentOsemDay ? (
+                {activeTab === 'osem' && loadingOsem && !currentOsemDay ? (
                     <div className="loading-indicator">
                         <div className="loading-spinner"></div>
                     </div>
@@ -284,6 +282,10 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                     </div>
                 ) : activeTab === 'osem' && osemError && !currentOsemDay ? (
                     <div className="error-message">{osemError}</div>
+                ) : activeTab === 'kyk' && kykData.length === 1 && kykData[0].isError ? (
+                    <div className="error-message" style={{ padding: '20px' }}>
+                        {kykData[0].errorMessage}
+                    </div>
                 ) : activeTab === 'kyk' && kykError && !currentKykDay ? (
                     <div className="error-message">
                         {kykError}

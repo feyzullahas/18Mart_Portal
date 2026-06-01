@@ -217,9 +217,18 @@ class MealService:
         if month is None:
             month = now.month
         manual = get_manual_kyk_menu(year, month)
-        if manual is not None:
+        if manual:
             return manual
-        return self._get_fallback_kyk()
+        
+        # Fallback to a message indicating data is not yet available
+        return [
+            {
+                "date": self._format_tr_date(datetime(year, month, 1)),
+                "dateRaw": f"{year}-{month:02d}-01",
+                "isError": True,
+                "errorMessage": f"{month} ayı KYK yemek menüsü verisi henüz yüklenmedi, en kısa sürede menü yüklenecektir."
+            }
+        ]
 
     def _get_fallback_kyk(self) -> List[Dict]:
         today = get_tr_now().strftime("%Y-%m-%d")
