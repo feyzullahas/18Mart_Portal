@@ -7,7 +7,6 @@ import { Bus } from './components/Bus';
 import { Calendar } from './components/Calendar';
 import { Schedule } from './components/Schedule';
 import { Auth } from './components/Auth';
-import { ExamCountdown } from './components/ExamCountdown';
 import { InstallToast, useInstallPrompt } from './components/InstallPrompt';
 import { UserMenu } from './components/UserMenu';
 import { ProfileSettings } from './components/ProfileSettings';
@@ -207,8 +206,9 @@ const AppContent = () => {
                                     <Weather isOpen />
                                 </section>
                                 <section className="portal-home-block">
-                                    <h3>Finallere kalan gün sayısı</h3>
-                                    <ExamCountdown isOpen />
+                                    <div className="exam-success-message">
+                                        <h3>Finallerinizde başarılar dileriz!</h3>
+                                    </div>
                                 </section>
                             </div>
                         </>

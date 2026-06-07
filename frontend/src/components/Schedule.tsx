@@ -49,7 +49,16 @@ export const Schedule = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
         day: ''
     });
     const [selectedDay, setSelectedDay] = useState('');
-    const [currentDayIndex, setCurrentDayIndex] = useState(0);
+
+    // Bugünün gün indexini hesapla (0=Paz, 1=Pzt... JS → days dizisi)
+    const getTodayIndex = () => {
+        const jsDay = new Date().getDay(); // 0=Pazar, 1=Pazartesi, ..., 6=Cumartesi
+        // days = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar']
+        // jsDay 1→0, 2→1, 3→2, 4→3, 5→4, 6→5, 0→6
+        return jsDay === 0 ? 6 : jsDay - 1;
+    };
+
+    const [currentDayIndex, setCurrentDayIndex] = useState(getTodayIndex);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -297,10 +306,22 @@ export const Schedule = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
         }
     }, []);
 
-    // Also reload when opened to refresh data
+    // Also reload when opened to refresh data, and jump instantly to today
     useEffect(() => {
         if (isOpen) {
             loadCourses();
+            const todayIndex = getTodayIndex();
+            setCurrentDayIndex(todayIndex);
+            // requestAnimationFrame ile DOM render sonrası anında konumlan
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    if (scrollContainerRef.current) {
+                        const dayWidth = getDayStepWidth();
+                        // scrollLeft ile animasyonsuz, anında konumlan
+                        scrollContainerRef.current.scrollLeft = dayWidth * todayIndex;
+                    }
+                });
+            });
         }
     }, [isOpen]);
 
