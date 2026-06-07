@@ -72,6 +72,10 @@ function MealRatingBox({ cafeteria, date, label }: { cafeteria: 'kyk_kahvalti' |
         if (!selected || submitting) return;
         setSubmitting(true);
         setError('');
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+
         try {
             const res = await fetch(`${API_BASE}/meal-ratings/`, {
                 method: 'POST',
@@ -80,7 +84,10 @@ function MealRatingBox({ cafeteria, date, label }: { cafeteria: 'kyk_kahvalti' |
                     'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify({ cafeteria, date, rating: selected }),
+                signal: controller.signal,
             });
+
+            clearTimeout(timeout);
 
             if (res.status === 409) {
                 setError('Bu yemekhane için bugün zaten oy kullandınız.');
@@ -90,8 +97,8 @@ function MealRatingBox({ cafeteria, date, label }: { cafeteria: 'kyk_kahvalti' |
 
             if (!res.ok) {
                 const errText = await res.text();
-                console.error(`[MealRating] POST ${res.status}:`, errText);
-                setError(`Hata (${res.status}): ${errText.slice(0, 120)}`);
+                console.error(`[MealRating] POST hata ${res.status} (${cafeteria}):`, errText);
+                setError(`Sunucu hatası (${res.status}). Lütfen tekrar deneyin.`);
                 return;
             }
 
@@ -109,9 +116,15 @@ function MealRatingBox({ cafeteria, date, label }: { cafeteria: 'kyk_kahvalti' |
             } catch (refreshErr) {
                 console.warn('[MealRating] Ortalama yenilenemedi:', refreshErr);
             }
-        } catch (err) {
-            console.error('[MealRating] Fetch hatası:', err);
-            setError('Sunucuya ulaşılamadı, lütfen tekrar deneyin.');
+        } catch (err: unknown) {
+            clearTimeout(timeout);
+            if (err instanceof Error && err.name === 'AbortError') {
+                console.error(`[MealRating] İstek zaman aşımına uğradı (${cafeteria})`);
+                setError('İstek zaman aşımına uğradı. Lütfen tekrar deneyin.');
+            } else {
+                console.error(`[MealRating] Ağ/CORS hatası (${cafeteria}):`, err);
+                setError('Sunucuya ulaşılamadı. Lütfen sayfayı yenileyip tekrar deneyin.');
+            }
         } finally {
             setSubmitting(false);
         }
