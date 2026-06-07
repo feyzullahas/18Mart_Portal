@@ -30,10 +30,20 @@ createRoot(document.getElementById('root')!).render(
 )
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  window.addEventListener("load", () => {
+  // Yeni SW devreye girdiğinde sayfayı otomatik yenile (deploy sonrası)
+  let swRefreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!swRefreshing) {
+      swRefreshing = true;
+      window.location.reload();
+    }
+  });
+
+  window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('/service-worker.js')
       .then((registration) => {
+        // Arka planda güncel SW kontrolü yap
         registration.update().catch(() => undefined);
       })
       .catch((error) => {
