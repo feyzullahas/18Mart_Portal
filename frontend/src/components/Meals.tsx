@@ -530,16 +530,11 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                             <button className="nav-btn" onClick={goToNextKyk}>▶</button>
                         </div>
 
-                        {/* Puanlama kutuları — sadece bugün */}
-                        {currentKykDay.dateRaw === todayStr && (
-                            <>
+                        {/* Kahvaltı — puanlama + menü */}
+                        <div className="kyk-meal-section">
+                            {currentKykDay.dateRaw === todayStr && (
                                 <MealRatingBox cafeteria="kyk_kahvalti" date={currentKykDay.dateRaw} label="Kahvaltıyı puanla" />
-                                <MealRatingBox cafeteria="kyk_aksam" date={currentKykDay.dateRaw} label="Akşam yemeğini puanla" />
-                            </>
-                        )}
-
-                        <div className="meal-grid">
-                            {/* Kahvaltı */}
+                            )}
                             <div className="meal-column">
                                 <h3>Kahvaltı</h3>
                                 <div className="meal-items">
@@ -554,8 +549,13 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                                     <div className="total-cal">Toplam: {currentKykDay.total_calories_breakfast} kcal</div>
                                 )}
                             </div>
+                        </div>
 
-                            {/* Akşam */}
+                        {/* Akşam — puanlama + menü */}
+                        <div className="kyk-meal-section">
+                            {currentKykDay.dateRaw === todayStr && (
+                                <MealRatingBox cafeteria="kyk_aksam" date={currentKykDay.dateRaw} label="Akşam yemeğini puanla" />
+                            )}
                             <div className="meal-column">
                                 <h3>Akşam Yemeği</h3>
                                 <div className="meal-items">
