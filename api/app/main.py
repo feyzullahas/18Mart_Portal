@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 from slowapi import _rate_limit_exceeded_handler as rate_limit_handler
 from slowapi.errors import RateLimitExceeded
 from app.utils.limiter import limiter
@@ -38,31 +39,59 @@ async def startup_event():
     else:
         print(" Database bağlantısı başarısız")
 
+ALLOWED_ORIGINS = [
+    "https://18martportal.tech",
+    "https://www.18martportal.tech",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
+    "http://localhost:5175",
+    "http://127.0.0.1:5175",
+    "http://localhost:5176",
+    "http://127.0.0.1:5176",
+    "http://localhost:5177",
+    "http://127.0.0.1:5177",
+    "http://localhost:5178",
+    "http://127.0.0.1:5178",
+    "http://localhost:5179",
+    "http://127.0.0.1:5179",
+]
+
 # CORS ayarları
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://18martportal.tech",
-        "https://www.18martportal.tech",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:5174",
-        "http://127.0.0.1:5174",
-        "http://localhost:5175",
-        "http://127.0.0.1:5175",
-        "http://localhost:5176",
-        "http://127.0.0.1:5176",
-        "http://localhost:5177",
-        "http://127.0.0.1:5177",
-        "http://localhost:5178",
-        "http://127.0.0.1:5178",
-        "http://localhost:5179",
-        "http://127.0.0.1:5179",
-    ],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.options("/{rest_of_path:path}")
+async def preflight_handler(rest_of_path: str, request: Request):
+    """Tüm OPTIONS preflight isteklerini explicit olarak yakala.
+    Vercel cold-start'ta middleware yüklenemese bile CORS header'ları dön."""
+    origin = request.headers.get("origin", "")
+    # Origin kontrolü
+    is_allowed = (
+        origin in ALLOWED_ORIGINS
+        or origin.endswith(".vercel.app")
+        or origin.startswith("http://localhost")
+        or origin.startswith("http://127.0.0.1")
+    )
+    allow_origin = origin if is_allowed else "https://18martportal.tech"
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": allow_origin,
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
+            "Access-Control-Allow-Headers": "Authorization, Content-Type, Accept",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Max-Age": "86400",
+        },
+    )
 
 # Routers
 app.include_router(weather.router)
