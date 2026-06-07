@@ -81,24 +81,37 @@ function MealRatingBox({ cafeteria, date, label }: { cafeteria: 'kyk_kahvalti' |
                 },
                 body: JSON.stringify({ cafeteria, date, rating: selected }),
             });
+
             if (res.status === 409) {
                 setError('Bu yemekhane için bugün zaten oy kullandınız.');
                 setVoted(true);
                 return;
             }
-            if (!res.ok) throw new Error();
 
+            if (!res.ok) {
+                const errText = await res.text();
+                console.error(`[MealRating] POST ${res.status}:`, errText);
+                setError(`Hata (${res.status}): ${errText.slice(0, 120)}`);
+                return;
+            }
+
+            // POST başarılı — önce voted state'i set et
             setVoted(true);
-            // Güncel ortalamayı yenile
-            const headers: HeadersInit = {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            };
-            const updated = await fetch(`${API_BASE}/meal-ratings/${cafeteria}/${date}`, { headers });
-            const updatedData: RatingData = await updated.json();
-            setRatingData(updatedData);
-        } catch {
-            setError('Bir hata oluştu, tekrar deneyin.');
+
+            // Güncel ortalamayı yenile (bu kısımdaki hata voted'ı etkilemez)
+            try {
+                const updated = await fetch(
+                    `${API_BASE}/meal-ratings/${cafeteria}/${date}`,
+                    { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } }
+                );
+                const updatedData: RatingData = await updated.json();
+                setRatingData(updatedData);
+            } catch (refreshErr) {
+                console.warn('[MealRating] Ortalama yenilenemedi:', refreshErr);
+            }
+        } catch (err) {
+            console.error('[MealRating] Fetch hatası:', err);
+            setError('Sunucuya ulaşılamadı, lütfen tekrar deneyin.');
         } finally {
             setSubmitting(false);
         }
