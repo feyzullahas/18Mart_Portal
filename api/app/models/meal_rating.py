@@ -8,8 +8,8 @@ class MealRating(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    cafeteria = Column(String(10), nullable=False)   # "kyk" veya "osem"
-    date = Column(String(10), nullable=False)        # "2026-06-07" formatı
+    cafeteria = Column(String(20), nullable=False)   # "kyk_kahvalti", "kyk_aksam", "osem"
+    date = Column(String(12), nullable=False)        # "2026-06-07" formatı
     rating = Column(Integer, nullable=False)         # 1-5
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())

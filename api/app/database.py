@@ -59,6 +59,7 @@ def create_tables():
     from app.models import user, course, calendar_task, meal_rating  # noqa
     Base.metadata.create_all(bind=engine)
     ensure_user_full_name_column()
+    ensure_meal_rating_column_lengths()
     print("[OK] Database tablolari basariyla olusturuldu")
 
 
@@ -80,6 +81,27 @@ def ensure_user_full_name_column():
     except Exception as e:
         print(f"[WARN] users.full_name kolon kontrolu hatasi: {e}")
 
+
+def ensure_meal_rating_column_lengths():
+    """meal_ratings.cafeteria ve date sütunlarını gerekirse VARCHAR(20/12)'ye genişletir.
+    kyk_kahvalti = 12 karakter — eski VARCHAR(10) tanımı 500 hatasına neden oluyordu."""
+    try:
+        inspector = inspect(engine)
+        if "meal_ratings" not in inspector.get_table_names():
+            return
+        with engine.begin() as connection:
+            # PostgreSQL'de sütun uzunluğunu büyütmek güvenlidir (veri kaybı yok)
+            connection.execute(text(
+                "ALTER TABLE meal_ratings "
+                "ALTER COLUMN cafeteria TYPE VARCHAR(20), "
+                "ALTER COLUMN date TYPE VARCHAR(12)"
+            ))
+        print("[OK] meal_ratings sutun uzunluklari guncellendi (VARCHAR 20/12)")
+    except Exception as e:
+        # Zaten doğru uzunluktaysa veya SQLite ise sessizce geç
+        print(f"[WARN] meal_ratings sutun guncelleme atildi: {e}")
+
+
 # Uygulama başladığında tabloları otomatik oluştur (serverless için)
 # Sadece PostgreSQL bağlantısı varsa çalıştır, yoksa startup event halleder
 try:
@@ -87,6 +109,7 @@ try:
         from app.models import user, course, calendar_task, meal_rating  # noqa
         Base.metadata.create_all(bind=engine)
         ensure_user_full_name_column()
+        ensure_meal_rating_column_lengths()
 except Exception as e:
     print(f"[WARN] Tablo olusturma hatasi (devam ediliyor): {e}")
 # Database bağlantısını test et
