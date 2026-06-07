@@ -1,1 +1,10 @@
 docker_installer.exe filter=lfs diff=lfs merge=lfs -text
+
+# Tüm metin dosyalarını LF olarak normalize et
+* text=auto eol=lf
+*.py text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.css text eol=lf
+*.json text eol=lf
+*.md text eol=lf

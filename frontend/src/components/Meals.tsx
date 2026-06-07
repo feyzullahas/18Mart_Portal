@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import '../styles/Meals.css';
+import '../styles/MealRating.css';
 
 interface MealItem {
     name: string;
@@ -26,6 +27,156 @@ interface OsemDay {
     isToday?: boolean;
 }
 
+// ─── Yemek Puanlama Bileşeni ────────────────────────────────────────────────
+const API_BASE = import.meta.env.VITE_API_URL || 'https://18-mart-portal-4orl.vercel.app';
+
+interface RatingData {
+    average: number | null;
+    count: number;
+    user_rating: number | null;
+}
+
+function MealRatingBox({ cafeteria, date, label }: { cafeteria: 'kyk_kahvalti' | 'kyk_aksam' | 'osem'; date: string; label: string }) {
+    const token = localStorage.getItem('token');
+    const isLoggedIn = !!token;
+
+    const [hovered, setHovered] = useState(0);
+    const [selected, setSelected] = useState(0);
+    const [ratingData, setRatingData] = useState<RatingData | null>(null);
+    const [submitting, setSubmitting] = useState(false);
+    const [voted, setVoted] = useState(false);
+    const [error, setError] = useState('');
+    const fetchedRef = useRef(false);
+
+    // Mevcut ortalama + kullanıcının kendi oyunu çek
+    useEffect(() => {
+        if (fetchedRef.current) return;
+        fetchedRef.current = true;
+
+        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        fetch(`${API_BASE}/meal-ratings/${cafeteria}/${date}`, { headers })
+            .then(r => r.json())
+            .then((data: RatingData) => {
+                setRatingData(data);
+                if (data.user_rating) {
+                    setSelected(data.user_rating);
+                    setVoted(true);
+                }
+            })
+            .catch(() => {});
+    }, [cafeteria, date, token]);
+
+    const handleSubmit = async () => {
+        if (!selected || submitting) return;
+        setSubmitting(true);
+        setError('');
+        try {
+            const res = await fetch(`${API_BASE}/meal-ratings/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ cafeteria, date, rating: selected }),
+            });
+            if (res.status === 409) {
+                setError('Bu yemekhane için bugün zaten oy kullandınız.');
+                setVoted(true);
+                return;
+            }
+            if (!res.ok) throw new Error();
+
+            setVoted(true);
+            // Güncel ortalamayı yenile
+            const headers: HeadersInit = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            };
+            const updated = await fetch(`${API_BASE}/meal-ratings/${cafeteria}/${date}`, { headers });
+            const updatedData: RatingData = await updated.json();
+            setRatingData(updatedData);
+        } catch {
+            setError('Bir hata oluştu, tekrar deneyin.');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    // Ortalama yıldızları render et
+    const renderAvgStars = (avg: number) => {
+        return [1, 2, 3, 4, 5].map(i => {
+            let cls = 'empty';
+            if (i <= Math.floor(avg)) cls = 'full';
+            else if (i === Math.ceil(avg) && avg % 1 >= 0.3) cls = 'half';
+            return <span key={i} className={`avg-star ${cls}`}>★</span>;
+        });
+    };
+
+    return (
+        <div className={`meal-rating-box${voted ? ' voted' : ''}`}>
+            <span className="meal-rating-title">{label}</span>
+
+            {/* Ortalama — her zaman göster */}
+            <div className="rating-average-row">
+                {ratingData && ratingData.count > 0 ? (
+                    <>
+                        <div className="rating-average-stars">
+                            {renderAvgStars(ratingData.average ?? 0)}
+                        </div>
+                        <span className="rating-avg-number">{ratingData.average}</span>
+                        <span className="rating-count">({ratingData.count} oy)</span>
+                    </>
+                ) : (
+                    <span className="rating-count">Henüz oy verilmedi</span>
+                )}
+            </div>
+
+            {/* Yıldız seçici — sadece giriş yapılmışsa ve oy verilmemişse */}
+            {isLoggedIn && !voted && (
+                <>
+                    <div className="star-row">
+                        {[1, 2, 3, 4, 5].map(star => (
+                            <button
+                                key={star}
+                                className={`star-btn${star <= (hovered || selected) ? ' selected' : ''}${star <= hovered ? ' hovered' : ''}`}
+                                onMouseEnter={() => setHovered(star)}
+                                onMouseLeave={() => setHovered(0)}
+                                onClick={() => setSelected(star)}
+                                aria-label={`${star} yıldız`}
+                            >
+                                ★
+                            </button>
+                        ))}
+                    </div>
+                    <button
+                        className="rating-submit-btn"
+                        onClick={handleSubmit}
+                        disabled={!selected || submitting}
+                    >
+                        {submitting ? 'Gönderiliyor...' : 'Oylamayı Gönder'}
+                    </button>
+                </>
+            )}
+
+            {/* Oy verildi mesajı */}
+            {isLoggedIn && voted && (
+                <span className="rating-voted-msg">✓ Oyunuz kaydedildi</span>
+            )}
+
+            {/* Giriş yapılmamışsa bilgi */}
+            {!isLoggedIn && (
+                <span className="rating-count">Oy vermek için giriş yapın</span>
+            )}
+
+            {error && <span className="rating-error">{error}</span>}
+        </div>
+    );
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+
 export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onToggle?: () => void } = {}) => {
     const [activeTab, setActiveTab] = useState<'osem' | 'kyk'>('osem');
     const [kykData, setKykData] = useState<KykDay[]>([]);
@@ -39,6 +190,12 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
     const [localOpen, setLocalOpen] = useState(false);
     const isOpen = propIsOpen !== undefined ? propIsOpen : localOpen;
     const handleToggle = onToggle ?? (() => setLocalOpen(prev => !prev));
+
+    // Frontend tarafında bugünün tarihi — cache'den bağımsız
+    const todayStr = (() => {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    })();
 
     const now = new Date();
     const year = now.getFullYear();
@@ -305,6 +462,11 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                             <button className="nav-btn" onClick={goToNextOsem}>▶</button>
                         </div>
 
+                        {/* Puanlama kutusu — sadece bugün */}
+                        {currentOsemDay.dateRaw === todayStr && (
+                            <MealRatingBox cafeteria="osem" date={currentOsemDay.dateRaw} label="Bugünkü öğle yemeğini puanla" />
+                        )}
+
                         {/* Menü */}
                         <div className="meal-column single">
                             <h3>Öğle Yemeği</h3>
@@ -341,6 +503,14 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                             </div>
                             <button className="nav-btn" onClick={goToNextKyk}>▶</button>
                         </div>
+
+                        {/* Puanlama kutuları — sadece bugün */}
+                        {currentKykDay.dateRaw === todayStr && (
+                            <>
+                                <MealRatingBox cafeteria="kyk_kahvalti" date={currentKykDay.dateRaw} label="Kahvaltıyı puanla" />
+                                <MealRatingBox cafeteria="kyk_aksam" date={currentKykDay.dateRaw} label="Akşam yemeğini puanla" />
+                            </>
+                        )}
 
                         <div className="meal-grid">
                             {/* Kahvaltı */}
