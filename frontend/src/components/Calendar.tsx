@@ -691,7 +691,7 @@ export const Calendar = ({ isOpen: propIsOpen, onToggle, openMyCalendarToken, on
                                     <h4>
                                         {editingTaskId
                                             ? `${formatDateForDisplay(selectedDay)} görevi düzenle`
-                                            : `${formatDateForDisplay(selectedDay)} için yapılacaklar`}
+                                            : 'Ekle'}
                                     </h4>
                                     <input
                                         type="text"
