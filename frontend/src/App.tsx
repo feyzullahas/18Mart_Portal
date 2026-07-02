@@ -205,11 +205,6 @@ const AppContent = () => {
                                     <h3>Hava Durumu</h3>
                                     <Weather isOpen />
                                 </section>
-                                <section className="portal-home-block">
-                                    <div className="exam-success-message">
-                                        <h3>Finallerinizde başarılar dileriz!</h3>
-                                    </div>
-                                </section>
                             </div>
                         </>
                     )

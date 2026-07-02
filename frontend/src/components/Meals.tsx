@@ -454,6 +454,12 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                     </button>
                 </div>
 
+                {activeTab === 'kyk' && (
+                    <p className="meal-note">
+                        2026-2027 eğitim döneminde Kyk yemek menüsü güncellenmeye devam edicektir.
+                    </p>
+                )}
+
                 {/* İçerik */}
                 {activeTab === 'osem' && loadingOsem && !currentOsemDay ? (
                     <div className="loading-indicator">
@@ -472,9 +478,6 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                 ) : activeTab === 'kyk' && kykError && !currentKykDay ? (
                     <div className="error-message">
                         {kykError}
-                        <p style={{ fontSize: '0.9em', marginTop: '10px', color: '#888' }}>
-                            Haziran ayı kyk yemek menüsünün yüklenmesi birkaç gün sürebilir.
-                        </p>
                     </div>
                 ) : activeTab === 'osem' && currentOsemDay ? (
                     <div className="osem-section">
@@ -572,9 +575,9 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
                             </div>
                         </div>
                     </div>
-                ) : (
+                ) : activeTab === 'osem' ? (
                     <div className="error-message">Menü bulunamadı</div>
-                )}
+                ) : null}
             </div>
         </div>
     );
