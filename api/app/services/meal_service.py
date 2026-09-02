@@ -200,6 +200,32 @@ class MealService:
             "2026-07-31": [("Domates Çorba", 153), ("Kıymalı Çökertme Kebabı", 388), ("Cevizli Erişte", 300), ("Sütlaç", 357)],
         }
 
+    def _osem_menus_september_2026(self) -> Dict[str, List[tuple]]:
+        return {
+            "2026-09-01": [("Ezogelin Çorba", 230), ("Tavuk Hünkarbeğendi", 440), ("Dom. Sos. Makarna", 317), ("Yoğurtlu Köz Patlıcan", 147)],
+            "2026-09-02": [("Buğday Çorba", 164), ("İnegöl Köfte", 388), ("Haşlanmış Sebze", 18), ("Peynirli Kuskus", 343), ("Ayran", 74)],
+            "2026-09-03": [("Mercimek Çorba", 233), ("Tavuk Baget", 386), ("Elma Dilim Patates", 151), ("Sosyete Mantısı", 357), ("Karışık Salata", 70)],
+            "2026-09-04": [("Tarhana Çorba", 194), ("Patlıcan Musakka", 439), ("Tel Şeh. Pirinç Pilavı", 345), ("Cevizli Baklava", 482)],
+            "2026-09-07": [("Mercimek Çorba", 233), ("Salçalı Köfte", 467), ("Fasulye Piyazı", 124), ("Arpa Şehriye Pilavı", 360), ("Yoğurt", 124)],
+            "2026-09-08": [("Domates Çorba", 153), ("Tavuk Külbastı", 275), ("Haydari", 55), ("Erişte Kavurma", 235), ("Sütlaç", 213)],
+            "2026-09-09": [("Anadolu Çorba", 96), ("Etli Türlü", 348), ("Mısırlı Pirinç Pilavı", 315), ("Kemalpaşa Tatlısı", 209)],
+            "2026-09-10": [("Düğün Çorba", 174), ("Köri Soslu Tavuk", 389), ("Yoğurtlu Mantı", 381), ("Karpuz", 112)],
+            "2026-09-11": [("Sebze Çorba", 155), ("Kilis Tava", 346), ("Patates Püresi", 137), ("Nohutlu Bulgur Pilavı", 314), ("Cacık", 118)],
+            "2026-09-14": [("Tavuksuyu Çorba", 198), ("Et Döner", 318), ("Domates Salatası", 45), ("Bahar Pilavı", 259), ("Ayran", 74)],
+            "2026-09-15": [("Tel Şehriye Çorba", 124), ("İspanyol Tavuk", 402), ("Fesleğen Soslu Spagetti", 316), ("Supangle", 338)],
+            "2026-09-16": [("Köylü Çorba", 176), ("Et Sote", 370), ("Lavaş", 220), ("Körili Bulgur Pilavı", 286), ("Yoğurt", 124)],
+            "2026-09-17": [("Lebeniye Çorba", 151), ("Kadınbudu Köfte", 477), ("Biber Borani", 56), ("Sade Kuskus", 315), ("Trileçe", 285)],
+            "2026-09-18": [("Ezogelin Çorba", 230), ("Patates Musakka", 415), ("Arpa Şehriye Pilavı", 360), ("Yoğurtlu Kapya Biber Salatası", 126)],
+            "2026-09-21": [("Tarhana Çorba", 194), ("Ankara Tava", 511), ("Şakşuka", 182), ("Kabak Borani", 116)],
+            "2026-09-22": [("Ezogelin Çorba", 230), ("Tavuk Sote", 328), ("Su Böreği", 430), ("Kavun", 122)],
+            "2026-09-23": [("Mercimek Çorba", 233), ("Hünkarbeğendi", 446), ("Cevizli Erişte", 300), ("Revani", 424)],
+            "2026-09-24": [("Düğün Çorba", 174), ("Tavuk Döner", 287), ("Marul Salatası", 61), ("Tel Şeh. Pirinç Pilavı", 345), ("Ayran", 74)],
+            "2026-09-25": [("Buğday Çorba", 164), ("İzmir Köfte", 442), ("Makarna Kavurma", 310), ("Fındıklı Muhallebi", 343)],
+            "2026-09-28": [("Domates Çorba", 153), ("İskender", 481), ("Yoğurt", 62), ("Zerdeçallı Bulgur Pilavı", 271), ("Meyve Suyu", 100)],
+            "2026-09-29": [("Yoğurt Çorba", 130), ("Fırın Tavuk Pirzola", 388), ("Kızarmış Domates Biber", 12), ("Yoğurtlu Mantı", 381), ("Fıstıklı İrmik Helvası", 480)],
+            "2026-09-30": [("Tavuksuyu Çorba", 198), ("Hasanpaşa Köfte", 491), ("Patates Püresi", 137), ("Arpa Şehriye Pilavı", 360), ("Ayran", 74)],
+        }
+
     def _build_osem_month(self, year: int, month: int) -> List[Dict]:
         menus = {}
         if year == 2026 and month == 5:
@@ -208,6 +234,8 @@ class MealService:
             menus = self._osem_menus_june_2026()
         elif year == 2026 and month == 7:
             menus = self._osem_menus_july_2026()
+        elif year == 2026 and month == 9:
+            menus = self._osem_menus_september_2026()
         
         days_in_month = calendar.monthrange(year, month)[1]
         result: List[Dict] = []
