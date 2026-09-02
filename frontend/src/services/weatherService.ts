@@ -1,6 +1,6 @@
 const PROD_API_BASE_URL = 'https://18-mart-portal-4orl.vercel.app';
-const WEATHER_CURRENT_CACHE_KEY = 'weather_current_cache_v1';
-const WEATHER_FORECAST_CACHE_KEY = 'weather_forecast_cache_v1_7';
+const WEATHER_CURRENT_CACHE_KEY = 'weather_current_cache_v2';
+const WEATHER_FORECAST_CACHE_KEY = 'weather_forecast_cache_v2_7';
 
 const resolveApiBaseUrl = () => {
     const envApiUrl = import.meta.env.VITE_API_URL;
