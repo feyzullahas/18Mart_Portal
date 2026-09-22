@@ -79,6 +79,14 @@
     scrollbar-color: var(--border-color) transparent;
 }
 
+@media (max-width: 768px) {
+    /* Mobilde serbest scroll yerine swipe ile gün değiştirme */
+    .schedule-scroll-container {
+        overflow-x: hidden;
+        touch-action: pan-y;
+    }
+}
+
 .schedule-scroll-container::-webkit-scrollbar {
     height: 6px;
 }

@@ -281,22 +281,51 @@ export const Schedule = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
         }
     };
 
-    // Scroll ile currentDayIndex senkronizasyonu
+    // ── Mobil swipe ile gün değiştirme ──────────────────────────────────────
+    const touchStartX = useRef<number | null>(null);
+    const touchStartY = useRef<number | null>(null);
+    const isSwiping = useRef(false);
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX;
+        touchStartY.current = e.touches[0].clientY;
+        isSwiping.current = false;
+    };
+
+    // touchmove'u passive:false ile native olarak bağla (preventDefault için gerekli)
     useEffect(() => {
-        const container = scrollContainerRef.current;
-        if (!container) return;
-
-        const handleScroll = () => {
-            const stepWidth = getDayStepWidth();
-            if (stepWidth === 0) return;
-            const newIndex = Math.round(container.scrollLeft / stepWidth);
-            const clamped = Math.max(0, Math.min(days.length - 1, newIndex));
-            setCurrentDayIndex(clamped);
+        const el = scrollContainerRef.current;
+        if (!el) return;
+        const onMove = (e: TouchEvent) => {
+            if (touchStartX.current === null || touchStartY.current === null) return;
+            const dx = e.touches[0].clientX - touchStartX.current;
+            const dy = e.touches[0].clientY - touchStartY.current;
+            if (Math.abs(dx) > Math.abs(dy) * 1.5) {
+                isSwiping.current = true;
+                e.preventDefault(); // sayfanın yatay kaymasını engelle
+            }
         };
-
-        container.addEventListener('scroll', handleScroll, { passive: true });
-        return () => container.removeEventListener('scroll', handleScroll);
+        el.addEventListener('touchmove', onMove, { passive: false });
+        return () => el.removeEventListener('touchmove', onMove);
     }, [isOpen]);
+
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        if (touchStartX.current === null || !isSwiping.current) {
+            touchStartX.current = null;
+            touchStartY.current = null;
+            return;
+        }
+        const dx = e.changedTouches[0].clientX - touchStartX.current;
+        const THRESHOLD = 50;
+        if (dx < -THRESHOLD) {
+            navigateDay('next');
+        } else if (dx > THRESHOLD) {
+            navigateDay('prev');
+        }
+        touchStartX.current = null;
+        touchStartY.current = null;
+        isSwiping.current = false;
+    };
 
     // Load courses on component mount - always load when user is authenticated
     useEffect(() => {
@@ -405,7 +434,12 @@ export const Schedule = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; o
                     </div>
 
                     {/* Scrollable Days Container */}
-                    <div className="schedule-scroll-container" ref={scrollContainerRef}>
+                    <div
+                        className="schedule-scroll-container"
+                        ref={scrollContainerRef}
+                        onTouchStart={handleTouchStart}
+                        onTouchEnd={handleTouchEnd}
+                    >
                         <div className="schedule-grid-horizontal">
                             {days.map(day => (
                                 <div key={day} className="day-column-horizontal">
