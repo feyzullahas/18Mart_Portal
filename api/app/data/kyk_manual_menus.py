@@ -359,7 +359,42 @@ _JUNE_2026 = [
 ]
 
 
+# ──────────────────────────────────────────────
+# EYLÜL 2026
+# ──────────────────────────────────────────────
+_SEPTEMBER_2026 = [
+    _day("2026-09-22", "22 Eylül 2026 Salı",
+         ["Sade Omlet", "Sosis Kızartma", "Sade Poğaça", "Kaşar Peynir", "Siyah/Yeşil Zeytin"],
+         ["Domates Çorba - Terbiyeli Şehriye Çorba", "Hünkar Beğendi (Kuşbaşı etli) / Tavuk Pirzola + Garnitür / Taze Fasulye Yemeği", "Salçalı Bulgur Pilavı", "Ezme", "Meyve Suyu / Ayran"]),
+    _day("2026-09-23", "23 Eylül 2026 Çarşamba",
+         ["Haşlanmış Yumurta", "Patates Kızartması", "Zeytinli/Peynirli Açma", "Beyaz Peynir", "Siyah/Yeşil Zeytin"],
+         ["Mercimek Çorba - Sebze Çorba", "Tavuk Fajita / Biber Dolma + Yoğurt", "Salçalı Makarna", "Karışık Salata", "Meyve Suyu / Ayran"]),
+    _day("2026-09-24", "24 Eylül 2026 Perşembe",
+         ["Kaşarlı Omlet", "Karışık Kızartma", "Peynirli Milföy Börek", "Tulum Peynir", "Siyah/Yeşil Zeytin"],
+         ["Düğün Çorba - Havuç Çorba", "Nohut Yemeği / Mücver + Yoğurt", "Domatesli Bulgur Pilavı", "Cevizli Baklava", "Meyve Suyu / Ayran"]),
+    _day("2026-09-25", "25 Eylül 2026 Cuma",
+         ["Haşlanmış Yumurta", "Patates Salatası", "Pankek + Bal", "Kaşar Peynir", "Siyah/Yeşil Zeytin"],
+         ["Tavuk Çorba - Şafak Çorba", "Mengen Musakka / Sebze Graten", "Şehriyeli Pirinç Pilavı", "Cacık", "Meyve Suyu / Ayran"]),
+    _day("2026-09-26", "26 Eylül 2026 Cumartesi",
+         ["Menemen", "Salçalı Sosis", "Simit", "Krem Peynir", "Siyah/Yeşil Zeytin"],
+         ["Tarhana Çorba - Salçalı Şehriye Çorba", "Galeta Unlu Tavuk + Garnitür / Bezelye Yemeği", "Cevizli Erişte", "Havuç Tarator", "Meyve Suyu / Ayran"]),
+    _day("2026-09-27", "27 Eylül 2026 Pazar",
+         ["Haşlanmış Yumurta", "Patates Kızartması", "Peynirli/Ispanaklı Börek", "Örgü Peynir", "Siyah/Yeşil Zeytin"],
+         ["Ezogelin Çorba - Yayla Çorba", "Orman Kebabı / Beşamel Soslu Tavuk / Karnabahar Kızartma + Yoğurt", "Sebzeli Bulgur Pilavı", "Aysberg Salata", "Meyve Suyu / Ayran"]),
+    _day("2026-09-28", "28 Eylül 2026 Pazartesi",
+         ["Sucuklu Yumurta", "Patates Kavurması", "Dere Otlu Poğaça", "Beyaz Peynir", "Siyah/Yeşil Zeytin"],
+         ["Mercimek Çorba - Terbiyeli Şehriye Çorba", "Hamburger / Mantar Sote", "Patates Kızartması + Ketçap + Mayonez", "Çiğköfte", "Meyve Suyu / Ayran"]),
+    _day("2026-09-29", "29 Eylül 2026 Salı",
+         ["Haşlanmış Yumurta", "Karışık Kızartma", "Tepsi Böreği", "Kaşar Peynir", "Siyah/Yeşil Zeytin"],
+         ["Tarhana Çorba - Kremalı Mantar Çorba", "Izgara Tavuk + Garnitür / Biber Dolma", "Spagetti Napoliten", "Yoğurt", "Meyve Suyu / Ayran"]),
+    _day("2026-09-30", "30 Eylül 2026 Çarşamba",
+         ["Peynirli Omlet", "Salçalı Sosis", "Sade Poğaça", "Beyaz Peynir", "Siyah/Yeşil Zeytin"],
+         ["Toyga Çorba - Domates Çorba", "Et Fajita + Lavaş / Tavuk Sote / Taze Fasulye", "Domatesli Bulgur Pilavı", "Tiramisu", "Meyve Suyu / Ayran"]),
+]
+
+
 MANUAL_MENUS = {
     "2026-05": _MAY_2026,
     "2026-06": _JUNE_2026,
+    "2026-09": _SEPTEMBER_2026,
 }

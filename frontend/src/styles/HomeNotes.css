@@ -1,0 +1,223 @@
+.home-notes-section {
+    margin-top: 1.5rem;
+}
+
+.home-notes-section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+}
+
+/* Form */
+.home-notes-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.home-notes-input {
+    flex: 1;
+    padding: 1rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    background: var(--card-bg, #fff);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.home-notes-input:focus {
+    border-color: var(--accent-color, #1756dd);
+}
+
+.home-notes-add-btn {
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    border: none;
+    background: #22c55e;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.home-notes-add-btn:hover:not(:disabled) {
+    opacity: 0.88;
+}
+
+.home-notes-add-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Liste */
+.home-notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.home-note-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 10px;
+    background: #ffffff;
+    border: 1px solid var(--border-color, #e2e8f0);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    transition: box-shadow 0.2s, opacity 0.2s;
+    cursor: default;
+}
+
+/* Sabitlenmiş not */
+.home-note-item.pinned {
+    background: #fffbeb;
+    border-color: #f59e0b;
+    border-left: 3px solid #f59e0b;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+}
+
+[data-theme="dark"] .home-note-item {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+[data-theme="dark"] .home-note-item.pinned {
+    background: #1c1a0f;
+    border-color: #b45309;
+    border-left-color: #f59e0b;
+}
+
+.home-note-item.dragging {
+    opacity: 0.6;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    z-index: 99;
+}
+
+.home-note-drag-handle {
+    background: none;
+    border: none;
+    padding: 0 4px;
+    color: var(--text-secondary, #94a3b8);
+    font-size: 1rem;
+    cursor: grab;
+    line-height: 1;
+    touch-action: none;
+    flex-shrink: 0;
+}
+
+.home-note-drag-handle:active {
+    cursor: grabbing;
+}
+
+.home-note-title {
+    flex: 1;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+/* Aksiyon butonları */
+.home-note-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+}
+
+/* Pin butonu */
+.home-note-pin {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--text-secondary, #94a3b8);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 4px 5px;
+    border-radius: 6px;
+    transition: color 0.15s;
+    flex-shrink: 0;
+}
+
+.home-note-pin:hover:not(:disabled) {
+    color: #f59e0b;
+}
+
+.home-note-pin.active {
+    color: #f59e0b;
+}
+
+.home-note-pin:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Çöp kutusu butonu */
+.home-note-delete {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+
+.home-note-delete:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.12);
+}
+
+.home-note-delete:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* States */
+.home-notes-locked {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    align-items: flex-start;
+    padding: 1rem;
+    border-radius: 10px;
+    background: #ffffff;
+    border: 1px solid var(--border-color, #e2e8f0);
+    color: var(--text-secondary, #64748b);
+    font-size: 0.9rem;
+}
+
+[data-theme="dark"] .home-notes-locked {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.home-notes-empty {
+    color: var(--text-secondary, #94a3b8);
+    font-size: 0.88rem;
+    padding: 0.5rem 0;
+}
+
+.home-notes-loading {
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0;
+}
+
+.home-notes-error {
+    color: #ef4444;
+    font-size: 0.85rem;
+    margin: 0.25rem 0;
+}

@@ -7,6 +7,7 @@ import { Bus } from './components/Bus';
 import { Calendar } from './components/Calendar';
 import { Schedule } from './components/Schedule';
 import { Auth } from './components/Auth';
+import { HomeNotes } from './components/HomeNotes';
 import { InstallToast, useInstallPrompt } from './components/InstallPrompt';
 import { UserMenu } from './components/UserMenu';
 import { ProfileSettings } from './components/ProfileSettings';
@@ -204,6 +205,9 @@ const AppContent = () => {
                                 <section className="portal-home-block">
                                     <h3>Hava Durumu</h3>
                                     <Weather isOpen />
+                                </section>
+                                <section className="portal-home-block">
+                                    <HomeNotes onOpenLogin={() => setIsAuthModalOpen(true)} />
                                 </section>
                             </div>
                         </>

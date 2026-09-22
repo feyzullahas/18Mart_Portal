@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
-
 :root {
     --portal-bg: #eef3f9;
     --portal-surface: #ffffff;
@@ -396,7 +394,7 @@
 }
 
 .portal-app .portal-home-block,
-.portal-app .portal-home-block * {
+.portal-app .portal-home-block *:not(.home-note-item):not(.home-note-item.pinned):not(.home-notes-input):not(.home-notes-add-btn):not(.home-notes-locked) {
     background-color: transparent;
 }
 

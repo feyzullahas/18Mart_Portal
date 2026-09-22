@@ -19,7 +19,7 @@ if not os.getenv('SECRET_KEY'):
     import sys
     print("HATA: SECRET_KEY environment variable ayarlanmamış!", file=sys.stderr)
 
-from app.routers import auth_new, courses_new, weather, calendar, meals, bus, meal_ratings
+from app.routers import auth_new, courses_new, weather, calendar, meals, bus, notes
 from app.database import test_connection, create_tables
 
 app = FastAPI(title="18Mart Portal API")
@@ -101,7 +101,7 @@ app.include_router(bus.router)
 # Yeni auth ve courses router'ları
 app.include_router(auth_new.router)
 app.include_router(courses_new.router)
-app.include_router(meal_ratings.router)
+app.include_router(notes.router)
 # Eski router'ları yorum satırı yap
 # app.include_router(auth.router)
 # app.include_router(courses.router)

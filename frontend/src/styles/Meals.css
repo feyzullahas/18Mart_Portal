@@ -161,20 +161,16 @@
     gap: 25px;
 }
 
-/* KYK öğün bölümü: puanlama + menü birlikte dikey */
 .kyk-meal-section {
     display: flex;
     flex-direction: column;
     gap: 12px;
     margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0;
 }
 
 .kyk-meal-section:last-child {
     margin-bottom: 0;
-    padding-bottom: 0;
-    border-bottom: none;
 }
 
 .meal-column {
