@@ -46,7 +46,7 @@ const SortableNoteItem = ({
         <div
             ref={setNodeRef}
             style={style}
-            className={`home-note-item${isDragging ? ' dragging' : ''}${note.is_pinned ? ' pinned' : ''}`}
+            className={`home-note-item${isDragging ? ' dragging' : ''}${note.is_pinned ? ' pinned' : ''}${note.id < 0 ? ' optimistic' : ''}`}
         >
             <button
                 type="button"
@@ -63,20 +63,20 @@ const SortableNoteItem = ({
                     type="button"
                     className={`home-note-pin${note.is_pinned ? ' active' : ''}`}
                     onClick={() => onTogglePin(note.id)}
-                    disabled={pinningId === note.id}
+                    disabled={pinningId === note.id || note.id < 0}
                     aria-label={note.is_pinned ? 'Sabitlemeyi kaldır' : 'Sabitle'}
                     title={note.is_pinned ? 'Sabitlemeyi kaldır' : 'Sabitle'}
                 >
-                    {pinningId === note.id ? '…' : note.is_pinned ? <AiFillPushpin /> : <AiOutlinePushpin />}
+                    {note.is_pinned ? <AiFillPushpin /> : <AiOutlinePushpin />}
                 </button>
                 <button
                     type="button"
                     className="home-note-delete"
                     onClick={() => onDelete(note.id)}
-                    disabled={deletingId === note.id}
+                    disabled={deletingId === note.id || note.id < 0}
                     aria-label="Notu sil"
                 >
-                    {deletingId === note.id ? '…' : <FiTrash2 />}
+                    <FiTrash2 />
                 </button>
             </div>
         </div>
@@ -94,68 +94,123 @@ export const HomeNotes = ({ onOpenLogin }: { onOpenLogin?: () => void }) => {
     const [pinningId, setPinningId] = useState<number | null>(null);
     const [error, setError] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
+    // Geçici ID sayacı (optimistic update için negatif)
+    const tempIdRef = useRef(-1);
 
     const fetchNotes = useCallback(async () => {
         if (!user) return;
-        setLoading(true);
+        // Önbellekte veri varsa loading gösterme, arka planda güncelle
+        const cached = notesService.getCachedNotes();
+        if (cached.length > 0) {
+            setNotes(cached);
+            setLoading(false);
+        } else {
+            setLoading(true);
+        }
         try {
             const data = await notesService.getNotes();
             setNotes(data);
         } catch {
-            setError('Notlar yüklenemedi.');
+            if (cached.length === 0) setError('Notlar yüklenemedi.');
         } finally {
             setLoading(false);
         }
     }, [user]);
 
     useEffect(() => {
+        // Kullanıcı değişince önbelleği temizle
+        if (!user) {
+            notesService.clearCache();
+            setNotes([]);
+        }
         void fetchNotes();
-    }, [fetchNotes]);
+    }, [fetchNotes, user]);
 
+
+    // ── Not Ekle (Optimistic) ─────────────────────────────────────────────────
     const handleAdd = async () => {
         const title = inputValue.trim();
         if (!title || saving) return;
+
+        // 1) UI'ı anında güncelle (geçici negatif ID ile)
+        const tempId = tempIdRef.current--;
+        const tempNote: HomeNote = {
+            id: tempId,
+            title,
+            position: 0,
+            is_pinned: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        };
+        setNotes(prev => {
+            const pinned = prev.filter(n => n.is_pinned);
+            const unpinned = prev.filter(n => !n.is_pinned);
+            return [...pinned, tempNote, ...unpinned];
+        });
+        setInputValue('');
         setSaving(true);
         setError('');
+
+        // 2) Arka planda API çağrısı
         try {
-            const newNote = await notesService.createNote(title);
-            // Yeni not sabitlenen notların altına, diğerlerinin üstüne eklenir
-            setNotes(prev => {
-                const pinned = prev.filter(n => n.is_pinned);
-                const unpinned = prev.filter(n => !n.is_pinned);
-                return [...pinned, newNote, ...unpinned];
-            });
-            setInputValue('');
+            const realNote = await notesService.createNote(title);
+            // Geçici notu gerçek nota değiştir
+            setNotes(prev => prev.map(n => (n.id === tempId ? realNote : n)));
         } catch {
+            // Hata varsa geçici notu kaldır
+            setNotes(prev => prev.filter(n => n.id !== tempId));
             setError('Not eklenemedi.');
         } finally {
             setSaving(false);
         }
     };
 
+    // ── Sabitle/Kaldır (Optimistic) ───────────────────────────────────────────
     const handleTogglePin = async (id: number) => {
+        if (id < 0) return; // Henüz kaydedilmemiş not
         setPinningId(id);
         setError('');
+
+        // 1) UI'ı anında güncelle
+        const snapshot = [...notes];
+        setNotes(prev => {
+            const toggled = prev.map(n =>
+                n.id === id ? { ...n, is_pinned: !n.is_pinned } : n
+            );
+            // Sıralamayı güncelle: sabitlenmiş üste
+            const pinned = toggled.filter(n => n.is_pinned);
+            const unpinned = toggled.filter(n => !n.is_pinned);
+            return [...pinned, ...unpinned];
+        });
+
+        // 2) Arka planda API
         try {
-            const updated = await notesService.togglePin(id);
-            // Sunucudan güncel sıralamayı al
-            const fresh = await notesService.getNotes();
-            setNotes(fresh);
-            void updated; // suppress unused warning
+            await notesService.togglePin(id);
         } catch {
+            // Hata varsa orijinal listeye dön
+            setNotes(snapshot);
             setError('Sabitleme değiştirilemedi.');
         } finally {
             setPinningId(null);
         }
     };
 
+    // ── Sil (Optimistic) ─────────────────────────────────────────────────────
     const handleDelete = async (id: number) => {
+        if (id < 0) return;
         setDeletingId(id);
         setError('');
+
+        // 1) UI'ı anında güncelle
+        const snapshot = [...notes];
+        setNotes(prev => prev.filter(n => n.id !== id));
+
+        // 2) Arka planda API
         try {
             await notesService.deleteNote(id);
-            setNotes(prev => prev.filter(n => n.id !== id));
         } catch {
+            // Hata varsa geri al
+            setNotes(snapshot);
             setError('Not silinemedi.');
         } finally {
             setDeletingId(null);
@@ -227,7 +282,7 @@ export const HomeNotes = ({ onOpenLogin }: { onOpenLogin?: () => void }) => {
                             className="home-notes-add-btn"
                             disabled={!inputValue.trim() || saving}
                         >
-                            {saving ? '…' : '+'}
+                            +
                         </button>
                     </form>
 

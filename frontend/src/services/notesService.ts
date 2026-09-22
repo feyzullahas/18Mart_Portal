@@ -9,7 +9,30 @@ export interface HomeNote {
     title: string;
     position: number;
     is_pinned: boolean;
+    created_at?: string;
+    updated_at?: string;
 }
+
+// ── localStorage önbelleği ────────────────────────────────────────────────────
+const CACHE_KEY = 'home_notes_cache';
+
+const readCache = (): HomeNote[] => {
+    try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        return raw ? (JSON.parse(raw) as HomeNote[]) : [];
+    } catch {
+        return [];
+    }
+};
+
+const writeCache = (notes: HomeNote[]) => {
+    try {
+        // Sadece gerçek (pozitif ID'li) notları önbellekle
+        localStorage.setItem(CACHE_KEY, JSON.stringify(notes.filter(n => n.id > 0)));
+    } catch {
+        // Depolama dolu olabilir; sessizce geç
+    }
+};
 
 const getAuthHeaders = (): Record<string, string> => {
     const token = localStorage.getItem('token');
@@ -19,10 +42,17 @@ const getAuthHeaders = (): Record<string, string> => {
 };
 
 export const notesService = {
+    /** Önce önbellekten döner; arka planda taze veriyi getirir. */
+    getCachedNotes(): HomeNote[] {
+        return readCache();
+    },
+
     async getNotes(): Promise<HomeNote[]> {
         const res = await fetch(`${API_BASE_URL}/notes/`, { headers: getAuthHeaders() });
         if (!res.ok) throw new Error('Notlar alınamadı');
-        return res.json();
+        const data = (await res.json()) as HomeNote[];
+        writeCache(data);
+        return data;
     },
 
     async createNote(title: string): Promise<HomeNote> {
@@ -59,5 +89,9 @@ export const notesService = {
             body: JSON.stringify({ ordered_ids: orderedIds }),
         });
         if (!res.ok) throw new Error('Sıralama güncellenemedi');
+    },
+
+    clearCache() {
+        localStorage.removeItem(CACHE_KEY);
     },
 };
