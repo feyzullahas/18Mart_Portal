@@ -11,5 +11,6 @@ beautifulsoup4
 python-jose[cryptography]
 bcrypt==4.0.1
 psycopg2-binary
+psycopg[binary]
 email-validator
 python-multipart
