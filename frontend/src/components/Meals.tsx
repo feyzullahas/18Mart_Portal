@@ -4,7 +4,7 @@ import { octKykData, octOsemData } from '../data/octoberMenus';
 
 interface MealItem {
     name: string;
-    calories?: number;
+    calories?: number | null;
 }
 
 interface KykDay {
@@ -12,8 +12,8 @@ interface KykDay {
     dateRaw?: string;
     breakfast: MealItem[];
     dinner: MealItem[];
-    total_calories_breakfast?: number;
-    total_calories_dinner?: number;
+    total_calories_breakfast?: number | null;
+    total_calories_dinner?: number | null;
     isToday?: boolean;
     isError?: boolean;
     errorMessage?: string;
@@ -23,7 +23,7 @@ interface OsemDay {
     date: string;
     dateRaw: string;
     menu: MealItem[];
-    total_calories?: number;
+    total_calories?: number | null;
     isToday?: boolean;
 }
 
