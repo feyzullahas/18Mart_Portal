@@ -20,7 +20,6 @@ if not os.getenv('SECRET_KEY'):
     print("HATA: SECRET_KEY environment variable ayarlanmamış!", file=sys.stderr)
 
 from app.routers import auth_new, courses_new, weather, calendar, meals, bus, notes
-from app.database import test_connection, create_tables
 
 app = FastAPI(title="18Mart Portal API")
 app.state.limiter = limiter
@@ -30,18 +29,6 @@ app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
 @app.on_event("startup")
 async def startup_event():
     print(" 18Mart Portal API başlatılıyor..")
-    
-    # Database bağlantısını test et
-    if test_connection():
-        print(" Database bağlantısı başarılı")
-        # Tabloları oluştur (eğer yoksa)
-        try:
-            create_tables()
-        except Exception as exc:
-            # Serverless cold-start sırasında migration hatası public endpoint'leri düşürmemeli.
-            print(f"[WARN] Database tabloları oluşturulamadı: {exc}")
-    else:
-        print(" Database bağlantısı başarısız")
 
 ALLOWED_ORIGINS = [
     "https://18martportal.tech",

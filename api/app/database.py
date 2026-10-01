@@ -101,15 +101,9 @@ def ensure_meal_rating_column_lengths():
         print(f"[WARN] meal_ratings sutun guncelleme atildi: {e}")
 
 
-# Uygulama başladığında tabloları otomatik oluştur (serverless için)
-# Sadece PostgreSQL bağlantısı varsa çalıştır, yoksa startup event halleder
-try:
-    if DATABASE_URL != "sqlite:///./portal_db.db":
-        from app.models import user, course, calendar_task, home_note  # noqa
-        Base.metadata.create_all(bind=engine)
-        ensure_user_full_name_column()
-except Exception as e:
-    print(f"[WARN] Tablo olusturma hatasi (devam ediliyor): {e}")
+# Table creation is intentionally explicit. Serverless imports must not open a
+# database connection during cold start; run migrations separately.
+
 # Database bağlantısını test et
 def test_connection():
     """Database bağlantısını test et"""
