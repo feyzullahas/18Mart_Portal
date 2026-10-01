@@ -7,7 +7,7 @@ interface PdfViewerProps {
     downloadUrl?: string;
 }
 
-export const PdfViewer = ({ url }: PdfViewerProps) => {
+export const PdfViewer = ({ url, downloadUrl }: PdfViewerProps) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const contentShellRef = useRef<HTMLDivElement>(null);
     const scaleLayerRef = useRef<HTMLDivElement>(null);
@@ -331,6 +331,7 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
 
         let objectUrl: string;
         const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), 25000);
 
         fetch(url, { signal: controller.signal })
             .then(r => {
@@ -343,9 +344,11 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
             })
             .catch(err => {
                 if (err.name !== 'AbortError') setFetchError(true);
+                else setFetchError(true);
             });
 
         return () => {
+            window.clearTimeout(timeoutId);
             controller.abort();
             if (objectUrl) URL.revokeObjectURL(objectUrl);
         };
@@ -409,7 +412,14 @@ export const PdfViewer = ({ url }: PdfViewerProps) => {
     if (fetchError) {
         return (
             <div className="pdf-viewer-wrapper">
-                <div className="pdf-error">⚠️ PDF yüklenemedi.</div>
+                <div className="pdf-error">
+                    <p>PDF sunucusu yanıt vermedi.</p>
+                    {downloadUrl && (
+                        <a href={downloadUrl} target="_blank" rel="noreferrer">
+                            PDF'i doğrudan aç
+                        </a>
+                    )}
+                </div>
             </div>
         );
     }

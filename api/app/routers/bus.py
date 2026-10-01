@@ -44,7 +44,8 @@ async def proxy_bus_pdf(url: str = Query(..., min_length=8)):
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
             "Referer": "https://ulasim.canakkale.bel.tr/",
         }
-        async with httpx.AsyncClient(follow_redirects=True, timeout=30.0) as client:
+        timeout = httpx.Timeout(connect=5.0, read=15.0, write=15.0, pool=5.0)
+        async with httpx.AsyncClient(follow_redirects=True, timeout=timeout) as client:
             response = await client.get(pdf_url, headers=headers)
             if response.status_code != 200:
                 raise HTTPException(status_code=502, detail="PDF alinamadi")
