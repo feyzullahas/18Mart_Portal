@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import '../styles/Meals.css';
+import { octKykData, octOsemData } from '../data/octoberMenus';
 
 interface MealItem {
     name: string;
@@ -162,20 +163,11 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
     };
 
     const fetchOsemData = useCallback(async () => {
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://18-mart-portal-4orl.vercel.app';
-        const res = await fetch(`${apiUrl}/meals/osem`);
-        if (!res.ok) throw new Error('ÖSEM verisi alınamadı');
-        return res.json();
+        return octOsemData;
     }, []);
 
     const fetchKykData = useCallback(async () => {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = now.getMonth() + 1;
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://18-mart-portal-4orl.vercel.app';
-        const res = await fetch(`${apiUrl}/meals/kyk?year=${year}&month=${month}`);
-        if (!res.ok) throw new Error('KYK verisi alınamadı');
-        return res.json();
+        return octKykData;
     }, []);
 
     useEffect(() => {
