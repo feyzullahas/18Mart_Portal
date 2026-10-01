@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+slowapi
+sqlalchemy
+pydantic[email]
+python-dotenv
+google-auth
+requests
+httpx
+beautifulsoup4
+python-jose[cryptography]
+bcrypt==4.0.1
+psycopg2-binary
+email-validator
+python-multipart
