@@ -412,14 +412,20 @@ export const PdfViewer = ({ url, downloadUrl }: PdfViewerProps) => {
     if (fetchError) {
         return (
             <div className="pdf-viewer-wrapper">
-                <div className="pdf-error">
-                    <p>PDF sunucusu yanıt vermedi.</p>
-                    {downloadUrl && (
-                        <a href={downloadUrl} target="_blank" rel="noreferrer">
-                            PDF'i doğrudan aç
-                        </a>
-                    )}
-                </div>
+                {downloadUrl ? (
+                    <iframe
+                        className="pdf-direct-frame"
+                        src={downloadUrl}
+                        title="Otobüs sefer saatleri PDF"
+                    />
+                ) : (
+                    <div className="pdf-error">⚠️ PDF yüklenemedi.</div>
+                )}
+                {downloadUrl && (
+                    <a className="pdf-direct-link" href={downloadUrl} target="_blank" rel="noreferrer">
+                        PDF'i yeni sekmede aç
+                    </a>
+                )}
             </div>
         );
     }
