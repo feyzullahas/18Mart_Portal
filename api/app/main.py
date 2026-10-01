@@ -35,7 +35,11 @@ async def startup_event():
     if test_connection():
         print(" Database bağlantısı başarılı")
         # Tabloları oluştur (eğer yoksa)
-        create_tables()
+        try:
+            create_tables()
+        except Exception as exc:
+            # Serverless cold-start sırasında migration hatası public endpoint'leri düşürmemeli.
+            print(f"[WARN] Database tabloları oluşturulamadı: {exc}")
     else:
         print(" Database bağlantısı başarısız")
 
