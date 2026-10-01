@@ -71,3 +71,5 @@ export default defineConfig([
   },
 ])
 ```
+
+<!-- Trigger Deploy: Ekim menü güncellemesi -->
