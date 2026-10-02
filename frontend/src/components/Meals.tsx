@@ -125,10 +125,13 @@ export const Meals = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTo
     };
 
     const pickDefaultIndex = <T extends { dateRaw?: string; date: string; isToday?: boolean }>(days: T[]) => {
-        const todayIdx = days.findIndex((d) => d.isToday);
+        const target = getTargetDate();
+        const todayIdx = days.findIndex((d) => {
+            const dt = parseDate(d.dateRaw, d.date);
+            return dt?.getTime() === target.getTime();
+        });
         if (todayIdx >= 0) return todayIdx;
 
-        const target = getTargetDate();
         let nextIdx = -1;
         let nextDate: Date | null = null;
         for (let i = 0; i < days.length; i += 1) {
