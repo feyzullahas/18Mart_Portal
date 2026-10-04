@@ -1,5 +1,6 @@
 const PROD_API_BASE_URL = 'https://18-mart-portal-4orl.vercel.app';
-const BUS_CACHE_KEY = 'bus_schedule_cache_v3';
+const BUS_CACHE_KEY = 'bus_schedule_cache_v5';
+const BUS_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
 const resolveApiBaseUrl = () => {
     const envApiUrl = import.meta.env.VITE_API_URL;
@@ -12,12 +13,6 @@ const resolveApiBaseUrl = () => {
     }
 
     return PROD_API_BASE_URL;
-};
-
-const getMidnightTimestamp = () => {
-    const midnight = new Date();
-    midnight.setHours(24, 0, 0, 0);
-    return midnight.getTime();
 };
 
 export const API_BASE_URL = resolveApiBaseUrl();
@@ -62,7 +57,7 @@ const getCachedData = <T,>(key: string): T | null => {
 const setCachedData = <T,>(key: string, data: T) => {
     const payload: CachedPayload<T> = {
         data,
-        expiresAt: getMidnightTimestamp()
+        expiresAt: Date.now() + BUS_CACHE_TTL_MS
     };
     localStorage.setItem(key, JSON.stringify(payload));
 };
@@ -103,7 +98,7 @@ export const busService = {
     },
 
     async getSchedule(): Promise<BusSchedule> {
-        const response = await fetch(`${API_BASE_URL}/bus/schedule`);
+        const response = await fetch(`${API_BASE_URL}/bus/schedule`, { cache: 'no-cache' });
         if (!response.ok) throw new Error('Otobüs saatleri alınamadı');
         const data = await response.json();
         const normalized = normalizeSchedule(data) ?? {

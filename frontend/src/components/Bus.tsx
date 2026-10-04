@@ -57,16 +57,6 @@ const findTodayPdfIndex = (pdfs: BusSchedule['pdfs']) => {
     });
 };
 
-const toTitleCaseTr = (text: string) => {
-    const cleaned = text.replace(/\s+/g, ' ').trim();
-    if (!cleaned) return cleaned;
-    return cleaned
-        .toLocaleLowerCase('tr-TR')
-        .split(' ')
-        .map(word => (word ? word[0].toLocaleUpperCase('tr-TR') + word.slice(1) : ''))
-        .join(' ');
-};
-
 export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onToggle?: () => void } = {}) => {
     const [schedule, setSchedule] = useState<BusSchedule | null>(null);
     const [loading, setLoading] = useState(true);
@@ -143,7 +133,7 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
                                         className={`type-btn ${activeIndex === index ? 'active' : ''}`}
                                         onClick={() => setActiveIndex(index)}
                                     >
-                                        {toTitleCaseTr(pdf.label || `PDF ${index + 1}`)}
+                                        {pdf.label || `PDF ${index + 1}`}
                                     </button>
                                 ))}
                             </div>
@@ -156,7 +146,7 @@ export const Bus = ({ isOpen: propIsOpen, onToggle }: { isOpen?: boolean; onTogg
                         {activeEntry && proxyPdfUrl ? (
                             <PdfViewer
                                 url={proxyPdfUrl}
-                                downloadUrl={downloadPdfUrl}
+                                fallbackUrl={downloadPdfUrl}
                             />
                         ) : (
                             <div className="error-message">PDF bulunamadı</div>

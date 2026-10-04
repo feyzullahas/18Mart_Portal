@@ -1,245 +1,137 @@
+import asyncio
+import json
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from typing import Dict, Optional
+from urllib.parse import urljoin, urlparse
+
 import httpx
 from bs4 import BeautifulSoup
-from typing import Dict, Optional
-from datetime import datetime, timedelta, date
 
-BUS_CACHE_TTL = timedelta(seconds=43200)
 
-class BusCache:
+BUS_URL = "https://ulasim.canakkale.bel.tr/rehber/hatlar-otobus-saatleri/"
+BUS_HOST = "ulasim.canakkale.bel.tr"
+TURKEY_TZ = timezone(timedelta(hours=3))
+BUS_CACHE_TTL = timedelta(hours=6)
+DOWNLOAD_DIR = Path(__file__).resolve().parents[2] / "data" / "bus_schedules"
+MANIFEST_MAX_AGE = timedelta(hours=8)
+
+
+class BusService:
     def __init__(self):
         self._data: Optional[Dict] = None
         self._expires: Optional[datetime] = None
+        self._refresh_lock = asyncio.Lock()
 
-    def get(self) -> Optional[Dict]:
-        if self._data and self._expires and datetime.now() < self._expires:
-            return self._data
-        return None
-
-    def set(self, data: Dict):
-        self._data = data
-        self._expires = datetime.now() + BUS_CACHE_TTL
-
-cache = BusCache()
-
-def remove_diacritics(text: str) -> str:
-    """Türkçe karakterleri ASCII'ye çevir"""
-    replacements = {
-        'ı': 'i', 'İ': 'I', 'ğ': 'g', 'Ğ': 'G',
-        'ü': 'u', 'Ü': 'U', 'ş': 's', 'Ş': 'S',
-        'ö': 'o', 'Ö': 'O', 'ç': 'c', 'Ç': 'C'
-    }
-    for tr, en in replacements.items():
-        text = text.replace(tr, en)
-    return text
-
-class BusService:
-    BUS_URL = "https://ulasim.canakkale.bel.tr/rehber/hatlar-otobus-saatleri/"
+    def _cache_is_fresh(self) -> bool:
+        return bool(self._data and self._expires and datetime.now() < self._expires)
 
     @staticmethod
-    def _get_today_date_tokens() -> list[str]:
-        """Bugünün tarihini farklı metin formatlarıyla döndürür."""
-        now = datetime.now()
-        day = now.day
-        month = now.month
-        month_names = {
-            1: "ocak", 2: "subat", 3: "mart", 4: "nisan", 5: "mayis", 6: "haziran",
-            7: "temmuz", 8: "agustos", 9: "eylul", 10: "ekim", 11: "kasim", 12: "aralik"
-        }
-        month_name = month_names[month]
-        day_2 = f"{day:02d}"
-        month_2 = f"{month:02d}"
+    def _valid_source_url(url: str) -> bool:
+        parsed = urlparse(url)
+        return parsed.scheme == "https" and parsed.hostname == BUS_HOST and parsed.path.lower().endswith(".pdf")
 
-        return [
-            f"{day} {month_name}",
-            f"{day_2} {month_name}",
-            f"{day}.{month}",
-            f"{day_2}.{month}",
-            f"{day}.{month_2}",
-            f"{day_2}.{month_2}",
-            f"{day}/{month}",
-            f"{day_2}/{month}",
-            f"{day}/{month_2}",
-            f"{day_2}/{month_2}",
-            f"{day}-{month}",
-            f"{day_2}-{month}",
-            f"{day}-{month_2}",
-            f"{day_2}-{month_2}",
-        ]
+    def _get_refreshed_downloads(self) -> Optional[Dict]:
+        """Read the most recent six-hour GitHub refresh when the source is unavailable."""
+        try:
+            manifest = json.loads((DOWNLOAD_DIR / "metadata.json").read_text(encoding="utf-8"))
+            fetched_at = datetime.fromisoformat(manifest["fetched_at"])
+            if fetched_at.tzinfo is None:
+                fetched_at = fetched_at.replace(tzinfo=timezone.utc)
+            age = datetime.now(timezone.utc) - fetched_at.astimezone(timezone.utc)
+            if age < timedelta(0) or age > MANIFEST_MAX_AGE:
+                return None
 
-    def _is_today_specific_pdf(self, text: str, url: str) -> bool:
-        """PDF başlığı veya URL'inde bugünün tarihinin geçip geçmediğini kontrol eder."""
-        haystack = remove_diacritics(f"{text} {url}").lower()
-        return any(token in haystack for token in self._get_today_date_tokens())
-    
-    def _is_special_day_pdf(self, text: str) -> bool:
-        """PDF'in güne özel (tatil, özel gün vb.) olup olmadığını kontrol eder.
-        Sadece tarih + özel gün anahtar kelimesi içeren PDF'ler kabul edilir.
-        Örn: '1 MAYIS GÜNÜ SEFER SAATLERİ' → True
-        Örn: '4 MAYIS İTİBARİYLE HAFTA İÇİ SEFER SAATLERİ' → False
-        """
-        text_lower = remove_diacritics(text).lower()
-        # Hafta içi veya hafta sonu ise özel gün değil
-        if ('hafta' in text_lower and 'ici' in text_lower) or 'sonu' in text_lower:
-            return False
-        # "itibariyle/itibari ile" içeren PDF'ler gelecek tarihli güncelleme, özel gün değil
-        if 'itibariyle' in text_lower or 'itibari' in text_lower:
-            return False
-        # Tarih kalıbı ("1 mayis") VE özel gün anahtar kelimesi ("günü/tatil/bayram") ZORUNLU
-        import re
-        has_date = bool(re.search(r'\d{1,2}\s*(?:ocak|subat|mart|nisan|mayis|haziran|temmuz|agustos|eylul|ekim|kasim|aralik)', text_lower))
-        special_keywords = ['gunu', 'ozel', 'tatil', 'bayram', 'resmi']
-        has_special_keyword = any(kw in text_lower for kw in special_keywords)
-        return has_date and has_special_keyword
+            pdfs = []
+            for entry in manifest.get("pdfs", []):
+                url = entry.get("url", "")
+                filename = entry.get("filename", "")
+                if (self._valid_source_url(url) and filename and Path(filename).name == filename
+                        and (DOWNLOAD_DIR / filename).is_file()):
+                    pdfs.append({"url": url, "label": entry.get("label") or filename})
+            if not pdfs:
+                return None
+            return {
+                "pdfs": pdfs,
+                "last_update": fetched_at.astimezone(TURKEY_TZ).isoformat(),
+                "source": "Çanakkale Belediyesi",
+            }
+        except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError):
+            return None
 
-    def _extract_short_date_label(self, text: str) -> str:
-        """PDF başlığından kısa tarih etiketi çıkarır.
-        '1 MAYIS GÜNÜ SEFER SAATLERİ' → '1 Mayıs'
-        '19 MAYIS GÜNÜ SEFER SAATLERİ' → '19 Mayıs'
-        """
-        import re
-        text_ascii = remove_diacritics(text).lower()
-        month_map = {
-            'ocak': 'Ocak', 'subat': 'Şubat', 'mart': 'Mart', 'nisan': 'Nisan',
-            'mayis': 'Mayıs', 'haziran': 'Haziran', 'temmuz': 'Temmuz',
-            'agustos': 'Ağustos', 'eylul': 'Eylül', 'ekim': 'Ekim',
-            'kasim': 'Kasım', 'aralik': 'Aralık'
-        }
-        match = re.search(r'(\d{1,2})\s*(ocak|subat|mart|nisan|mayis|haziran|temmuz|agustos|eylul|ekim|kasim|aralik)', text_ascii)
-        if match:
-            day = match.group(1)
-            month_key = match.group(2)
-            return f"{day} {month_map.get(month_key, month_key.title())}"
-        return text
-
-    def _is_itibariyle_pdf(self, text: str) -> bool:
-        """'X tarih itibariyle' formatındaki güncellenmiş PDF'leri tespit eder."""
-        text_lower = remove_diacritics(text).lower()
-        return 'itibariyle' in text_lower or 'itibari' in text_lower
-
-    def _extract_date_from_text(self, text: str) -> Optional[date]:
-        """Metinden tarih (gun/ay) yakalar; yil yoksa bu yil varsayilir."""
-        import re
-        text_ascii = remove_diacritics(text).lower()
-        month_map = {
-            'ocak': 1, 'subat': 2, 'mart': 3, 'nisan': 4,
-            'mayis': 5, 'haziran': 6, 'temmuz': 7, 'agustos': 8,
-            'eylul': 9, 'ekim': 10, 'kasim': 11, 'aralik': 12
-        }
-
-        match = re.search(r'(\d{1,2})\s*(ocak|subat|mart|nisan|mayis|haziran|temmuz|agustos|eylul|ekim|kasim|aralik)', text_ascii)
-        if match:
-            day = int(match.group(1))
-            month = month_map.get(match.group(2))
-            if month:
-                return date(datetime.now().year, month, day)
-
-        numeric = re.search(r'(\d{1,2})[./-](\d{1,2})(?:[./-](\d{2,4}))?', text_ascii)
-        if numeric:
-            day = int(numeric.group(1))
-            month = int(numeric.group(2))
-            year = numeric.group(3)
-            if year:
-                year_val = int(year)
-                if year_val < 100:
-                    year_val += 2000
-            else:
-                year_val = datetime.now().year
-            return date(year_val, month, day)
-
+    def get_downloaded_pdf(self, url: str) -> Optional[bytes]:
+        """Return a recently refreshed official PDF from the six-hour download set."""
+        schedule = self._get_refreshed_downloads()
+        if not schedule:
+            return None
+        try:
+            manifest = json.loads((DOWNLOAD_DIR / "metadata.json").read_text(encoding="utf-8"))
+            for entry in manifest.get("pdfs", []):
+                if entry.get("url") != url:
+                    continue
+                filename = entry.get("filename", "")
+                if not filename or Path(filename).name != filename:
+                    return None
+                content = (DOWNLOAD_DIR / filename).read_bytes()
+                return content if content.startswith(b"%PDF-") else None
+        except (OSError, ValueError, TypeError, json.JSONDecodeError):
+            return None
         return None
 
-    def _is_itibariyle_effective(self, text: str, url: str) -> bool:
-        """'itibariyle' PDF'i bugun veya gecmis tarihliyse gecerli sayar."""
-        effective_date = self._extract_date_from_text(f"{text} {url}")
-        if not effective_date:
-            return True
-        return effective_date <= datetime.now().date()
+    def _parse_schedule(self, html: str) -> Dict:
+        soup = BeautifulSoup(html, "html.parser")
+        pdfs = []
+        seen_urls = set()
+        for link in soup.find_all("a", href=True):
+            url = urljoin(BUS_URL, link["href"])
+            if not self._valid_source_url(url):
+                continue
+            if url in seen_urls:
+                continue
+            seen_urls.add(url)
+            label = " ".join(link.get_text(" ", strip=True).split())
+            if not label:
+                label = url.rsplit("/", 1)[-1].replace("-", " ").rsplit(".", 1)[0]
+            pdfs.append({"url": url, "label": label})
+
+        now = datetime.now(TURKEY_TZ)
+        if not pdfs:
+            raise ValueError("Resmi sayfada PDF bağlantısı bulunamadı")
+        return {"pdfs": pdfs, "last_update": now.isoformat(), "source": "Çanakkale Belediyesi"}
 
     async def get_bus_schedule(self) -> Dict:
-        """Belediye sitesindeki tum otobus PDF'lerini dondurur"""
-        
-        # Cache kontrol
-        cached = cache.get()
-        if cached:
-            print("BUS: Cache'den döndü")
-            return cached
-        
-        try:
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            }
-            
-            async with httpx.AsyncClient() as client:
-                response = await client.get(self.BUS_URL, headers=headers, timeout=10.0)
-                
-                if response.status_code != 200:
-                    print(f"BUS: HTTP Hatası {response.status_code}")
-                    return self._get_fallback()
-                
-                soup = BeautifulSoup(response.text, 'html.parser')
-                
-                # Tüm PDF linklerini topla
-                all_pdfs = []
-                for link in soup.find_all('a'):
-                    href = link.get('href', '')
-                    text = link.get_text().strip()
-                    
-                    if '.pdf' in href.lower():
-                        all_pdfs.append({
-                            'url': href,
-                            'text': text
-                        })
-                        print(f"PDF Bulundu: {text} -> {href}")
-                
-                result = {
-                    "pdfs": [],
-                    "last_update": datetime.now().isoformat(),
-                    "source": "Çanakkale Belediyesi"
-                }
-
-                for pdf in all_pdfs:
-                    url = self._make_absolute_url(pdf['url'])
-                    label = pdf['text'] or url.split('/')[-1]
-                    result["pdfs"].append({
-                        "url": url,
-                        "label": label
-                    })
-
-                if not result["pdfs"]:
-                    print("BUS: PDF bulunamadı, fallback kullanılıyor")
-                    return self._get_fallback()
-
-                cache.set(result)
-                print(f"BUS: Siteden çekildi - PDF sayisi: {len(result['pdfs'])}")
+        if self._cache_is_fresh():
+            return self._data
+        async with self._refresh_lock:
+            if self._cache_is_fresh():
+                return self._data
+            downloaded = self._get_refreshed_downloads()
+            if downloaded:
+                self._data = downloaded
+                self._expires = datetime.now() + BUS_CACHE_TTL
+                return downloaded
+            try:
+                timeout = httpx.Timeout(connect=3.0, read=6.0, write=3.0, pool=3.0)
+                async with httpx.AsyncClient(follow_redirects=True, timeout=timeout) as client:
+                    response = await client.get(BUS_URL, headers={"User-Agent": "18MartPortal/1.0 (bus schedule reader)"})
+                    response.raise_for_status()
+                    final_host = urlparse(str(response.url)).hostname
+                    if final_host != BUS_HOST:
+                        raise ValueError("Belediye sayfası beklenmeyen bir adrese yönlendirildi")
+                    result = self._parse_schedule(response.text)
+                self._data = result
+                self._expires = datetime.now() + BUS_CACHE_TTL
                 return result
-                
-        except Exception as e:
-            print(f"BUS Scraping Hatası: {e}")
-            return self._get_fallback()
-    
-    def _make_absolute_url(self, url: str) -> str:
-        """Relative URL'i absolute yap"""
-        if url.startswith('http'):
-            return url
-        if url.startswith('/'):
-            return f"https://ulasim.canakkale.bel.tr{url}"
-        return f"https://ulasim.canakkale.bel.tr/{url}"
-    
-    def _get_fallback(self) -> Dict:
-        """Fallback veri - guncel PDF linkleri"""
-        return {
-            "pdfs": [
-                {
-                    "url": "https://ulasim.canakkale.bel.tr/wp-content/uploads/2018/02/19-OCAK-11.pdf",
-                    "label": "Haftaiçi Sefer Saatleri"
-                },
-                {
-                    "url": "https://ulasim.canakkale.bel.tr/wp-content/uploads/2018/02/17-OCAK-7.pdf",
-                    "label": "Haftasonu Sefer Saatleri"
-                }
-            ],
-            "last_update": datetime.now().isoformat(),
-            "source": "Çanakkale Belediyesi"
-        }
+            except (httpx.HTTPError, ValueError) as exc:
+                # Keep the last known official links available during a temporary source outage.
+                if self._data:
+                    return self._data
+                downloaded = self._get_refreshed_downloads()
+                if downloaded:
+                    self._data = downloaded
+                    self._expires = datetime.now() + BUS_CACHE_TTL
+                    return downloaded
+                raise RuntimeError(f"Otobüs saatleri resmi kaynaktan alınamadı: {exc}") from exc
+
 
 bus_service = BusService()

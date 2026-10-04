@@ -4,10 +4,10 @@ import '../styles/PdfViewer.css';
 
 interface PdfViewerProps {
     url: string;
-    downloadUrl?: string;
+    fallbackUrl?: string;
 }
 
-export const PdfViewer = ({ url, downloadUrl }: PdfViewerProps) => {
+export const PdfViewer = ({ url, fallbackUrl }: PdfViewerProps) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const contentShellRef = useRef<HTMLDivElement>(null);
     const scaleLayerRef = useRef<HTMLDivElement>(null);
@@ -34,6 +34,7 @@ export const PdfViewer = ({ url, downloadUrl }: PdfViewerProps) => {
     // PDF bytes'ı blob URL'e çevir — redirect/CORS/proxy sorunu olmaz
     const [blobUrl, setBlobUrl] = useState<string | null>(null);
     const [fetchError, setFetchError] = useState(false);
+    const [retryCount, setRetryCount] = useState(0);
 
     const ZOOM_STEP = 0.1;
     const ZOOM_MIN = 1;
@@ -336,6 +337,9 @@ export const PdfViewer = ({ url, downloadUrl }: PdfViewerProps) => {
         fetch(url, { signal: controller.signal })
             .then(r => {
                 if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                if (!r.headers.get('content-type')?.toLowerCase().includes('application/pdf')) {
+                    throw new Error('Sunucu PDF yerine farklı bir içerik döndürdü');
+                }
                 return r.blob();
             })
             .then(blob => {
@@ -352,7 +356,7 @@ export const PdfViewer = ({ url, downloadUrl }: PdfViewerProps) => {
             controller.abort();
             if (objectUrl) URL.revokeObjectURL(objectUrl);
         };
-    }, [url]);
+    }, [url, retryCount]);
 
     useEffect(() => {
         if (numPages <= 1) return;
@@ -412,19 +416,26 @@ export const PdfViewer = ({ url, downloadUrl }: PdfViewerProps) => {
     if (fetchError) {
         return (
             <div className="pdf-viewer-wrapper">
-                {downloadUrl ? (
+                <div className="pdf-fallback-actions">
+                    <div className="pdf-error">
+                        {fallbackUrl
+                            ? 'PDF belediyenin resmi adresinden aynı sayfada açılıyor.'
+                            : 'PDF yüklenemedi. Bağlantıyı kontrol edip tekrar deneyin.'}
+                    </div>
+                    <button
+                        type="button"
+                        className="pdf-retry-button"
+                        onClick={() => setRetryCount(count => count + 1)}
+                    >
+                        Uygulama üzerinden tekrar dene
+                    </button>
+                </div>
+                {fallbackUrl && (
                     <iframe
                         className="pdf-direct-frame"
-                        src={downloadUrl}
+                        src={fallbackUrl}
                         title="Otobüs sefer saatleri PDF"
                     />
-                ) : (
-                    <div className="pdf-error">⚠️ PDF yüklenemedi.</div>
-                )}
-                {downloadUrl && (
-                    <a className="pdf-direct-link" href={downloadUrl} target="_blank" rel="noreferrer">
-                        PDF'i yeni sekmede aç
-                    </a>
                 )}
             </div>
         );

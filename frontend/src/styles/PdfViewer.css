@@ -216,10 +216,39 @@
 @keyframes pdfSpin { to { transform: rotate(360deg); } }
 
 .pdf-error {
-    padding: 50px 20px;
+    padding: 14px 12px 8px;
     text-align: center;
     color: rgba(255,255,255,0.6);
     font-size: 14px;
+}
+
+.pdf-fallback-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4px 12px 16px;
+}
+
+.pdf-retry-button {
+    min-height: 38px;
+    padding: 8px 16px;
+    border: 1px solid rgba(255,255,255,0.26);
+    border-radius: 10px;
+    background: rgba(12, 16, 24, 0.68);
+    color: #f7fafc;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.pdf-retry-button:hover {
+    background: rgba(12, 16, 24, 0.88);
+}
+
+[data-theme="light"] .pdf-retry-button {
+    background: rgba(255,255,255,0.85);
+    border-color: rgba(0,0,0,0.15);
+    color: #1f2937;
 }
 
 .pdf-direct-frame {
