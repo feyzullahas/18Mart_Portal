@@ -87,9 +87,8 @@
     position: relative;
     width: 100%;
     min-width: 0;
-    /* Keep vertical document scrolling native while reserving multi-touch for
-       the PDF viewer's own pinch handler. */
-    touch-action: pan-y;
+    /* Allow one-finger panning in both directions after zooming. */
+    touch-action: pan-x pan-y;
     overscroll-behavior: contain;
 }
 

@@ -52,6 +52,9 @@ export const PdfViewer = ({ url, fallbackUrl }: PdfViewerProps) => {
         const base = Math.min(window.devicePixelRatio || 1, 2);
         return isCoarsePointer ? Math.min(base * 1.7, 3.1) : Math.min(base * 1.8, 3.2);
     }, [isCoarsePointer]);
+    // CSS scaling is used while a gesture is moving. Once it settles, render
+    // enough source pixels for the selected zoom so the page does not stay soft.
+    const zoomedHighDpr = Math.min(highDpr * zoom, isCoarsePointer ? 6.2 : 5.8);
 
     const clearQualityRestoreTimer = () => {
         if (qualityRestoreTimerRef.current !== null) {
@@ -390,7 +393,7 @@ export const PdfViewer = ({ url, fallbackUrl }: PdfViewerProps) => {
                         <Page
                             pageNumber={i + 1}
                             width={pageWidth}
-                            devicePixelRatio={highDpr}
+                            devicePixelRatio={zoomedHighDpr}
                             renderTextLayer={false}
                             renderAnnotationLayer={false}
                             loading={null}
@@ -399,7 +402,7 @@ export const PdfViewer = ({ url, fallbackUrl }: PdfViewerProps) => {
                 )}
             </div>
         ));
-    }, [visiblePages, pageWidth, lowDpr, highDpr, highResCacheEnabled, preferHighRes]);
+    }, [visiblePages, pageWidth, lowDpr, zoomedHighDpr, highResCacheEnabled, preferHighRes]);
 
     const zoomIn = () => {
         setPreferHighRes(false);
