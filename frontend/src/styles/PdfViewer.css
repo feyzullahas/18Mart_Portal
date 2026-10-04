@@ -87,7 +87,9 @@
     position: relative;
     width: 100%;
     min-width: 0;
-    touch-action: pan-x pan-y;
+    /* Keep vertical document scrolling native while reserving multi-touch for
+       the PDF viewer's own pinch handler. */
+    touch-action: pan-y;
     overscroll-behavior: contain;
 }
 
@@ -129,6 +131,8 @@
 
 @media (max-width: 576px) {
     .pdf-scroll-area { height: 66vh; min-height: 360px; }
+    .pdf-toolbar { gap: 12px; padding: 10px 14px; }
+    .pdf-zoom-btn { width: 44px; height: 44px; font-size: 24px; }
 }
 
 .pdf-page-wrap {
@@ -137,8 +141,8 @@
     margin-bottom: 6px;
     width: max-content;
     min-width: 0;
-    contain: layout paint;
-    content-visibility: auto;
+    /* Paint containment clips the enlarged canvas on mobile pinch zoom. */
+    contain: layout;
     contain-intrinsic-size: 1100px 1550px;
 }
 
